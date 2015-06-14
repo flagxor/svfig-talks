@@ -169,6 +169,21 @@ x h 0.3 + y k 0.5 + * pop * cos 0 max + ;
         </section>
 
         <section>
+        <h3>SPAM</h3>
+        <ul>
+          <li class="fragment"><b>First there was a trickle</b></li>
+          <ul>
+            <li class="fragment">A boy named: fFDJKFSsadfjklaSDF</li>
+          </ul>
+          <li class="fragment"><b>Then a flood!</b></li>
+          <ul>
+            <li class="fragment">I can pay no finer tribute than to say that Jim
+          was a true son of Ulster and a gentleman.</li>
+          </ul>
+        </ul>
+        </section>
+
+        <section>
           <h3>A Day of Spam</h3>
           <img src="waves_day.png"/>
         </section>
@@ -205,7 +220,64 @@ x h 0.3 + y k 0.5 + * pop * cos 0 max + ;
         </section>
 
         <section>
+        <h3>Where did we come from?</h3>
+        <ul>
+          <li class="fragment">Create a derived work</li>
+          <li class="fragment">But no record was kept</li>
+          <li class="fragment">Start tracking it now!</li>
+        </ul>
+        </section>
+
+        <section>
+          <h3>Show it to the user</h3>
           <img src="based_on.png" width="1500"/>
+        </section>
+
+        <section data-transition="zoom">
+          <h3>What about Ancient Haiku?</h3>
+        </section>
+
+        <section>
+        <h3>Tracing Ancestry</h3>
+        <ul>
+          <li class="fragment">Decide who inherits from who</li>
+          <li class="fragment">Build a tree</li>
+        </ul>
+        </section>
+
+        <section>
+        <h3>Determining Family Relations</h3>
+        <ul>
+          <li class="fragment">Use a measure of <i>relatedness</i></li>
+          <li class="fragment">Parents must precede children in time</li>
+          <li class="fragment">Pick the closest match</li>
+          <li class="fragment">Some Haiku are orphans</li>
+        </ul>
+        </section>
+
+        <section>
+        <h3>Measure of Relatedness</h3>
+        <ul>
+          <li class="fragment">Levenshtein distance</li>
+          <li class="fragment">Python difflib</li>
+        </ul>
+        </section>
+
+        <section>
+          <h3>Measure of Relatedness</h3>
+          <pre><code data-trim style="font-size: 20px">
+def StringSimilarity(a, b):
+  return difflib.SequenceMatcher(a=a.lower(), b=b.lower()).ratio()
+          </code></pre>
+        </section>
+
+        <section>
+        <h3>Which Text?</h3>
+        <ul>
+          <li class="fragment">Source code</li>
+          <li class="fragment">Title</li>
+          <li class="fragment"><strike>Author</strike></li>
+        </ul>
         </section>
 
         <section>
@@ -346,6 +418,19 @@ rot a * ;
          <iframe
            data-haiku="ahBzfmZvcnRoc2Fsb24taHJkcg0LEgVIYWlrdRjS3BAM"
           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section>
+        <h3>Possibilities</h3>
+        <ul>
+          <li class="fragment">Rank based on use</li>
+          <li class="fragment">Check if people cheat</li>
+          <li class="fragment">Show the tree</li>
+        </ul>
+        </section>
+
+        <section data-transition="zoom">
+        <h1><a href="tree.html">Tour the Tree!</a></h1>
         </section>
 
         <section data-transition="zoom">
