@@ -1,0 +1,32 @@
+/*
+    Because the main point behind the impress.js demo is to demo impress.js
+    we display a fallback message for users with browsers that don't support
+    all the features required by it.
+
+    All of the content will be still fully accessible for them, but I want
+    them to know that they are missing something - that's what the demo is
+    about, isn't it?
+
+    And then we hide the message, when support is detected in the browser.
+*/
+
+.fallback-message {
+    font-family: sans-serif;
+    line-height: 1.3;
+
+    width: 780px;
+    padding: 10px 10px 0;
+    margin: 20px auto;
+
+    border: 1px solid #E4C652;
+    border-radius: 10px;
+    background: #EEDC94;
+}
+
+.fallback-message p {
+    margin-bottom: 10px;
+}
+
+.impress-supported .fallback-message {
+    display: none;
+}
