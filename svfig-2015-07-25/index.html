@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Haiku Monthly</title>
+    <meta name="description" content="Haiku Monthly - July 25, 2015">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../haiku_monthly1.css" id="theme">
+    <link href='http://fonts.googleapis.com/css?family=Mrs+Sheppards' rel='stylesheet' type='text/css'>
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var reveal_js = '../reveal.js';
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? reveal_js + '/css/print/pdf.css' : reveal_js + '/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section>
+          <h1><font color="#ff0" style="font-weight: 100; font-family: 'Mrs Sheppards', cursive;">Haiku</font>
+	      Monthly</h1>
+          <h3>July 25, 2015</h3>
+          <p>
+            <small><a href="http://flagxor.com">Brad Nelson</a> / <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>Breaking NEWS</h1>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>Don't touch that dial!</h1>
+        </section>
+
+        <section>
+         <h3>TV Tie Rainbow - Anonymous</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1aSOCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>It's that time again!</h1>
+        </section>
+
+        <section>
+         <h3>Clock Cutout - Anonymous</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA95OQCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>An update from last time...</h1>
+        </section>
+
+        <section>
+          <h3>The Wall Holds!</h3>
+          <img src="traffic.png" height="500"/>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>Left right - Anonymous</h3>
+          <pre><code data-trim style="font-size: 25px">
+X y - t 3 / - sin
+X t - 7 / sin y + sin
+Y 5 / x t 1.1 * cos - > 2dup z* rot 2dup z* -rot t cos z*
+X t 5 / - cos - 2dup z* 2dup t 1.3 / cos x * y z* -
+          </code></pre>
+        </section>
+        <section>
+         <h3>Left right - Anonymous</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA94WBCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>Time Colors II - PLC</h3>
+          <pre><code data-trim>
+: d 10 swap **
+/ dup floor - ; t 0
+d t 1 d x
+          </code></pre>
+        </section>
+        <section>
+         <h3>Time Colors II - PLC</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAlb-XCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>RED EYES - Orangus</h3>
+          <pre><code data-trim>
+: light_point ( x y -- p )
+  swap x swap - 2 **
+  swap y swap - 2 **
+  + sqrt 0.02 swap /
+;
+0.35 0.5 light_point
+0.65 0.5 light_point
++ 1 t - 5 / dup floor - *
+          </code></pre>
+        </section>
+        <section>
+         <h3>RED EYES - Orangus</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAjsOFCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>綠眼 - 陳爽</h3>
+          <pre><code data-trim>
+: s swap ; : 亮 ( x y -- p )
+  s x s - 2 ** s y s - 2 **
+  + sqrt 0.02 s / ;
+.5 .45 亮 .35 .6 亮 .65 .6 亮
++ 1 t - 5 / dup floor - *
+          </code></pre>
+        </section>
+        <section>
+          <h3>綠眼 ( green eyes ) - 陳爽 ( Chen Suan ) </h3>
+          <pre><code data-trim>
+: s swap ; : 亮 ( [bright] x y -- p )
+  s x s - 2 ** s y s - 2 **
+  + sqrt 0.02 s / ;
+.5 .45 亮 ( bright ) .35 .6 亮 .65 .6 亮 ( bright )
++ 1 t - 5 / dup floor - *
+          </code></pre>
+        </section>
+        <section>
+         <h3>綠眼 ( green eyes ) - 陳爽 ( Chen Suan ) </h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA5LGdCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>twice - BradN</h3>
+          <pre><code data-trim>
+: x x 2 * ;
+: y y 2 * ;
+
+x y pi * sin >
+: y y 1 + ;
+x y pi * sin >
+and
+          </code></pre>
+        </section>
+        <section>
+         <h3>twice - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzKqMCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>nTimes - 陳爽</h3>
+          <pre><code data-trim>
+: times ( n -- ) >r
+  x r@ * y r@ *     pi * sin >
+  x r@ * y r> * 1 + pi * sin >
+  and ;
+6 times
+          </code></pre>
+        </section>
+        <section>
+         <h3>nTimes - 陳爽</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA4oeJCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>9 by 9 Disco - 陳爽 ( Chen Suan )</h3>
+          <pre><code data-trim>
+9 x over pi * * sin
+  y rot  pi * * sin
+  t 4 * sin * *
+  dup t 2 * x 2 * + y 3 * + sin *
+          </code></pre>
+        </section>
+        <section>
+         <h3>9 by 9 Disco - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA5K2CCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>Alien Biomorph and Infinity - DarkstarAG</h3>
+          <pre><code data-trim>
+: ^2 dup * ;
+: ^3 dup ^2 * ;
+: rainbow ( .f - r g b )
+dup 3 * 1 + sin swap
+dup 3 * 0 + sin swap
+dup 3 * 5 + sin swap drop ;
+: ' .5 - ^2 100 * ;
+x ' y ' x ' 1 y - sqrt t sin * ^3 '
+ negate z* + t cos 1 + 2 / * -1.1 pow rainbow
+          </code></pre>
+        </section>
+        <section>
+         <h3>Alien Biomorph and Infinity - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1dKfCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>siieerpiinskii Reeduux - aaaj min maageq</h3>
+          <pre><code data-trim>
+: b / floor 2 mod ;
+: m 128 * floor ;
+: a dup rot swap b -rot t 1 mod + /
+  floor t 5 mod mod 0.5 * swap 0.6 * + floor ;
+: w x m y m rot a ;
+0 1 w 2 w 4 w 64 w 16 w 1 w 8 w 128 w
++ + + + - + + 0.5 <
+          </code></pre>
+        </section>
+        <section>
+         <h3>siieerpiinskii Reeduux - aaaj min maageq</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAkr6NCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>Turple - BradN</h3>
+          <pre><code data-trim>
+: f x * sin swap y * cos - ;
+5 3 f
+3.1 5.1 f
+11 13 f
+          </code></pre>
+        </section>
+        <section>
+         <h3>Turple - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzvqDCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>nlighting - BradN</h3>
+          <pre><code data-trim>
+: x x y t .33 * sin x z* - ;
+: y x y t cos x z* - ;
+: f x * t sin t cos y 1.3 * z* ;
+: g x * t sin y .3 * t cos z* ;
+.1 f .77 g rot z* .9 f .12 g rot z+ rot +
+          </code></pre>
+        </section>
+        <section>
+         <h3>nlighting - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAlMCKCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Pigmentary Primacy - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzuGSCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>magic circle - Shin En</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAjsOFCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>green red PONG - Shin En</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA2oqTCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Universe from green red PONG Redux - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA89mdCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>rgb PONG - 陳昕楷 ( Kai Chen Xin )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAkM6ECgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Space Deform - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAlJSbCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Space Deform 2 - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAyaaRCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Space Deform 3 - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzuGSCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Space Deform 3 Redux - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAybGICgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>PACMAN en - Shin En</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAlMCKCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>PACMAN Redux - 陳昕楷 ( Kai Chen Xin )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAybGICQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>陰陽共生 - 陳爽</h3>
+         <h3>Yin and yang symbiosis - Chen Suan</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAkpCYCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>monster - 陳昕恩 ( Chen Xin En )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAkpCYCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>monster crab - 陳昕恩 ( Chen Xin En )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAmruMCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Kicking the sun - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAj9GNCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>seven Luigi Hanging - 陳昕楷 ( Kai Chen Xin )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAkpCYCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>ghost tumble - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA4OuACQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>ghost ripples - BradN</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA4OuACgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Flying in Flowers - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAjteUCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Random Rings - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAz4CSCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Hypnowaves - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA4oeJCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Shaded Cones Redux - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA89mdCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>園 ( garden ) - 陳昕恩 ( Chen Xin En )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1dmQCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>square - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA5NuTCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>rgb - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA2p6KCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>rgb Redux - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzuGSCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>rgba - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAj5uDCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Triangle Wave - Chen-Hanson Ting</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzvrDCAw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Daisy - Chen-Hanson Ting</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAlMCKCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Daisy Redux Redux - Chen-Hanson Ting</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzrWLCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Daisy Redux - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA2p6KCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Daisy Redux Redux - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAj9GNCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>net - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAj5uDCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>net Redux - 陳昕楷 ( Chen Xin Kai )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAzrXLCAw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>shining cross - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1dnQCAw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>zen acne Redux - 陳爽 ( Chen Suan )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1YPJCAw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>Universe from Complex Spiral Redux - DarkstarAG</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA2tSCCww"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+         <h3>star tunel - 陳昕恩 ( Chen Xin En )</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDAkr6NCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section>
+          <h3>樁 - BradN</h3>
+          <pre><code data-trim>
+清畫布
+: 球   0 360 弧 ;
+: 鏈   1 do i 10 * over 5 球 loop drop ;
+: 樁   20 1 do i 10 * i i * 8 / 1 + 鏈 loop ;
+樁
+          </code></pre>
+        </section>
+        <section>
+          <h3>樁 ( pile ) - BradN</h3>
+          <pre><code data-trim style="font-size: 25px">
+清畫布 ( clean canvas )
+: 球 ( ball )   0 360 弧 ( arc) ;
+: 鏈 ( chain )   1 do i 10 * over 5 球 loop drop ;
+: 樁 ( pile )   20 1 do i 10 * i i * 8 / 1 + 鏈 ( chain ) loop ;
+樁 ( pile )
+          </code></pre>
+        </section>
+        <section>
+          <h3>樁 ( pile ) - BradN</h3>
+          <img src="pile.png" width="800"/>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>Middle</h1>
+        </section>
+        <section>
+         <h3>chinese 中 - 陳爽</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAyeieCQw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+        <section data-transition="zoom">
+          <h1>Kingdom</h1>
+        </section>
+        <section>
+         <h3>chinese 文 - 陳爽</h3>
+         <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA9_eJCgw"
+          width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="zoom">
+          <h1>xxxxxxxx</h1>
+        </section>
+
+        <section data-transition="zoom">
+        </section>
+
+     </div>
+    </div>
+
+  <script>
+   function fixup(i) {
+     var url = 'https://forthsalon.appspot.com/haiku-bare/';
+     url += i.getAttribute('data-haiku');
+     var zoom = parseFloat(i.parentElement.parentElement.style.zoom);
+     url += '?width=' + Math.ceil(i.clientWidth * zoom) +
+	    '&height=' + Math.ceil(i.clientHeight * zoom);
+     if (i.src !== url) {
+       i.src = url;
+     }
+   }
+
+   setInterval(function() {
+     var haikus = document.getElementsByName('haiku');
+     for (var i = 0; i < haikus.length; i++) {
+       fixup(haikus[i]);
+     }
+   }, 500);
+  </script>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+
+    <script>
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: Reveal.getQueryHash().transition || 'default',
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: reveal_js + '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: reveal_js + '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: reveal_js + '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: reveal_js + '/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: reveal_js + '/plugin/zoom-js/zoom.js', async: true },
+          { src: reveal_js + '/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
