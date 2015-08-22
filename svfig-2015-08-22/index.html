@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Haiku Monthly</title>
+    <meta name="description" content="Haiku Monthly - August, 22, 2015">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../haiku_monthly2.css" id="theme">
+    <link href='http://fonts.googleapis.com/css?family=Mrs+Sheppards' rel='stylesheet' type='text/css'>
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var reveal_js = '../reveal.js';
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? reveal_js + '/css/print/pdf.css' : reveal_js + '/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h1><font color="#f39" style="font-weight: 100; font-family: 'Mrs Sheppards', cursive;">Haiku</font>
+	      Monthly</h1>
+          <h3>August 22, 2015</h3>
+          <p>
+            <small><a href="http://flagxor.com">Brad Nelson</a> / <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>Welcome</h1>
+        </section>
+
+        <section data-transition="fade-out">
+        <h1><a
+            target="_blank"
+            href="http://forthsalon.appspot.com/haiku-slideshow?order=age&cursor=Cj8KEQoEd2hlbhIJCLSUwb6AuccCEiZqEHN-Zm9ydGhzYWxvbi1ocmRyEgsSBUhhaWt1GICAgMCyhYQKDBgAIAE=&width=1024&height=600&limit=116">Tour</a></h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>if</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>else</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>then</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>if ... else ... then</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>?</h1>
+        </section>
+
+        <section>
+        <h3>Optimizing a Haiku</h3>
+        <ul>
+          <li class="fragment">Inline everything</li>
+          <li class="fragment">Convert to Javascript</li>
+          <li class="fragment">dstack.push(...), dstack.pop()</li>
+          <li class="fragment">Replace each pop, with the nearest push</li>
+          <li class="fragment">Repeat</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+x y * dup *
+        </section>
+
+        <section data-transition="fade-out">
+dstack.push(x);  // x</br>
+dstack.push(y);  // y</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+dstack.push(x);  // x</br>
+dstack.push(<b>y</b> * dstack.pop());  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+dstack.push(y * <b>x</b>);  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+var t = <b>y * x</b>; dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+var t = y * x; dstack.push(t);</br>
+dstack.push(<b>t</b> * dstack.pop());</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+var t = y * x;</br>
+dstack.push(t * <b>t</b>);</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+var t = y * x;</br>
+var result = <b>t * t</b>;</br>
+        </section>
+
+        <section data-transition="fade-out">
+        aaaa if bbbb else cccc then dddd
+        </section>
+
+        <section>
+        <h3>Optimize Wisely</h3>
+        <ul>
+          <li class="fragment">Keep a compile time dstack + rstack</li>
+          <li class="fragment">Walk the Haiku in order</li>
+          <li class="fragment">Push / pop whole expressions</li>
+          <li class="fragment">
+          Push dstack + rstack to a conditional stack</li>
+          <li class="fragment">Require both branches match</li>
+          <li class="fragment">Make each entry unique</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        [ ]</br>
+        </br>
+dstack.push(x);  // x</br>
+dstack.push(y);  // y</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ x ]</br>
+        </br>
+dstack.push(y);  // y</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ x | y ]</br>
+        </br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ x ]</br>
+        </br>
+dstack.push(y * dstack.pop());  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ ]</br>
+        </br>
+dstack.push(y * x);  // *</br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ y * x ]</br>
+        </br>
+var t = dstack.pop(); dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ ]</br>
+        </br>
+var t = y * x; dstack.push(t); dstack.push(t); // dup</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ t ]</br>
+        </br>
+var t = y * x; dstack.push(t);</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ t | t ]</br>
+        </br>
+var t = y * x;</br>
+dstack.push(dstack.pop() * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ t ]</br>
+        </br>
+var t = y * x;</br>
+dstack.push(t * dstack.pop());  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ ]</br>
+        </br>
+var t = y * x;</br>
+dstack.push(t * t);  // *</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ t * t ]</br>
+        </br>
+var t = y * x;</br>
+var result = dstack.pop();</br>
+        </section>
+
+        <section data-transition="fade-out">
+        [ ]</br>
+        </br>
+var t = y * x;</br>
+var result = t * t;</br>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>if ... else ... then</h2>
+        </section>
+
+        <section data-transition="fade-out">
+        { }</br>
+        [ ]</br>
+        </br>
+        aaaa if bbbb else cccc then dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { }</br>
+        [ aaaa ]</br>
+        </br>
+        A if bbbb else cccc then dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { [ aaaa ],orig }</br>
+        [ ]</br>
+        </br>
+        A if(x){ bbbb else cccc then dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { [ aaaa ],orig }</br>
+        [ bbbb ]</br>
+        </br>
+        A if(x){ B else cccc then dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { [ bbbb ],orig }</br>
+        [ ]</br>
+        </br>
+        A if(x){ B }else{ cccc then dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { [ bbbb ],orig }</br>
+        [ cccc ]</br>
+        </br>
+        A if(x){ B }else{ C then dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { }</br>
+        [ ]</br>
+        </br>
+        A VARS! if(x){ B }else{ C } VARS@ dddd</br>
+        </section>
+
+        <section data-transition="fade-out">
+        { }</br>
+        [ dddd ]</br>
+        </br>
+        A VARS! if(x){ B }else{ C } VARS@ D</br>
+        </section>
+
+        <section>
+        <h3>Possibilities</h3>
+        <ul>
+          <li class="fragment">Support loops</li>
+          <li class="fragment">Support function calls</li>
+          <li class="fragment">Apply to registers</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+        <section data-transition="fade-out">
+        </section>
+
+     </div>
+    </div>
+
+  <script>
+   function fixup(i) {
+     var url = 'https://forthsalon.appspot.com/haiku-bare/';
+     url += i.getAttribute('data-haiku');
+     var zoom = parseFloat(i.parentElement.parentElement.style.zoom);
+     url += '?width=' + Math.ceil(i.clientWidth * zoom) +
+	    '&height=' + Math.ceil(i.clientHeight * zoom);
+     if (i.src !== url) {
+       i.src = url;
+     }
+   }
+
+   setInterval(function() {
+     var haikus = document.getElementsByName('haiku');
+     for (var i = 0; i < haikus.length; i++) {
+       fixup(haikus[i]);
+     }
+   }, 500);
+  </script>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+
+    <script>
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        parallaxBackgroundImage: '../sakura1.jpg',
+        parallaxBackgroundSize: '2000px 600px',
+
+        parallaxBackgroundHorizontal: '400',
+        parallaxBackgroundVertical: '0',
+
+        transition: Reveal.getQueryHash().transition || 'default',
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: reveal_js + '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: reveal_js + '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: reveal_js + '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: reveal_js + '/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: reveal_js + '/plugin/zoom-js/zoom.js', async: true },
+          { src: reveal_js + '/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
