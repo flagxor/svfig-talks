@@ -82,5 +82,9 @@ window.onstroke = function(s) {
     Reveal.up();
   } else if (s === 'P') {
     Reveal.down();
+  } else if (s === 'FPL') {
+    Reveal.slide(0);
+  } else if (s === 'RBG') {
+    Reveal.togglePause();
   }
 };
