@@ -39,12 +39,192 @@
         </section>
 
         <section data-transition="fade-out">
+        <h3>Chrome Apps + Extensions</h3>
         <ul>
-          <li class="fragment">Item 1</li>
-          <li class="fragment">Item 2</li>
-          <li class="fragment">Item 3</li>
-          <li class="fragment">Item 4</li>
+          <li class="fragment">Javascript + HTML</li>
+          <li class="fragment">Additional APIs</li>
+          <li class="fragment">Chrome Web Store</li>
         </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="chrome_web_store.png"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <h2>Types</h2>
+        <ul>
+          <li class="fragment">Apps
+          <ul>
+            <li class="fragment">Hosted Apps</li>
+            <li class="fragment">Packaged Apps</li>
+          </ul>
+          </li>
+          <li class="fragment">Extensions</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h2>Common APIs</h2>
+        <ul>
+          <li class="fragment">storage</li>
+          <li class="fragment">proxy</li>
+          <li class="fragment">tabs</li>
+          <li class="fragment">Message Passing</li>
+          <li class="fragment">many more...</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h2>Apps APIs</h2>
+        <ul>
+          <li class="fragment">windows</li>
+          <li class="fragment">tts</li>
+          <li class="fragment">sockets</li>
+          <li class="fragment">usb</li>
+          <li class="fragment">bluetooth</li>
+          <li class="fragment">serial</li>
+          <li class="fragment">many more...</li>
+        </ul>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h2>Extensions APIs</h2>
+        <ul>
+          <li class="fragment">ttsEngine</li>
+          <li class="fragment">proxy</li>
+          <li class="fragment">tabs</li>
+          <li class="fragment">devtools</li>
+          <li class="fragment">cookies</li>
+          <li class="fragment">contentSettings</li>
+          <li class="fragment">many more...</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h2>chrome.serial</h2>
+        <ul>
+          <li class="fragment">getDevices</li>
+          <li class="fragment">connect</li>
+          <li class="fragment">send</li>
+          <li class="fragment">onReceive</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h2>Message Passing</h2>
+        <ul>
+          <li class="fragment">chrome.runtime.onConnect</li>
+          <li class="fragment">chrome.runtime.connect</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre><code data-trim>
+chrome.runtime.onConnectExternal.addListener(
+    function(port) {
+  port.onMessage.addListener(function(msg) {
+    // send reply
+    port.sendMessage(...);
+  });
+});
+        </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre><code data-trim>
+/step { key_owidth 0 rmoveto } def
+/halfstep { key_owidth 2 div 0 rmoveto } def
+/up { 0 key_oheight 2 div rmoveto } def
+/down { 0 key_oheight 2 div neg rmoveto } def
+/key {
+   key_width key_height box center step } def
+        </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre><code data-trim>
+currentpoint
+  (S) bigkey (K) key (W) key (R) key
+  (*) bigkey (R) key (B) key (G) key (S) key (Z) key
+moveto up up currentpoint
+  step (T) key (P) key (H) key
+  step (F) key (P) key (L) key (T) key (D) key
+moveto up up
+        </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre class="fragment"><code data-trim>
+/inch { 72 mul } def
+        </code></pre>
+
+        <pre class="fragment"><code data-trim>
+4 inch 1.75 inch rmoveto
+8 inch 5.5 inch box
+        </code></pre>
+        </section>
+
+        <section>
+          <h2>Process Sandbox</h2>
+          <table class="boxy">
+            <tr>
+              <td style="min-width: 200px"><div class="fragment"
+                data-fragment-index="1">
+                <img width="200" height="180" src="steno_box.jpg"/>
+              </div></td>
+              <td class="fragment" data-fragment-index="2">&#8596;</td>
+              <td style="min-width: 200px"><div class="fragment"
+                data-fragment-index="2">
+                <img width="200" height="200" src="chrome.png"/>
+              </div></td>
+              <td class="fragment" data-fragment-index="3">&#8596;</td>
+              <td><div class="box2 fragment" data-fragment-index="3">
+                chrome.serial</div></td>
+            </tr>
+            <tr>
+              <td> </td>
+              <td> </td>
+              <td> </td>
+              <td> </td>
+              <td class="fragment" data-fragment-index="4">&#8597;</td>
+            </tr>
+            <tr>
+              <td style="min-width: 200px"><div class="fragment"
+                data-fragment-index="6">
+                <img width="200" height="150" src="forthsalon.png"/>
+              </div></td>
+              <td class="fragment" data-fragment-index="6">&#8596;</td>
+              <td><div class="box2 fragment" data-fragment-index="5">
+                Message Passing</div></td>
+              <td class="fragment" data-fragment-index="5">&#8596;</td>
+              <td style="min-width: 200px"><div class="fragment"
+                data-fragment-index="4">
+                <img width="200" height="150" src="haiku_app.png"/>
+              </div></td>
+            </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="haiku_app.png"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="steno_box.jpg"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="steno_foil.jpg"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="forthsalon.png"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="steno_keys.png"></img>
         </section>
 
         <section data-transition="fade-out">

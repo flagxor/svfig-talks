@@ -72,19 +72,19 @@ window.addEventListener('load', connect_touch);
 window.onstroke = function(s) {
   if (s === 'R') {
     Reveal.prev();
-  } else if (s === 'S') {
+  } else if (s === 's') {
     Reveal.next();
-  } else if (s === 'F') {
+  } else if (s === 'f') {
     Reveal.left();
-  } else if (s === 'T') {
+  } else if (s === 't') {
     Reveal.right();
-  } else if (s === 'L') {
+  } else if (s === 'l') {
     Reveal.up();
-  } else if (s === 'P') {
+  } else if (s === 'p') {
     Reveal.down();
-  } else if (s === 'FPL') {
+  } else if (s === 'fpl') {
     Reveal.slide(0);
-  } else if (s === 'RBG') {
+  } else if (s === 'rbg') {
     Reveal.togglePause();
   }
 };
