@@ -56,8 +56,8 @@
         <section data-transition="fade-out">
         <h3>Graphical Forth Haiku</h3>
         <ul>
-          <li class="fragment">Floating point stacks</li>
           <li class="fragment">No variables / loops</li>
+          <li class="fragment">Floating point dstack + rstack</li>
           <li class="fragment">Run once per pixel</li>
           <li class="fragment"><code>x ( -- n ) \ [0,1]</code></li>
           <li class="fragment"><code>y ( -- n ) \ [0,1]</code></li>
@@ -143,6 +143,7 @@ f f f f f f
           <li class="fragment">Disqus Forum</li>
           <li class="fragment">More Sound</li>
           <li class="fragment">Interactivity</li>
+          <li class="fragment">State</li>
           <li class="fragment">Kiosk</li>
         </ul>
         </section>
@@ -198,6 +199,18 @@ f f f f f f
           <li class="fragment"><code>mx ( -- n )</code></li>
           <li class="fragment"><code>my ( -- n )</code></li>
           <li class="fragment">Share button 0 for click</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>State</h3>
+        <ul>
+          <li class="fragment"><code>@ ( a -- n )</code></li>
+          <li class="fragment"><code>! ( n a -- )</code></li>
+          <li class="fragment">Memory 0 - 15, mod, floored</li>
+          <li class="fragment">Runs once per frame at (0, 0)</li>
+          <li class="fragment">Dispersed to each pixel</li>
+          <li class="fragment"><code>dt ( -- n ) \ seconds since last frame</code></li>
         </ul>
         </section>
 
