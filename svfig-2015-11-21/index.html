@@ -45,6 +45,62 @@
         </ul>
         </section>
 
+        <section>
+          <h3>Primrose Flower - adg</h3>
+          <pre><code data-trim>
+: i 2dup z* log
+; x .5 - y .5 -
+i i i log over
+          </code></pre>
+        </section>
+
+        <section data-transition="fade_out">
+          <h3>Primrose Flower - adg</h3>
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1vGeCww"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section>
+          <h3>PONG 254 bytes - Manwe</h3>
+          <pre><code data-trim>
+: d dup ;
+: m 0.4 * 0.5 + - ;
+: a * - y - abs 0.1 < x ;
+: r t swap / d floor - 1.96 * 0.98 - d 0 > 2 * 1 - * 0.01 + ;
+: e 3 r 0.94 * 0.03 + ;
+: p 5 r 0.9 * 0.05 + d t 3 * ;
+e x - d * 5 r y - d * + sqrt 0.02 <
+p sin m e a 0.03 < *
+p cos m 1 e - a 0.97 > *
+          </code></pre>
+        </section>
+
+        <section data-transition="fade_out">
+          <h3>PONG 254 bytes - Manwe</h3>
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkcg0LEgVIYWlrdRi1sRQM"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section>
+          <h3>Fractal 125 bytes - Manwe</h3>
+          <pre><code data-trim>
+: l 2dup z* .019 t 5 / cos * .6328 z+ ;
+: f l l l l l l l l l l ;
+y .5 -
+.5 x -
+f f f f f f
+.45 max
+-.2 rot -
+2dup + abs 2 **
+          </code></pre>
+        </section>
+
+        <section data-transition="fade_out">
+          <h3>Fractal 125 bytes - Manwe</h3>
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICAkvmBCQw"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
         <section data-transition="fade-out">
         <h3>Fun with Unicode</h3>
         <ul>
@@ -237,6 +293,11 @@ moveto up up
               </div></td>
             </tr>
           </table>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Arduino MEGA ADK</h3>
+        <img src="https://www.arduino.cc/en/uploads/Main/ArduinoADK_R3_Front.jpg"></img>
         </section>
 
         <section data-transition="fade-out">
