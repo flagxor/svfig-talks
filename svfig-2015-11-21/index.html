@@ -41,18 +41,25 @@
         <section data-transition="fade-out">
         <h3>Forth Haiku</h3>
         <ul>
-          <li class="fragment">Tiny programs &arr; Amazing pictures</li>
-          <li class="fragment">Forth &rarr; Javascript &rarr; GLSL</li>
+          <li class="fragment">Tiny programs &rarr; Beauty</li>
+          <li class="fragment">Forth &rarr; JavaScript &rarr; GLSL</li>
           <li class="fragment">Sharing + Evolving on the Web</li>
         </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="forthsalon.png"></img>
         </section>
 
         <section data-transition="fade-out">
         <h3>Graphical Forth Haiku</h3>
         <ul>
           <li class="fragment">Floating point stacks</li>
+          <li class="fragment">No variables / loops</li>
           <li class="fragment">Run once per pixel</li>
-          <li class="fragment">x, y in [0,1]</li>
+          <li class="fragment">x ( -- n ) \ [0,1]</li>
+          <li class="fragment">y ( -- n ) \ [0,1]</li>
+          <li class="fragment">haiku ( -- r g b [a] )</li>
         </ul>
         </section>
 
@@ -122,11 +129,16 @@ f f f f f f
         </section>
 
         <section data-transition="fade-out">
-        <h3>Recent Enhancements</h3>
+        <h3>Forth Haiku 2015</h3>
         <ul>
+          <li class="fragment">Haiku Monthly</li>
           <li class="fragment">Full word search</li>
-          <li class="fragment">Animate on float</li>
+          <li class="fragment">IF..ELSE..THEN Returns</li>
+          <li class="fragment">Animate on mouse over</li>
           <li class="fragment">Disquis Forum</li>
+          <li class="fragment">More Sound</li>
+          <li class="fragment">Interactivity</li>
+          <li class="fragment">Kiosk</li>
         </ul>
         </section>
 
@@ -152,8 +164,33 @@ f f f f f f
         <section data-transition="fade-out">
         <h3>Sound 3.0</h3>
         <ul>
-          <li class="fragment">( n -- ) audio</li>
-          <li class="fragment">Sample (1, 0.5) for "volume"</li>
+          <li class="fragment">audio ( n -- )</li>
+          <li class="fragment">Label works with audio</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Interactivitiy</h3>
+        <ul>
+          <li class="fragment">Mouse</li>
+          <li class="fragment">Keys</li>
+          <li class="fragment">Steno Keyboard</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Button Interactivitiy</h3>
+        <ul>
+          <li class="fragment">buttons ( -- n )</li>
+          <li class="fragment">button ( n -- f )</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Mouse Interactivitiy</h3>
+        <ul>
+          <li class="fragment">mx ( -- n )</li>
+          <li class="fragment">my ( -- n )</li>
         </ul>
         </section>
 
@@ -175,6 +212,67 @@ f f f f f f
         </section>
 
         <section data-transition="fade-out">
+        <img src="steno_keys.png"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Postscript</h3>
+        <ul>
+          <li class="fragment">Forth-like data stack</li>
+          <li class="fragment">Dynamically typed elements</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre class="fragment"><code data-trim>
+/inch { 72 mul } def
+        </code></pre>
+
+        <pre class="fragment"><code data-trim>
+4 inch 1.75 inch rmoveto
+8 inch 5.5 inch box
+        </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre><code data-trim>
+/step { key_owidth 0 rmoveto } def
+/halfstep { key_owidth 2 div 0 rmoveto } def
+/up { 0 key_oheight 2 div rmoveto } def
+/down { 0 key_oheight 2 div neg rmoveto } def
+/key {
+   key_width key_height box center step } def
+        </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+        <pre><code data-trim>
+currentpoint
+  (S) bigkey (K) key (W) key (R) key
+  (*) bigkey (R) key (B) key (G) key
+             (S) key (Z) key
+moveto up up currentpoint
+  step (T) key (P) key (H) key
+  step (F) key (P) key (L) key
+       (T) key (D) key
+moveto up up
+        </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="steno_foil.jpg"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <img src="steno_box.jpg"></img>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Arduino MEGA ADK</h3>
+        <img src="https://www.arduino.cc/en/uploads/Main/ArduinoADK_R3_Front.jpg"></img>
+        </section>
+
+        <section data-transition="fade-out">
         <h3>Chrome Apps + Extensions</h3>
         <ul>
           <li class="fragment">Javascript + HTML</li>
@@ -190,13 +288,13 @@ f f f f f f
         <section data-transition="fade-out">
         <h2>Types</h2>
         <ul>
+          <li class="fragment">Extensions</li>
           <li class="fragment">Apps
           <ul>
             <li class="fragment">Hosted Apps</li>
             <li class="fragment">Packaged Apps</li>
           </ul>
           </li>
-          <li class="fragment">Extensions</li>
         </ul>
         </section>
 
@@ -206,7 +304,7 @@ f f f f f f
           <li class="fragment">storage</li>
           <li class="fragment">proxy</li>
           <li class="fragment">tabs</li>
-          <li class="fragment">Message Passing</li>
+          <li class="fragment"><b>Message Passing</b></li>
           <li class="fragment">many more...</li>
         </ul>
         </section>
@@ -219,22 +317,9 @@ f f f f f f
           <li class="fragment">sockets</li>
           <li class="fragment">usb</li>
           <li class="fragment">bluetooth</li>
-          <li class="fragment">serial</li>
+          <li class="fragment"><b>serial</a></li>
           <li class="fragment">many more...</li>
         </ul>
-        </ul>
-        </section>
-
-        <section data-transition="fade-out">
-        <h2>Extensions APIs</h2>
-        <ul>
-          <li class="fragment">ttsEngine</li>
-          <li class="fragment">proxy</li>
-          <li class="fragment">tabs</li>
-          <li class="fragment">devtools</li>
-          <li class="fragment">cookies</li>
-          <li class="fragment">contentSettings</li>
-          <li class="fragment">many more...</li>
         </ul>
         </section>
 
@@ -265,42 +350,6 @@ chrome.runtime.onConnectExternal.addListener(
     port.sendMessage(...);
   });
 });
-        </code></pre>
-        </section>
-
-        <section data-transition="fade-out">
-        <pre><code data-trim>
-/step { key_owidth 0 rmoveto } def
-/halfstep { key_owidth 2 div 0 rmoveto } def
-/up { 0 key_oheight 2 div rmoveto } def
-/down { 0 key_oheight 2 div neg rmoveto } def
-/key {
-   key_width key_height box center step } def
-        </code></pre>
-        </section>
-
-        <section data-transition="fade-out">
-        <pre><code data-trim>
-currentpoint
-  (S) bigkey (K) key (W) key (R) key
-  (*) bigkey (R) key (B) key (G) key
-             (S) key (Z) key
-moveto up up currentpoint
-  step (T) key (P) key (H) key
-  step (F) key (P) key (L) key
-       (T) key (D) key
-moveto up up
-        </code></pre>
-        </section>
-
-        <section data-transition="fade-out">
-        <pre class="fragment"><code data-trim>
-/inch { 72 mul } def
-        </code></pre>
-
-        <pre class="fragment"><code data-trim>
-4 inch 1.75 inch rmoveto
-8 inch 5.5 inch box
         </code></pre>
         </section>
 
@@ -346,28 +395,7 @@ moveto up up
         </section>
 
         <section data-transition="fade-out">
-        <h3>Arduino MEGA ADK</h3>
-        <img src="https://www.arduino.cc/en/uploads/Main/ArduinoADK_R3_Front.jpg"></img>
-        </section>
-
-        <section data-transition="fade-out">
         <img src="haiku_app.png"></img>
-        </section>
-
-        <section data-transition="fade-out">
-        <img src="steno_box.jpg"></img>
-        </section>
-
-        <section data-transition="fade-out">
-        <img src="steno_foil.jpg"></img>
-        </section>
-
-        <section data-transition="fade-out">
-        <img src="forthsalon.png"></img>
-        </section>
-
-        <section data-transition="fade-out">
-        <img src="steno_keys.png"></img>
         </section>
 
         <section data-transition="fade-out">
