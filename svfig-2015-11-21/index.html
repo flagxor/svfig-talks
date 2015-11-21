@@ -66,7 +66,8 @@ i i i log over
 : d dup ;
 : m 0.4 * 0.5 + - ;
 : a * - y - abs 0.1 < x ;
-: r t swap / d floor - 1.96 * 0.98 - d 0 > 2 * 1 - * 0.01 + ;
+: r t swap / d floor - 1.96 * 0.98 -
+  d 0 > 2 * 1 - * 0.01 + ;
 : e 3 r 0.94 * 0.03 + ;
 : p 5 r 0.9 * 0.05 + d t 3 * ;
 e x - d * 5 r y - d * + sqrt 0.02 <
@@ -116,12 +117,6 @@ f f f f f f
             Love/Hate: <spawn style="font-size:300%">
             &#128077; &#128078;</span></li>
         </ul>
-        </section>
-
-        <section data-transition="fade_out">
-          <h3>Circular Clock - DarkStarAG</h3>
-          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA6sWPCgw"
-           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
         </section>
 
         <section data-transition="fade-out">
@@ -255,7 +250,7 @@ moveto up up
         </section>
 
         <section>
-          <h2>Process Sandbox</h2>
+          <h2>From Key to Color</h2>
           <table class="boxy">
             <tr>
               <td style="min-width: 200px"><div class="fragment"
