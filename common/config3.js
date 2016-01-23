@@ -4,7 +4,7 @@ Reveal.initialize({
   history: true,
   center: true,
 
-  transition: Reveal.getQueryHash().transition || 'none',
+  transition: Reveal.getQueryHash().transition || 'slide',
 
   // Optional reveal.js plugins
   dependencies: [
