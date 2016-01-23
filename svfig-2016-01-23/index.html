@@ -168,6 +168,80 @@
         </section>
 
         <section>
+          <h3>Server Storage</h3>
+          <ul>
+            <li class="fragment">AppEngine Datastore</li>
+            <li class="fragment">Entities
+            <ul>
+              <li class="fragment">Lookup by Key</li>
+              <li class="fragment">Lookup by Index</li>
+            </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Structure of an Entry (server)</h3>
+          <ul>
+            <li class="fragment">Committed Timestamp</li>
+            <li class="fragment">Blob of content bytes
+            <ul>
+              <li class="fragment">Modified Timestamp</li>
+              <li class="fragment">Optional Image (base64)</li>
+              <li class="fragment">Plaintext</li>
+            </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Client Storage</h3>
+          <ul>
+            <li class="fragment">IndexedDB</li>
+            <li class="fragment">Entities
+            <ul>
+              <li class="fragment">Lookup by Key</li>
+              <li class="fragment">Lookup by Index</li>
+            </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Structure of an Entry (client)</h3>
+          <ul>
+            <li class="fragment">Committed Timestamp</li>
+            <li class="fragment">Modified Timestamp</li>
+            <li class="fragment">Optional Image (base64)</li>
+            <li class="fragment">Plaintext</li>
+            <li class="fragment">Server Key</li>
+            <li class="fragment">Local Key</li>
+            <li class="fragment">Pending Flag</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Synchronization</h3>
+          <ul>
+            <li class="fragment">Writes
+            <ul>
+              <li class="fragment">Upload pending items</li>
+              <li class="fragment">Include server key if any</li>
+              <li class="fragment">Store server key if new</li>
+              <li class="fragment">Unmark</li>
+            </ul>
+            </li>
+            <li class="fragment">Reads
+            <ul>
+              <li class="fragment">Find newest local item</li>
+              <li class="fragment">Fetch server items new than that</li>
+              <li class="fragment">Assign local key</li>
+            </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
           <h3>Drawing</h3>
           <ul>
             <li class="fragment">Mimic Pastels</li>
