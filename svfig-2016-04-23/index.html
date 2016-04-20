@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ruminations on Forth Text Processing</title>
+    <meta name="description"
+    content="Ruminations on Forth Text Processing - April, 23, 2016">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/serif.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+      <div class="slides">
+
+        <section>
+          <h2>Ruminations on Forth<br/>Text Processing</h2>
+          <p>April 23, 2016</p>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section>
+          <i>It is better to have 100 functions operate on one data structure
+            than 10 functions on 10 data structures.</i> — Alan Perlis
+        </section>
+
+        <section>
+          <i>Beware of the Turing tar-pit in which everything is possible but
+            nothing of interest is easy.</i> — Alan Perlis
+        </section>
+
+        <section>
+          <h3>SNOBOL</h3>
+          <ul>
+            <li class="fragment">String matching</li>
+            <li class="fragment">Arrays</li>
+            <li class="fragment">Associative Arrays (Tables)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>SNOBOL</h3>
+          <pre><code data-trim>
+FOO = TABLE()
+FOO&lt;key&gt; = value
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Perl</h3>
+          <ul>
+            <li class="fragment">Regex matching</li>
+            <li class="fragment">Arrays (Lists)</li>
+            <li class="fragment">Associative Arrays (Hashes)
+              <ul>
+                <li class="fragment">String keys only</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Perl</h3>
+          <pre><code data-trim>
+$x = 1
+@y = [
+%z = {
+  'foo', 'bar',
+  'baz', 'qux',
+};
+$z{foo} = 3;
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Python</h3>
+          <ul>
+            <li class="fragment">Regex matching</li>
+            <li class="fragment">Arrays</li>
+            <li class="fragment">Associative Arrays (Dict)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Python</h3>
+          <pre><code data-trim>
+data = open(filename).read()
+lines = data.split('\n')
+for line in lines:
+  words = line.split(' ')
+  for word in words:
+    print word
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Forth</h3>
+          <ul>
+            <li class="fragment">No "real" built-in associative arrays</li>
+            <li class="fragment">No "real" built-in array type</li>
+            <li class="fragment">No "real" built-in string type</li>
+            <li class="fragment">Bare support for string literals</li>
+            <li class="fragment">String Compare!</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Forth</h3>
+          <img src="https://imgflip.com/s/meme/Picard-Wtf.jpg"/>
+        </section>
+
+        <section>
+          <p>Slides at:<br/>
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config3.js"></script>
+  </body>
+</html>
