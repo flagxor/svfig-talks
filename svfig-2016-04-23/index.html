@@ -126,6 +126,17 @@ for line in lines:
         </section>
 
         <section>
+          <h3>Simple Hash</h3>
+          <pre><code data-trim>
+variable h1   variable h2   variable h3
+: 0hash   0 h1 !  0 h2 !  0 h3 ! ;
+: +hash1 ( n -- ) h3 +! h3 @ h2 +! h2 @ h1 +! ;
+: +hash ( a n -- ) over + swap ?do i c@ +hash1 loop ;
+: nhash ( n -- n ) h1 @ swap mod ;
+          </code></pre>
+        </section>
+
+        <section>
           <p>Slides at:<br/>
           <a href="https://github.com/flagxor">
             github.com/flagxor</a></p>
