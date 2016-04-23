@@ -46,6 +46,23 @@
         </section>
 
         <section>
+          <h3>Motivation - Word counts</h3>
+          <pre><code data-trim>
+16 middle
+142 youth
+130 strong
+3 Resembling
+11 hill,
+52 heavenly
+1 steep-up
+1 climbed
+17 majesty,
+46 sacred
+132 looks
+          </code></pre>
+        </section>
+
+        <section>
           <h3>SNOBOL</h3>
           <ul>
             <li class="fragment">String matching</li>
@@ -279,6 +296,22 @@ for word in tally.keys():
 : dump-word ( a -- ) dup word>count @ . word>name type cr ;
 word-list @ ' dump-word visit-list
           </code></pre>
+        </section>
+
+        <section>
+          <h3>Ponderings</h3>
+          <ul>
+            <li class="fragment">Arena allocation</li>
+            <li class="fragment">Hashtable as cache</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>A Challenge!</h3>
+          <ul>
+            <li class="fragment">Make it smaller</li>
+            <li class="fragment">Make it faster</li>
+          </ul>
         </section>
 
         <section>
