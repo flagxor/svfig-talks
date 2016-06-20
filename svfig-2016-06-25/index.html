@@ -64,23 +64,22 @@
         </section>
 
         <section>
-          <h3>Linux Layers (OpenGL w/ Mesa)</h3>
+          <h3>Linux Layers (Mesa OpenGL)</h3>
           <ul>
             <li class="fragment">My OpenGL Program</li>
             <li class="fragment">OpenGL API</li>
             <li class="fragment">Mesa + libdrm</li>
             <li class="fragment">DRM (Direct Rendering Manager)</li>
-            <li class="fragment">or libGL-nvidia-...</li>
           </ul>
         </section>
 
         <section>
-          <h3>Linux Layers (OpenGL w/ vendor driver)</h3>
+          <h3>Linux Layers (Vendor GL Driver)</h3>
           <ul>
             <li class="fragment">My OpenGL Program</li>
             <li class="fragment">OpenGL API</li>
             <li class="fragment">libGL-nvidia-...</li>
-            <li class="fragment">kenel driver</li>
+            <li class="fragment">Vendor Kernel Driver</li>
           </ul>
         </section>
 
@@ -224,6 +223,7 @@
             <li class="fragment">Use Cocoa / X11 to provide window</li>
             <li class="fragment">Bake in 1024x768 32-bit for now</li>
             <li class="fragment">Punt on ioctls</li>
+            <li class="fragment">Require msync for flush</li>
           </ul>
         </section>
 
