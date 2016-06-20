@@ -36,18 +36,213 @@
         </section>
 
         <section>
-          <h3>A "nice" type space</h3>
+          <h3>Motivation</h3>
           <ul>
-            <li class="fragment">Scalars</li>
-            <li class="fragment">Lists</li>
-            <li class="fragment">Associative Arrays</li>
+            <li class="fragment">Graphics is Fun!</li>
+            <li class="fragment">But, the Graphics Stack is Deep :-(</li>
           </ul>
         </section>
 
         <section>
-          <h3>Code</h3>
+          <h3>Linux Layers (X11)</h3>
+          <ul>
+            <li class="fragment">My Program</li>
+            <li class="fragment">Xlib / libXcb</li>
+            <li class="fragment">Sockets / domain socket</li>
+            <li class="fragment">Xserver</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Linux Layers (Wayland)</h3>
+          <ul>
+            <li class="fragment">My Program</li>
+            <li class="fragment">libwayland-client</li>
+            <li class="fragment">libwayland-server</li>
+            <li class="fragment">KMS (Kernel Mode Setting)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Linux Layers (OpenGL w/ Mesa)</h3>
+          <ul>
+            <li class="fragment">My OpenGL Program</li>
+            <li class="fragment">OpenGL API</li>
+            <li class="fragment">Mesa + libdrm</li>
+            <li class="fragment">DRM (Direct Rendering Manager)</li>
+            <li class="fragment">or libGL-nvidia-...</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Linux Layers (OpenGL w/ vendor driver)</h3>
+          <ul>
+            <li class="fragment">My OpenGL Program</li>
+            <li class="fragment">OpenGL API</li>
+            <li class="fragment">libGL-nvidia-...</li>
+            <li class="fragment">kenel driver</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>In the Linux Kernel</h3>
+          <ul>
+            <li class="fragment">KMS (Kernel Mode Setting)</li>
+            <li class="fragment">DRI (Direct Rendering Interface)</li>
+            <li class="fragment">fbdev</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Everyone wants "Low Level"</h3>
+          <ul>
+            <li class="fragment">Vulkan (Khronos / OpenGL)</li>
+            <li class="fragment">Mantle (AMD)</li>
+            <li class="fragment">DirectX 12 (Microsoft)</li>
+            <li class="fragment">Metal (Apple)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>"Low Level"</h3>
+          <img src="http://acsh.org/wp-content/uploads/2016/05/you-keep-using-that-word.jpg"/>
+        </section>
+
+        <section>
+          <h3>This use to be easier</h3>
+          <ul>
+            <li class="fragment">Apple II - Write to $2000 - $3FFF</li>
+            <li class="fragment">CGA - Write to B800:0000-3FFF</li>
+            <li class="fragment">
+              EGA/VGA - Write to A000:0000-FFFF, some ports</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Why's this so hard?</h3>
+          <ul>
+            <li class="fragment">CPU + GPU need to share memory</li>
+            <li class="fragment">CPU + GPU need JITed code</li>
+            <li class="fragment">Keep code "secret"</li>
+            <li class="fragment">Keep instruction set "secret"!</li>
+            <li class="fragment">Multi-windows + Compositing</li>
+            <li class="fragment">Security</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Real Motivation</h3>
+          <ul>
+            <li class="fragment">I have a Raspberry Pi</li>
+            <li class="fragment">Boot Linux Kernel + Forth</li>
+            <li class="fragment">
+              Broadcom released docs for VideoCoreIV in Feb 2014</li>
+            <li class="fragment">fbdev good enough, but...</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Emulate fbdev in a Window</h3>
+          <ul>
+            <li class="fragment">ioctls for mode setup</li>
+            <li class="fragment">write / mmap for framebuffer</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>fbdev ioctls</h3>
+          <ul>
+            <li class="fragment">FBIOGET_FSCREENINFO</li>
+            <li class="fragment">FBIOGET_VSCREENINFO</li>
+            <li class="fragment">FBIOPUT_VSCREENINFO</li>
+            <li class="fragment">FBIO_WAITFORVSYNC</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Raspberry Pi Video Modes</h3>
+          <ul>
+            <li class="fragment">Flexible xres, yres, refresh</li>
+            <li class="fragment">Fixed aspect ratio, sidebars</li>
+            <li class="fragment">80x60 to 1600x1200</li>
+            <li class="fragment">8 / 16 / 24 / 32-bit pixel formats</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>mmap fbdev</h3>
+          <ul>
+            <li class="fragment">get memory address of frame buffer bytes</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>FUSE</h3>
+          <ul>
+            <li class="fragment">Filesystem in Userspace</li>
+            <li class="fragment">Ports to Linux / OSX / Windows</li>
+            <li class="fragment">Active development 2001 - 2011</li>
+            <li class="fragment">Low level + High level api</li>
+            <li class="fragment">mmap works, but needs msync</li>
+            <li class="fragment">fixed ioctls only</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>FUSE</h3>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/FUSE_structure.svg"/>
+          <small>https://en.wikipedia.org/wiki/Filesystem_in_Userspace#/media/File:FUSE_structure.svg</small>
+          <small><a href="http://creativecommons.org/licenses/by-sa/3.0/">
+              Used under CC License
+          </a></small>
+        </section>
+
+        <section>
+          <h3>CUSE</h3>
+          <ul>
+            <li class="fragment">Character device in Userspace</li>
+            <li class="fragment">Emulates variable ioctls</li>
+            <li class="fragment">Requires elevated privileges</li>
+            <li class="fragment">Doesn't emulate mmap :-(</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>ptrace</h3>
+          <ul>
+            <li class="fragment">Used to implement gdb</li>
+            <li class="fragment">Used to implement Chrome sandbox</li>
+            <li class="fragment">Intercept syscall</li>
+            <li class="fragment">Reach into another process' memory</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3>Setup a Display</h3>
           <pre><code data-trim>
-: square dup * ;
+1024 constant width
+768 constant height
+width height * 4 * constant display-size
+display-size allocate throw constant display
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Plot a Point</h3>
+          <pre><code data-trim>
+hex ff000000 decimal constant alpha
+: plot ( c x y )
+   width * + 4 * display + swap alpha or swap l! ;
+          </code></pre>
+        </section>
+
+        <section>
+          <h3>Write to the Display</h3>
+          <pre><code data-trim>
+s" dev/fb0" r/w open-file throw constant fb
+
+: flip   0 0 fb reposition-file throw
+         display display-size fb write-file throw ;
           </code></pre>
         </section>
 
