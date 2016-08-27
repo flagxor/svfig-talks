@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Lightsabers in After Effects</title>
+    <meta name="description" content="Lightsabers in After Effects">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/black.css">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var reveal_js = '../reveal.js';
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? reveal_js + '/css/print/pdf.css' : reveal_js + '/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <style>
+.reveal section img {
+  border: 0;
+  background-color: rgba(0,0,0,0);
+}
+
+b {
+  color: yellow;
+}
+
+.reveal .boxy table {
+  width: 100%;
+  border-collapse: separate;
+  border-bottom: none;
+}
+
+.reveal .boxy td {
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: none;
+  border-spacing: 20px;
+/*  border: 0; */
+}
+
+.reveal .boxy div.box1 {
+  background-color: #4c4;
+  border: 1px solid;
+  border-color: black;
+  padding: 10px;
+  margin: 10px;
+  font-size: 2.11em;
+}
+
+.reveal .boxy div.box2 {
+  background-color: #f44;
+  border: 1px solid;
+  border-color: black;
+  padding: 10px;
+  margin: 10px;
+}
+
+.reveal .boxy div.box3 {
+  background-color: #44f;
+  border: 1px solid;
+  border-color: black;
+  padding: 10px;
+  margin: 10px;
+}
+
+    </style>
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section
+        data-background-video="videos/back1.mp4"
+        data-background-video-loop="loop"
+        data-background-color="#000">
+        <h2><font color="#77ffff">Lightsabers</font></br>
+          in After Effects<br/></h2>
+        <p>
+        <small>August 27, 2016 - <font color="#77ffff">
+            Brad Nelson</font></small>
+        </p>
+        </section>
+
+        <section
+        data-background-video="videos/heat_vision.mp4"
+        data-background-color="#000">
+        <h2>Adobe After Effects</h2>
+        <ul>
+          <li class="fragment">Features:<ul>
+            <li class="fragment">Keying</li>
+            <li class="fragment">Tracking</li>
+            <li class="fragment">Compositing</li>
+            <li class="fragment">Animation</li>
+          </ul></li>
+          <li class="fragment">Bad at export (use ffmpeg)</li>
+          <li class="fragment">Great for presentation effects</li>
+          <li class="fragment">CPU/GPU Intensive</li>
+          <li class="fragment">Someday in WebAssembly!?</li>
+        </ul>
+        </section>
+
+        <section
+        data-background-video="videos/light_flash1.mp4"
+        data-background-color="#000">
+        </section>
+
+        <section
+        data-background-video="videos/back1.mp4"
+        data-background-video-loop="loop"
+        data-background-color="#000">
+        <h2>Lightsabers</h2>
+        <ul>
+          <li class="fragment">1977 - Star Wars
+          <ul><li class="fragment">Rotoscoped (Nelson Shin)</li></ul></li>
+          <li class="fragment">1983 - Return of the Jedi
+          <ul><li class="fragment">Green</li></ul></li>
+          <li class="fragment">1999 - Phantom Menace
+          <ul><li class="fragment">Digitally Rotoscoped</li></ul></li>
+          <li class="fragment">2015 - Force Awakens
+          <ul><li class="fragment">
+            On-set LEDs, Digitally enhanced</li></ul></li>
+        </ul>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/forceawakens.jpg" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/blue1.jpg" width="500"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/blue2.jpg" width="500"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/green1.jpg" width="500"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/green2.jpg" width="500"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/red1.jpg" width="500"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/red2.jpg" width="500"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/red_vader1.jpg"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/disect1.jpg"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/disect2.jpg"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/disect3.jpg"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/disect4.jpg"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/disect5.jpg"/>
+        </section>
+
+        <section
+        data-background-video="videos/waves.mp4"
+        data-background-video-loop="loop"
+        data-background-color="#000">
+        <h2>LEDs</h2>
+        <ul>
+          <li class="fragment">1907 - Electroluminescence</li>
+          <li class="fragment">1962 - Visible spectrum</li>
+          <li class="fragment">Cheap starting in the 1970s</li>
+          <li class="fragment">Blue LEDs
+            <ul>
+              <li class="fragment">
+              1993 - Nakamura, Hiroshi Amano, and Isamu Akasaki</li>
+              <li class="fragment">2014 - Nobel Prize in Physics</li>
+            </ul></li>
+          <br/>
+        </ul>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/leds1.jpg"/>
+        </section>
+
+        <section
+        data-background-color="#000"
+        data-transition="default-in fade-out">
+        <img src="images/camera_sensor1.png" width="1000"/>
+        </section>
+
+        <section
+        data-background-color="#000"
+        data-transition="fade">
+        <img src="images/camera_sensor2.png" width="1000"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/filtered1.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/filtered2.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/footage1.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/matte1.png"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/matte2.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/keyframes1.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/matte3.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/matte4.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/erase1.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/erase2.png" width="900"/>
+        </section>
+
+        <section
+        data-background-color="#000">
+        <img src="images/particles1.png" width="900"/>
+        </section>
+
+        <section
+        data-background-video="videos/lsaber1_final.mp4"
+        data-background-color="#000">
+        </section>
+
+        <section
+        data-background-video="videos/back1_sound.mp4"
+        data-background-video-loop="loop"
+        data-background-color="#000">
+          <h1>Questions?</h1>
+        </section>
+
+      </div>
+    </div>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+
+    <script>
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: Reveal.getQueryHash().transition || 'default',
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: reveal_js + '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: reveal_js + '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: reveal_js + '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: reveal_js + '/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: reveal_js + '/plugin/zoom-js/zoom.js', async: true },
+          { src: reveal_js + '/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
