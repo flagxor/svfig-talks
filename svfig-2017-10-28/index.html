@@ -48,6 +48,17 @@
         </ul>
         </section>
 
+        <section data-transition="fade-out"
+         data-background="../common/sakura_digital2.jpg">
+        <h3>Haiku Basics</h3>
+        <ul>
+          <li class="fragment">Typical Forth-y words, but with floating point</li>
+          <li class="fragment">Program runs once per pixel</li>
+          <li class="fragment">Words <b>x, y</b> provide position</li>
+          <li class="fragment">Final stack holds red, green, blue, alpha</li>
+        </ul>
+        </section>
+
         <section data-transition="fade_out"
          data-background="../common/sakura_digital3.jpg">
           <h3>Primrose Flower - adg</h3>
@@ -63,6 +74,108 @@ i i i log over
           <h3>Primrose Flower - adg</h3>
           <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA1vGeCww"
            width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="fade-out"
+         data-background="../common/sakura_digital2.jpg">
+        <h3>Expanding Forth Haiku</h3>
+        <ul>
+          <li class="fragment">Thoughtfully grow a small core word set</li>
+          <li class="fragment">Work within the limits of WebGL</li>
+          <li class="fragment">Add a few powerful words</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out"
+         data-background="../common/sakura_digital2.jpg">
+        <h3>Animation</h3>
+        <ul>
+          <li class="fragment">Introduce <b>t</b>, adding time</li>
+          <li class="fragment">Time in seconds since midnight</li>
+          <li class="fragment">Allows for clocks!</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade_out"
+         data-background="../common/sakura_digital2.jpg">
+          <h3>Clock Cutout - Anonymous</h3>
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA95OQCgw"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="fade_out"
+         data-background="../common/sakura_digital3.jpg">
+          <h3>PACMAN - www.manwe.ru</h3>
+          <pre>
+: d dup ;
+: m 1 min ;
+: f d floor - ;
+: c cos abs ;
+: j t 4 + 2 * x 8 * floor 8 / + 4 * c 2 / t 4 + 2 / c 4 ** * - ;
+: a 1 x x 8 * floor 0.5 + 8 / - d * y ;
+: b - d * + sqrt 50 * 8 ** ;
+: p x t 4 + pi / f 1.6 * - 0.2 + ;
+: v t 4 + pi 2 * / f ;
+a j 0.5 b -
+v d 0.5 < * 4 * m *
+1 p d * y 0.5 - d * + 36 * 30 ** m -
+y 0.5 - p atan2 abs t 10 * c 0.8 * - 16 * m * 0 max
+a 0.5 b - 0 max d p 16 * &lt * +
+p d * y 0.58 b m *
+v 0.5 >= *
++ d 0.2
+          </pre>
+        </section>
+
+        <section data-transition="fade_out"
+         data-background="../common/sakura_digital2.jpg">
+          <h3>PACMAN - www.manwe.ru</h3>
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkcg0LEgVIYWlrdRiYlRMM"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+        <section data-transition="fade-out"
+         data-background="../common/sakura_digital2.jpg">
+        <h3>Interactivity</h3>
+        <ul>
+          <li class="fragment">Introduce <b>mx, my, buttons, button</b>, adding mouse and keyboard</li>
+        </ul>
+        </section>
+
+        <section data-transition="fade_out"
+         data-background="../common/sakura_digital2.jpg">
+          <h3>TFKP 4 Flower Redux - Anonymous</h3>
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICA25ibCgw"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+        </section>
+
+
+        <section data-transition="fade-out"
+         data-background="../common/sakura_digital2.jpg">
+        <h3>Video Input?</h3>
+        <ul>
+          <li class="fragment">Limited by WebGL</li>
+        </ul>
+        </section>
+
+
+
+        <section data-transition="fade_out"
+         data-background="../common/sakura_digital2.jpg">
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgICgjMOBCgw"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+          <pre><code data-trim>
+x y sample
+          </code></pre>
+        </section>
+
+        <section data-transition="fade_out"
+         data-background="../common/sakura_digital2.jpg">
+          <iframe data-haiku="ahBzfmZvcnRoc2Fsb24taHJkchILEgVIYWlrdRiAgIDA28ecCgw"
+           width="550px" height="550px" name="haiku" scrolling="no"></iframe>
+          <pre><code data-trim>
+x y bwsample
+          </code></pre>
         </section>
 
         <section data-transition="fade-out"

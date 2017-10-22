@@ -5,11 +5,13 @@
 function fixup(i) {
   var url = 'https://forthsalon.appspot.com/haiku-bare/';
   url += i.getAttribute('data-haiku');
-  //var zoom = parseFloat(i.parentElement.parentElement.style.zoom);
-//  var zoom = parseFloat(i.parentElement.parentElement.parentElement.style.zoom);
   var zoomLevel = zoom.zoomLevel();
   url += '?width=' + Math.ceil(i.clientWidth * zoomLevel) +
     '&height=' + Math.ceil(i.clientHeight * zoomLevel);
+  // TODO: This doesn't work for some reason.
+  if (i.getAttribute('data-haiku-audio')) {
+    url += '&audio=1';
+  }
   if (i.src !== url) {
     i.src = url;
   }
