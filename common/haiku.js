@@ -5,9 +5,11 @@
 function fixup(i) {
   var url = 'https://forthsalon.appspot.com/haiku-bare/';
   url += i.getAttribute('data-haiku');
-  var zoom = parseFloat(i.parentElement.parentElement.style.zoom);
-  url += '?width=' + Math.ceil(i.clientWidth * zoom) +
-    '&height=' + Math.ceil(i.clientHeight * zoom);
+  //var zoom = parseFloat(i.parentElement.parentElement.style.zoom);
+//  var zoom = parseFloat(i.parentElement.parentElement.parentElement.style.zoom);
+  var zoomLevel = zoom.zoomLevel();
+  url += '?width=' + Math.ceil(i.clientWidth * zoomLevel) +
+    '&height=' + Math.ceil(i.clientHeight * zoomLevel);
   if (i.src !== url) {
     i.src = url;
   }
