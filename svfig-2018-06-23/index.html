@@ -420,8 +420,8 @@ bnf: {DIGIT}   t' 0 | t' 1 | t' 2 | t' 3 | t' 4 |
                t' 5 | t' 6 | t' 7 | t' 8 | t' 9 ;bnf
 
 bnf: &lt;DIGIT&gt;   @token 48 - {DIGIT} $$ ! {{ 10 * $$ @ + }} ;bnf
-bnf: &lt;NUMBER'&gt;   <DIGIT> <NUMBER'> | <DIGIT> ;bnf
-bnf: &lt;NUMBER&gt; {{ 0 }} <NUMBER'> ;bnf
+bnf: &lt;NUMBER'&gt;   &lt;DIGIT&gt; &lt;NUMBER'&gt; | &lt;DIGIT&gt; ;bnf
+bnf: &lt;NUMBER&gt; {{ 0 }} &lt;NUMBER'&gt; ;bnf
           </code></pre>
         </section>
 
