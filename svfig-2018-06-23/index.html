@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Parsing in a dark and grammar-less world</title>
+    <meta name="description"
+    content="Parsing in a dark and grammar-less world - June 23, 2018">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/blood.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!-- 
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>Parsing in a dark and grammar-less world</h2>
+          <h4>November 18, 2017</h4>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Why?</h3>
+        <ul>
+          <p class="fragment">
+            "I think programmers like to write interpreters.
+            They like to do these elaborate difficult things."
+            <br/>
+            <i>-- Chuck Moore (in Thinking Forth)</i>
+          </li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Acknowledgments</h3>
+          <p>
+          <b>Bradford J. Rodriguez</b>
+          BNF Parser in Forth
+          http://www.bradrodriguez.com/papers/bnfparse.htm).
+          </p>
+          <p>
+          Updated at
+          https://github.com/letoh/fina-forth/blob/master/bnf.fs
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Parsing</h3>
+        <img width="800"
+             src="https://upload.wikimedia.org/wikipedia/commons/5/54/Parse_tree_1.jpg">
+        <small>https://en.wikipedia.org/wiki/Parse_tree#/media/File:Parse_tree_1.jpg
+          <br/>under CC BY-SA 3.0</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Parsing</h3>
+          <ul>
+            <li class="fragment">Terminals
+              <ul>
+                <li>Tokens in your input</li>
+                <li>Often represented with lowercase or quoted</li>
+              </ul>
+            </li>
+            <li class="fragment">Non-Terminals
+              <ul>
+                <li>Abstract state used during parsing</li>
+                <li>Sometimes like parts of speech</li>
+                <li>Often represented with uppercase or in &lt;&gt;</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Chomsky's Hierarchy</h3>
+        <ul>
+          <li class="fragment">
+            Type-0 : Recursively Enumerable <br/> Turing Machine
+            : &alpha; &rarr; &beta;
+          </li>
+          <li class="fragment">
+            Type-1 : Context Sensitive <br/> Bounded Turing Machine
+            : &alpha;A&beta; &rarr; &alpha;&gamma;&beta;
+          </li>
+          <li class="fragment">
+            Type-2 : Context Free <br/> Pushdown Automaton
+            : A &rarr; &gamma;
+          </li>
+          <li class="fragment">
+            Type-3 : Regular <br/> Finite State Automaton
+            : A &rarr; &alpha; B or A &rarr; &alpha;
+          </li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Approaches to Parsing</h3>
+        <ul>
+          <li class="fragment">Bottom-Up
+            <ul>
+              <li class="fragment">DFA</li>
+              <li class="fragment">Shift Reduce
+                <ul>
+                  <li class="fragment">LR, SLR, LALR</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="fragment">Top-Down
+            <ul>
+              <li class="fragment">Recursive Descent w/ lookahead</li>
+              <li class="fragment">Recursive Descent w/ backtracking</li>
+          </li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+        <h3>Backus–Naur Form</h3>
+        <ul>
+          <li class="fragment">John Backus proposes "metalinguistic formulas"
+            to describe ALGOL</li>
+          <li class="fragment">Peter Naur prefers "Backus normal
+            form", but Knuth disagrees</li>
+          <li class="fragment">
+            &lt;number&gt; ::= &lt;digit&gt; | &lt;digit&gt; &lt;number&gt;
+          </li>
+        </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>TMG (TransMoGrify)</h3>
+          <ul>
+            <li class="fragment">Robert McClure, extended by Doug McIlroy</li>
+            <li class="fragment">Predecessor of YACC</li>
+          </ul>
+          <pre class="fragment"><code data-trim>
+expr: <(>/exp1 expr operator expr <)> = { 3 1 2 };
+exp1: ident = { < LOAD > 1 };
+operator:
+op0: <+>/op1 = { < ADD > };
+op1: <->/op2 = { < SUB > };
+op2: <*>/op3 = { < MPY > };
+op3: &lt;/&gt;     = { < DIV > };
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>YACC (Yet Another Compiler Compiler)</h3>
+          <ul>
+            <li class="fragment">Developed by Stephen C. Johnson
+              <ul>
+                <li class="fragment">Wanted to add XOR to B!</li>
+              </ul>
+            </li>
+            <li class="fragment">LALR Parser Generator</li>
+            <li class="fragment">Lives on via GNU Bison (Robert Corbett)</li>
+          </ul>
+          <pre class="fragment"><code data-trim>
+exp:      NUM                { $$ = $1;         }
+        | exp '+' exp        { $$ = $1 + $3;    }
+        | exp '-' exp        { $$ = $1 - $3;    }
+        | exp '*' exp        { $$ = $1 * $3;    }
+        | exp '/' exp        { $$ = $1 / $3;    }
+        | '-' exp  %prec NEG { $$ = -$2;        }
+        | exp '^' exp        { $$ = pow ($1, $3); }
+        | '(' exp ')'        { $$ = $2;         }
+;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Goals</h3>
+          <ul>
+            <li class="fragment">
+              Provide Lex/Yacc like functionality for Forth</li>
+            <li class="fragment">Keep it simple</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Lexing</h3>
+          <ul>
+            <li class="fragment">"Token" boundaries can often be more
+              succinctly expressed with a regular language</li>
+            <li class="fragment">Operating on tokens is faster</li>
+            <li class="fragment">
+              Avoids &lt;WHITESPACE&gt; showing up in grammars</li>
+            <li class="fragment">Can be intermixed with symbol tables</li>
+            <li class="fragment">But adds complexity to tools</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Lex and Parse</h3>
+          <ul>
+            <li class="fragment">Treat characters and EOL as tokens</li>
+            <li class="fragment">Provide shorthand for strings</li>
+            <li class="fragment">Swallow challenges with whitespace</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Traversing Input</h3>
+          <pre><code data-trim>
+: @token ( -- n )
+  source nip &gt;in @ = if
+    0
+  else
+    source &gt;in @ /string drop c@
+  then ;
+
+: +token ( f -- ) if 1 &gt;in +! then ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Checking Tokens</h3>
+          <pre><code data-trim>
+variable success
+
+: =token ( n -- )
+   success @ if
+     @token =  dup success ! +token
+   else drop then ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Defining Token Checkers</h3>
+          <pre><code data-trim>
+: token ( n -- ) create c, does&gt; ( a -- )  c@ =token ;
+
+: t"   [char] " parse 0 ?do
+       dup c@ postpone literal
+       postpone =token 1+ loop drop ; immediate
+
+: t'   char postpone literal
+       postpone =token ; immediate
+
+: tok   char token ;
+
+0 token &lt;EOL&gt;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre><code data-trim>
+&lt;NUMBER&gt; ::= &lt;DIGIT&gt; &lt;NUMBER&gt; | &lt;DIGIT&gt;
+
+bnf: &lt;NUMBER&gt;   &lt;DIGIT&gt; &lt;NUMBER&gt; | &lt;DIGIT&gt; ;bnf
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Defining a production rule</h3>
+          <pre><code data-trim>
+: bnf: ( -- colon-sys )
+    : postpone recursive
+    postpone &lt;bnf ; immediate
+
+: ;bnf ( colon-sys -- )
+    postpone bnf&gt;
+    postpone ; ; immediate  
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>State and Backtracking</h3>
+          <ul>
+            <li class="fragment">Source position (&gt;IN)</li>
+            <li class="fragment">
+              Output position / Dictionary position (HERE)</li>
+            <li class="fragment">Use output "wisely"</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Elimination of Left Recursion</h3>
+          <ul>
+            <li class="fragment">A &rarr; A&alpha; | &beta;</a>
+            <li class="fragment">
+              A &rarr; &beta;A'<br/>
+              A' &rarr; &alpha;A' | &epsilon;
+            </li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Elimination of Left Recursion</h3>
+          <pre><code data-trim>
+E &rarr; E + T | T
+T &rarr; T * F | F
+F &rarr; ( E ) | id
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Elimination of Left Recursion</h3>
+          <pre><code data-trim>
+E &rarr; TE'
+E' &rarr; +TE' | &epsilon;
+T &rarr; FT'
+T' &rarr; *FT' | &epsilon;
+F &rarr; (E) | id
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Keeping state</h3>
+          <pre><code data-trim>
+: &lt;bnf ( -- )
+    success @ if
+      r&gt; &gt;in @ &gt;r here &gt;r &gt;r  ( stash old &gt;in &amp; here )
+    else
+      r&gt; drop  ( bail out of caller, failure! )
+    then ;
+
+: bnf&gt; ( -- )
+    success @ if
+      r&gt; r&gt; r&gt; 2drop &gt;r  ( ditch old &gt;in &amp; here )
+    else
+      r&gt; r&gt; dp! r&gt; &gt;in ! &gt;r ( restore old &gt;in &amp; here )
+    then ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Alternatives</h3>
+          <pre><code data-trim>
+: | ( -- )
+    success @ if
+      r&gt; r&gt; r&gt; 2drop drop  ( bail out of caller, success! )
+    else
+      r&gt; r&gt; r&gt; 2dup &gt;r &gt;r  ( pull out old state )
+      &gt;in ! dp!  ( restore old state )
+      1 success ! &gt;r  ( back in action )
+    then ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Code Actions (in Bison)</h3>
+          <pre><code data-trim>
+exp:      NUM                { $$ = $1;         }
+        | exp '+' exp        { $$ = $1 + $3;    }
+        | exp '-' exp        { $$ = $1 - $3;    }
+        | exp '*' exp        { $$ = $1 * $3;    }
+        | exp '/' exp        { $$ = $1 / $3;    }
+        | '-' exp  %prec NEG { $$ = -$2;        }
+        | exp '^' exp        { $$ = pow ($1, $3); }
+        | '(' exp ')'        { $$ = $2;         }
+;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Handling Actions</h3>
+          <ul>
+            <li class="fragment">Execute in order within productions</li>
+            <li class="fragment">Only execute when known good</li>
+            <li class="fragment">Track a $$ state variable</li>
+            <li class="fragment">Store [$$, xt]* pairs in heap</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Code Actions</h3>
+          <pre><code data-trim>
+variable $$
+: {{   postpone ahead
+       chainer3 ! chainer2 ! chainer1 !  ( stash orig )
+       postpone ;
+       noname : latestxt chainer !
+       ; immediate
+
+: }}   postpone ; noname :
+       chainer1 @ chainer2 @ chainer3 @  ( restore orig )
+       postpone then
+       postpone $$ postpone @ postpone ,  ( store state var )
+       chainer @ postpone literal postpone , ( store xt )
+       ; immediate
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Code Actions</h3>
+          <pre><code data-trim>
+: pow ( x n -- n ) 1 swap 0 ?do over * loop nip ;
+
+bnf: &lt;FACTOR&gt;   &lt;PRIMARY&gt; t' ^ &lt;FACTOR&gt;   {{ pow }}
+              | &lt;PRIMARY&gt; ;bnf
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Code Actions (w/ parse state)</h3>
+          <pre><code data-trim>
+bnf: {DIGIT}   t' 0 | t' 1 | t' 2 | t' 3 | t' 4 |
+               t' 5 | t' 6 | t' 7 | t' 8 | t' 9 ;bnf
+
+bnf: &lt;DIGIT&gt;   @token 48 - {DIGIT} $$ ! {{ 10 * $$ @ + }} ;bnf
+bnf: &lt;NUMBER'&gt;   <DIGIT> <NUMBER'> | <DIGIT> ;bnf
+bnf: &lt;NUMBER&gt; {{ 0 }} <NUMBER'> ;bnf
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>Demo & Code Tour</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>What Next?</h3>
+          <ul>
+            <li class="fragment">Kleene star/plus</li>
+            <li class="fragment">Multi-line</li>
+            <li class="fragment">Nicer invocation + syntax</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/flagxor/forth-parser">Source</a>
+          and
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:<br/>
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../common/haiku.js"></script>
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
