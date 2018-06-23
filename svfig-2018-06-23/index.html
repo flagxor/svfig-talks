@@ -262,6 +262,19 @@ variable success
         </section>
 
         <section data-transition="fade-out">
+          <h3>Defining Token Checkers</h3>
+          <pre><code data-trim>
+char + token '+'   char - token '-'
+
+tok + '+'   tok - '-'
+
+:noname    t' + t' * ;
+
+:noname   t" keyword"
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
           <pre><code data-trim>
 &lt;NUMBER&gt; ::= &lt;DIGIT&gt; &lt;NUMBER&gt; | &lt;DIGIT&gt;
 
@@ -290,37 +303,6 @@ bnf: &lt;NUMBER&gt;   &lt;DIGIT&gt; &lt;NUMBER&gt; | &lt;DIGIT&gt; ;bnf
               Output position / Dictionary position (HERE)</li>
             <li class="fragment">Use output "wisely"</li>
           </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h3>Elimination of Left Recursion</h3>
-          <ul>
-            <li class="fragment">A &rarr; A&alpha; | &beta;</a>
-            <li class="fragment">
-              A &rarr; &beta;A'<br/>
-              A' &rarr; &alpha;A' | &epsilon;
-            </li>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h3>Elimination of Left Recursion</h3>
-          <pre><code data-trim>
-E &rarr; E + T | T
-T &rarr; T * F | F
-F &rarr; ( E ) | id
-          </code></pre>
-        </section>
-
-        <section data-transition="fade-out">
-          <h3>Elimination of Left Recursion</h3>
-          <pre><code data-trim>
-E &rarr; TE'
-E' &rarr; +TE' | &epsilon;
-T &rarr; FT'
-T' &rarr; *FT' | &epsilon;
-F &rarr; (E) | id
-          </code></pre>
         </section>
 
         <section data-transition="fade-out">
@@ -353,6 +335,37 @@ F &rarr; (E) | id
       &gt;in ! dp!  ( restore old state )
       1 success ! &gt;r  ( back in action )
     then ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Elimination of Left Recursion</h3>
+          <ul>
+            <li class="fragment">A &rarr; A&alpha; | &beta;</a>
+            <li class="fragment">
+              A &rarr; &beta;A'<br/>
+              A' &rarr; &alpha;A' | &epsilon;
+            </li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Elimination of Left Recursion</h3>
+          <pre><code data-trim>
+E &rarr; E + T | T
+T &rarr; T * F | F
+F &rarr; ( E ) | id
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Elimination of Left Recursion</h3>
+          <pre><code data-trim>
+E &rarr; TE'
+E' &rarr; +TE' | &epsilon;
+T &rarr; FT'
+T' &rarr; *FT' | &epsilon;
+F &rarr; (E) | id
           </code></pre>
         </section>
 
