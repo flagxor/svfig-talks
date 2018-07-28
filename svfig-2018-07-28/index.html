@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WWWBasic + Bringing Nike System Game to the Web</title>
+    <meta name="description"
+    content="WWWBasic + Bringing Nike System Game to the Web - July 28, 2018">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/black.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!-- 
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>WWWBasic</h2>
+          <h3>Bringing Nike System Game to the Web</h3>
+          <h4>July 28, 2018</h4>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Motivation</h3>
+          <ul>
+            <li class="fragment">Ed's Nike Hercules Simulation</li>
+            <li class="fragment">BASIC as a scoped problem</li>
+            <li class="fragment">Run the code as-is</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Features Required</h3>
+          <ul>
+            <li class="fragment">Arrays, Integer, Double, Single, Strings</li>
+            <li class="fragment">Structured IF/ELSEIF/ELSE/END IF</li>
+            <li class="fragment">SELECT CASE</li>
+            <li class="fragment">CONST, {} Initialization</li>
+            <li class="fragment">Labels</li>
+            <li class="fragment">GOSUB, RETURN</li>
+            <li class="fragment">1280x1024 Mode 21</li>
+            <li class="fragment">LINE, PSET, CIRCLE</li>
+            <li class="fragment">GETMOUSE</li>
+            <li class="fragment">LOCATE, PRINT, PRINT USING</li>
+            <li class="fragment">+=, -=, ATAN2</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Approach</h3>
+          <ul>
+            <li class="fragment">Parse upfront</li>
+            <li class="fragment">Simple tokenizer</li>
+            <li class="fragment">Recursive descent parser</li>
+            <li class="fragment">Allocate variables in TypedArrays</li>
+            <li class="fragment">Emit JavaScript code current 'op'</li>
+            <li class="fragment">
+              Start new 'op' when landing point or fixup needed</li>
+            <li class="fragment">
+              Store current 'op' index into dictionary keyed on label / line
+              number</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Embedding</h3>
+          <ul>
+            <li class="fragment">Minimum incantation for full page</li>
+            <li class="fragment">Support Node.js</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Inline)</h3>
+          <pre><code data-trim>
+&lt;!DOCTYPE html>
+<script src="wwwbasic.js"></script>
+<script type="text/basic">
+
+PRINT "Hello World!"
+FOR i = 1 to 10
+  PRINT "Counting "; i
+NEXT i
+
+</script>
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Inline)</h3>
+          <pre><code data-trim>
+&lt;!DOCTYPE html>
+<script src="wwwbasic.js"></script>
+<script type="text/basic" src="foo.bas"></script>
+
+---- foo.bas ----
+
+PRINT "Hello World!"
+FOR i = 1 to 10
+  PRINT "Counting "; i
+NEXT i
+</script>
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Same Origin Policy</h3>
+          <ul>
+            <li class="fragment">All XMLHTTPRequest from same site</li>
+            <li class="fragment">Images and JavaScript "special"</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Node.js)</h3>
+          <pre><code data-trim>
+var basic = require('./wwwbasic.js');
+basic.Basic(
+`
+PRINT "Hello World!"
+FOR i = 1 to 10
+  PRINT "Counting "; i
+NEXT i
+`);
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Testing</h3>
+          <ul>
+            <li class="fragment">Run via Node.js</li>
+            <li class="fragment">Travis-CI</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Testing</h3>
+          <pre><code data-trim>
+basic_test.BASIC_TEST('PrintUsing', 'SimpleDecimal', `
+PRINT USING "abc #.#### def"; 1.23
+`, `
+abc 1.2300 def
+`);
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>What Missing?</h3>
+          <ul>
+            <li class="fragment">Graphics Performance</li>
+            <li class="fragment">Text scrolling</li>
+            <li class="fragment">CGA/EGA/VGA Modes</li>
+            <li class="fragment">GET / PUT</li>
+            <li class="fragment">SUB/END SUB</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Next Goals</h3>
+          <ul>
+            <li class="fragment">DONKEY.BAS</li>
+            <li class="fragment">GORILLA.BAS</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS</h3>
+          <img src="https://blog.codinghorror.com/content/images/uploads/2007/05/6a0120a85dcdae970b0120a86d9759970b-pi.gif">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>GORILLA.BAS</h3>
+          <img src="https://balau82.files.wordpress.com/2015/01/gorillas_qbasic.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/google/wwwbasic">wwwbasic source</a>
+          and
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:<br/>
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../common/haiku.js"></script>
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
