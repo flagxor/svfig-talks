@@ -106,6 +106,11 @@ NEXT i
 
         <section data-transition="fade-out">
           <h3>Usage (Inline)</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/hello_world.html" width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Inline)</h3>
           <pre><code data-trim>
 &lt;!DOCTYPE html>
 <script src="wwwbasic.js"></script>
@@ -144,6 +149,71 @@ NEXT i
         </section>
 
         <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <pre><code data-trim>
+SCREEN 21
+FOR i = 1 to 40
+  FOR j = 1 to 30
+    CIRCLE (i * 30, j * 30), _
+    10, i * 6 * 65536 + j * 6 * 256,,,,F
+  NEXT j
+NEXT i
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/circles.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <pre><code data-trim>
+SCREEN 21
+FOR i = 1 to 1000
+  x1 = INT(RND() * 1280)
+  y1 = INT(RND() * 1024)
+  x2 = INT(RND() * 1280)
+  y2 = INT(RND() * 1024)
+  c = INT(RND() * 256 * 256 * 256)
+  LINE (x1, y1)-(x2, y2), c
+NEXT i
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/lines.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Mouse</h3>
+          <pre><code data-trim>
+SCREEN 21
+GETMOUSE x, y, nw, nb
+' Wait for mouse events.
+DO
+  GETMOUSE nx, ny, nw, nb
+LOOP WHILE x = nx and y = ny
+x = nx : y = ny
+' Draw a green line following the mouse.
+Again:
+  GETMOUSE nx, ny, nw, nb
+  LINE (x, y)-(nx, ny), 256 * 255
+  x = nx : y = ny
+GOTO Again
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/mouse.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
           <h3>Testing</h3>
           <ul>
             <li class="fragment">Run via Node.js</li>
@@ -165,17 +235,22 @@ abc 1.2300 def
         <section data-transition="fade-out">
           <h3>What Missing?</h3>
           <ul>
+            <li class="fragment">Enforce type checks</li>
             <li class="fragment">Graphics Performance</li>
-            <li class="fragment">Text scrolling</li>
-            <li class="fragment">CGA/EGA/VGA Modes</li>
+            <li class="fragment">Text scrolling + text modes</li>
+            <li class="fragment">CGA / EGA / VGA Modes</li>
             <li class="fragment">GET / PUT</li>
-            <li class="fragment">SUB/END SUB</li>
+            <li class="fragment">SUB / END SUB</li>
+            <li class="fragment">READ / DATA / RESTORE</li>
+            <li class="fragment">INPUT</li>
+            <li class="fragment">Files</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
           <h3>Next Goals</h3>
           <ul>
+            <li class="fragment">Interative Mode?</li>
             <li class="fragment">DONKEY.BAS</li>
             <li class="fragment">GORILLA.BAS</li>
           </ul>
@@ -189,6 +264,16 @@ abc 1.2300 def
         <section data-transition="fade-out">
           <h3>GORILLA.BAS</h3>
           <img src="https://balau82.files.wordpress.com/2015/01/gorillas_qbasic.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Lessons for a Web Forth</h3>
+          <ul>
+            <li class="fragment">Let a single use case drive it</li>
+            <li class="fragment">Make grahics easy</li>
+            <li class="fragment">JS Function per Basic Block isn't too bad</li>
+            <li class="fragment">Consider allowing inline code</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
