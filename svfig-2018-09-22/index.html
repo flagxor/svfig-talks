@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Update on wwwBASIC, now with DONKEYs</title>
+    <meta name="description"
+    content="Update on wwwBASIC, now with DONKEYs - September 22, 2018">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/sky.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!-- 
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>wwwBASIC</h2>
+          <h3>Update on wwwBASIC,<br/>now with DONKEYs</h3>
+          <h4>Septemeber 22, 2018</h4>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Recap</h3>
+          <ul>
+            <li class="fragment">Ed Thelen's Nike Hercules Simulation</li>
+            <li class="fragment">"guaranteed to be virus free"</li>
+            <li class="fragment">Why not run on the Web?</li>
+            <li class="fragment">Compile to JavaScript</li>
+            <li class="fragment">Run the code as-is</li>
+            <li class="fragment">BASIC as a scoped problem</li>
+            <li class="fragment">Inspire my next Web Forth</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Nike Hercules Simulation</h3>
+          <img src="nike.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Open-sourcing</h3>
+          <ul>
+            <li class="fragment">Open sourced as Google project</li>
+            <li class="fragment">github.com/google/wwwbasic</li>
+            <li class="fragment">Runs Ed's program, some samples</li>
+            <li class="fragment">But there's a lot more BASIC out there...</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS</h3>
+          <pre><code data-trim>
+940 REM The IBM Personal Computer Donkey
+950 REM Version 1.10 (C)Copyright IBM Corp 1981, 1982
+960 REM Licensed Material - Program Property of IBM
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS</h3>
+          <img src="https://blog.codinghorror.com/content/images/uploads/2007/05/6a0120a85dcdae970b0120a86d9759970b-pi.gif">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS</h3>
+          <ul>
+            <li class="fragment">Demo for BASIC on IBM PC</li>
+            <li class="fragment">Written by Bill Gates &amp; Neil Konzen</li>
+            <li class="fragment">In a locked room</li>
+            <li class="fragment">That was over 100 degrees</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS BASICA Compat</h3>
+          <ul>
+            <li class="fragment">Line Numbers</li>
+            <li class="fragment">DATA, READ, RESTORE</li>
+            <li class="fragment">=&gt; ?!?!</li>
+            <li class="fragment">DEF SEG, PEEK, POKE</li>
+            <li class="fragment">DRAW</li>
+            <li class="fragment">PLAY (caveat)</li>
+            <li class="fragment">GET / PUT</li>
+            <li class="fragment">PAINT</li>
+            <li class="fragment">WIDTH 40</li>
+            <li class="fragment">Font</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS - Code Mystery #1</h3>
+          <pre><code data-trim>
+975 DEF SEG: POKE 106,0
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Code Mystery #1 (SAMPLES.BAS)</h3>
+          <pre><code data-trim>
+210 LOCATE 7,3,0:PRINT  "A - MUSIC    (32k)"
+220 LOCATE 8,3,0:PRINT  "B - ART      (32k-Color/Graphics)"
+230 LOCATE 9,3,0:PRINT  "C - MORTGAGE (48k)"
+240 LOCATE 10,3,0:PRINT "D - CIRCLE   (BASICA-Color/Graphics)"
+250 LOCATE 11,3,0:PRINT "E - DONKEY   (BASICA-Color/Graphics)"
+251 LOCATE 12,3,0:PRINT "F - PIECHART (BASICA-Color/Graphics)"
+252 LOCATE 13,3,0:PRINT "G - BALL     (BASICA-Color/Graphics)"
+253 LOCATE 14,3,0:PRINT "H - COLORBAR (32k)"
+254 LOCATE 15,3,0:PRINT "I - CALENDAR (32k)"
+255 LOCATE 16,3,0:PRINT "J - SPACE    (BASICA-Color/Graphics)"
+256 LOCATE 17,3,0:PRINT "ESC KEY - EXIT"
+260 LOCATE 19,3,0:PRINT "ENTER LETTER OF PROGRAM"
+262 LOCATE 21,3,0:PRINT "NOTE: All of the above programs"
+263 LOCATE 22,3,0:PRINT "      require 48k if using BASICA"975 DEF SEG: POKE 106,0
+270 POKE 106,0 'CLEAR KYBD BUFFER
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS - Code Mystery #2</h3>
+          <pre><code data-trim>
+1160 DEF SEG=0
+1170 IF (PEEK(&amp;H410) AND &amp;H30)&lt;&gt;&amp;H30 THEN DEF SEG:GOTO 1291
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS - Code Mystery #2</h3>
+          <pre><code data-trim>
+1160 DEF SEG=0
+1170 IF (PEEK(&amp;H410) AND &amp;H30)&lt;&gt;&amp;H30 THEN DEF SEG:GOTO 1291
+1180 WIDTH 80:CLS:LOCATE 3,1
+1190 PRINT "HOLD IT!"
+1200 PRINT "YOU'RE NOT USING THE COLOR/GRAPHICS MONITOR ADAPTER!"
+1210 PRINT "THIS PROGRAM USES GRAPHICS AND REQUIRES THAT ADAPTER."
+1220 PRINT "PRESS THE SPACE BAR TO CONTINUE."
+1230 DEF SEG
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DONKEY.BAS - Code Mystery #2</h3>
+          <ul>
+            <li>
+            0x0410 (word)	packed bit flags for detected hardware</li>
+            <li class="fragment">Fortunately PEEK(0) &rarr; 0 works</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DRAW</h3>
+          <pre><code data-trim>
+1800 DRAW"BM12,1r3m+1,3d2R1ND2u1r2d4l2u1l1"
+1810 DRAW"d7R1nd2u2r3d6l3u2l1d3m-1,1l3"
+1820 DRAW"m-1,-1u3l1d2l3u6r3d2nd2r1u7l1d1l2"
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>DRAW</h3>
+          <ul>
+            <li class="fragment">Mini-language for drawing</li>
+            <li class="fragment">Memory efficient</li>
+            <li class="fragment">Un Dn Ln Rn | Cn | Mx,y | Sn</li>
+            <li class="fragment">B - Move but don't draw</li>
+            <li class="fragment">N - Move but go back after</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>A Donkey</h3>
+          <pre><code data-trim>
+SCREEN 1
+1950 DRAW"S08"
+1960 DRAW "BM14,18"
+1970 DRAW"M+2,-4R8M+1,-1U1M+1,+1M+2,-1
+1980 DRAW"M-1,1M+1,3M-1,1M-1,-2M-1,2"
+1990 DRAW"D3L1U3M-1,1D2L1U2L3D2L1U2M-1,-1"
+2000 DRAW"D3L1U5M-2,3U1"
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>A Donkey</h3>
+          <img width="600" style="image-rendering: pixelated" src="donkey1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>PAINT</h3>
+          <ul>
+            <li class="fragment">Flood fill</li>
+            <li class="fragment">PAINT(x,y), attrib [,border] [,background]</li>
+            <li class="fragment">Not quite like MSPaint</li>
+            <li class="fragment">Later versions support patterns in strings</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>A Painted Donkey</h3>
+          <pre><code data-trim>
+SCREEN 1
+1950 DRAW"S08"
+1960 DRAW "BM14,18"
+1970 DRAW"M+2,-4R8M+1,-1U1M+1,+1M+2,-1
+1980 DRAW"M-1,1M+1,3M-1,1M-1,-2M-1,2"
+1990 DRAW"D3L1U3M-1,1D2L1U2L3D2L1U2M-1,-1"
+2000 DRAW"D3L1U5M-2,3U1"
+2010 PAINT (21,14),3
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>A Painted Donkey</h3>
+          <img width="600" style="image-rendering: pixelated" src="donkey2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>GET / PUT</h3>
+          <pre><code data-trim>
+1470 DIM DNK%(300)
+...
+2040 GET (13,0)-(45,25),DNK%
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>GET / PUT</h3>
+          <pre><code data-trim>
+1740 IF Y=&gt;3 THEN PUT (DX,Y),DNK%,PSET
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>GET / PUT</h3>
+          <pre><code data-trim>
+1510 DIM B%(300)
+1520 FOR I=2 TO 300:B%(I)=-16384+192:NEXT
+1530 B%(0)=2:B%(1)=193
+...
+1760 IF Y AND 3 THEN PUT (140,6),B%
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>GET / PUT</h3>
+          <img src="https://blog.codinghorror.com/content/images/uploads/2007/05/6a0120a85dcdae970b0120a86d9759970b-pi.gif">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>WIDTH 40 + Line Art</h3>
+          <ul>
+            <li class="fragment">The "other" text mode</li>
+            <li class="fragment">40x25</li>
+            <li class="fragment">Used for title screen</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Font</h3>
+          <img style="image-rendering: pixelated" src="charset.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>Discovered by the Press!</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>9/16 - Hacker News</h2>
+          <img src="hn.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>9/18 - Boing Boing</h2>
+          <img src="article1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>9/18 - Hackaday</h2>
+          <img src="article2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Community</h3>
+          <ul>
+            <li class="fragment">Open source community shows up</li>
+            <li class="fragment">QB64</li>
+            <li class="fragment">Interest in GORILLA.BAS + NIBBLES.BAS</li>
+            <li class="fragment">12 PRs (as of 9/22)</li>
+            <li class="fragment">7 Team members (as of 9/22)</li>
+            <li class="fragment">Fixes, docs fixes, great ideas</li>
+            <li class="fragment">Logistics of github</li>
+            <li class="fragment">NPM Package</li>
+            <li class="fragment">Logo</li>
+            <li class="fragment">ACE Editor</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>NPM Package</h3>
+          <ul>
+            <li class="fragment">NPM - Node.js Package Manager</li>
+            <li class="fragment">package.json - manifest for a project</li>
+            <li class="fragment">npm install -S wwwbasic</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Logo</h3>
+          <ul>
+            <li class="fragment">Ask and you shall receive...</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - metaa</h3>
+          <img src="https://user-images.githubusercontent.com/5056880/45806802-414c5900-bcc2-11e8-9a5e-0f21b61a2824.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - why-does-ie-still-exist</h3>
+          <img src="https://user-images.githubusercontent.com/33632547/45833492-9a63bf00-bcb9-11e8-9eec-796f71a47e89.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - why-does-ie-still-exist</h3>
+          <img src="https://user-images.githubusercontent.com/33632547/45842393-78763680-bcd1-11e8-9d03-4e9cf7a5ee4a.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - anilkilic</h3>
+          <img src="https://user-images.githubusercontent.com/2311397/45847368-82308600-bd33-11e8-9b07-822f9edd6dc2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - anilkilic</h3>
+          <img src="https://user-images.githubusercontent.com/2311397/45855298-2cbaa000-bd58-11e8-85b0-457532c77ca4.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - anilkilic</h3>
+          <img width="600" src="https://user-images.githubusercontent.com/26193059/45907724-1697f880-bdc7-11e8-9424-5fde265cd260.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>wwwBASIC Logo - anilkilic</h3>
+          <img width="600" src="https://user-images.githubusercontent.com/26193059/45907724-1697f880-bdc7-11e8-9424-5fde265cd260.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Editor</h3>
+          <ul>
+            <li class="fragment">
+<b>unitycoder</b> - <i>
+has anyone added ace editor syntax highlight/definitions for this yet?<br/>
+https://ace.c9.io/<br/>
+<br/>
+would be nice to have online code playground for this..<br/>
+</i>
+</li>
+            <li class="fragment">Interactivity key to Haiku Forth success</li>
+            <li class="fragment">Ace Editor for cloud9 IDE</li>
+            <li class="fragment">No BASIC syntax file, but has FORTRAN!</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Editor</h3>
+          <img src="editor1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Editor</h3>
+          <img src="editor2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>What's Next?</h3>
+          <ul>
+            <li class="fragment">Better Documentation</li>
+            <li class="fragment">Better Tests</li>
+            <li class="fragment">QBasic Compat</li>
+            <li class="fragment">FUNCTION, SUB, DEF FN</li>
+            <li class="fragment">TYPES (working partially)</li>
+            <li class="fragment">GORILLA.BAS ---
+            <img width="150" src="http://steve-lovelace.com/wordpress/wp-content/uploads/2017/02/gorilla-bas.png">
+            </li>
+            <li class="fragment">NIBBLES.BAS ---
+            <img width="150" src="https://upload.wikimedia.org/wikipedia/en/2/21/Nibbles_screenshot.png">
+            </li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/google/wwwbasic">wwwBASIC</a>
+          and
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:<br/>
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../common/haiku.js"></script>
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
