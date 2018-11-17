@@ -25,8 +25,8 @@
   <body>
     <div style="position: fixed; bottom: 0; width: 100%">
       <center>
-        <h2 id="cc1"></h2>
-        <h2 id="cc2"></h2>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
       </center>
     </div>
     <div class="reveal">
@@ -42,9 +42,325 @@
         </section>
 
         <section data-transition="fade-out">
-          <h2>Recap</h2>
+          <h2>Introduction</h2>
           <ul>
-            <li>Voice</li>
+            <li>Voice Assistants</li>
+            <li>Actions on Google</li>
+            <li>Gforth on AoG</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Voice Assistants</h2>
+          <ul>
+            <li>Siri - Apple</li>
+            <li>Alexa - Amazon</li>
+            <li>Cortana - Microsoft</li>
+            <li>Bixby - Samsung</li>
+            <li>Google Assistant - Google</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Siri</h2>
+          <h3>Apple</h3>
+<img src="https://cdn.cultofmac.com/wp-content/uploads/2016/05/Siri-Quick-Tip-780x521.jpg">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Homepod</h2>
+          <h3>Apple</h3>
+<img src="https://target.scene7.com/is/image/Target/GUEST_c9ffe300-93fa-4b86-9189-a8e9b9a0567e?wid=488&hei=488&fmt=webp">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Amazon Echo</h2>
+          <h3>Alexa</h3>
+<img src="https://snpi.dell.com/snp/images2/300/en-us~AA344331/AA344331.jpg">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Cortana</h2>
+          <h3>Microsoft</h3>
+<img src="https://cdn.neow.in/news/images/uploaded/2014/10/cortana__story.jpg">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Harman Kardon Invoke</h2>
+          <h3>Cortana - Microsoft</h3>
+          <img src="https://images-na.ssl-images-amazon.com/images/I/51vmwiAXQVL.jpg">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Google Assistant</h2>
+<img src="https://assistant.google.com/static/images/share.jpg">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Google Home</h2>
+          <img src="https://i5.walmartimages.com/asr/494433a6-f130-47d7-87c4-a49ddadb3f8c_4.bfeee59991749977a7d925b2cfaa7886.jpeg?odnHeight=450&odnWidth=450&odnBg=FFFFFF">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>JioPhone</h2>
+          <h3>Google Assistant</h3>
+          <img src="https://images-na.ssl-images-amazon.com/images/I/511qpyTfuIL._SY550_.jpg">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Google Home Mini</h2>
+          <img src="https://i5.walmartimages.com/asr/3c86cfb2-ac4f-4263-8cd0-ce3b4aa47c21_1.f42a6f488de0bfdbb024fd378f2b8093.jpeg?odnHeight=450&odnWidth=450&odnBg=FFFFFF">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Voice Assistant Features</h2>
+          <ul>
+            <li>Always On</li>
+            <li>Large Domain</li>
+            <li>3rd-party Extensions</li>
+            <li>Multiple Devices</li>
+            <li>Home Automation</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Speech Recognition</h2>
+          <ul>
+            <li>Triggering</li>
+            <li>Speech in the cloud</li>
+            <li>Biasing</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Actions on Google</h2>
+          <ul>
+            <li>3rd Party "Actions"</li>
+            <li>Dialogflow</li>
+            <li>Actions SDK</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Terminology</h2>
+          <ul>
+            <li>Invocation - Phrase to trigger an "app"</li>
+            <li>Intent - A structured encoding of user intent</li>
+            <li>Fulfillment - How to handle a user intent</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>actions.json</h2>
+          <pre>
+{
+  "actions": [
+    {
+      "description": "Default Welcome Intent",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "Voice Forth"
+      },
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>actions.json</h2>
+          <pre>
+      "intent": {
+        "name": "actions.intent.MAIN",
+        "parameters": [{
+          "name": "command",
+          "type": "org.schema.type.Text"
+        }],
+        "trigger": {
+          "queryPatterns": [
+            "talk to Voice Forth",
+            "ask Voice Forth $org.schema.type.Text:command",
+            "forth $org.schema.type.Text:command"
+          ]
+        }
+      }
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>actions.json</h2>
+          <pre>
+  "conversations": {
+    "Voice Forth": {
+      "name": "Voice Forth",
+      "url": "https://voice.flagxor.com/voiceforth"
+    }
+  },
+  "locale": "en"
+}
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="actions1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="actions2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Voice Forth Logo!</h2>
+          <img src="voiceforthbig.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="deploy1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="sim1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="explore1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Request</h2>
+          <ul>
+            <li>JSON</li>
+            <li>Capabilities of the device</li>
+            <li>Parsed input</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Response</h2>
+          <ul>
+            <li>JSON</li>
+            <li>Text</li>
+            <li>TTS</li>
+            <li>Cards</li>
+            <li>Suggestions</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="response1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="response2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Fulfillment</h2>
+          <ul>
+            <li>Provide an HTTPS URL</li>
+            <li>Accepts Requests, yields Responses</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Requirements</h2>
+          <ul>
+            <li>HTTPS</li>
+            <li>Always Available</li>
+            <li>Can Run Gforth</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Google Firebase</h2>
+          <ul>
+            <li>Actions on Google Integration</li>
+            <li>Cloud Functions</li>
+            <li>Integrated database</li>
+            <li>Free with small traffic</li>
+            <li>Can't run Gforth</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Google AppEngine</h2>
+          <ul>
+            <li>Multi-language scalable services</li>
+            <li>Free with small traffic</li>
+            <li>Can't run Gforth</li>
+          </ul>
+        </section>
+
+         <section data-transition="fade-out">
+          <h2>Google Cloud VM</h2>
+          <ul>
+            <li>Run a Linux instance in the cloud</li>
+            <li>Free year long trial</li>
+            <li>Free tier with low powered system</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="cloud1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="cloud2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>HTTPS</h2>
+          <ul>
+            <li>Requires a certificate</li>
+            <li>Let's Encrypt</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="encrypt1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Serving</h2>
+          <ul>
+            <li>Apache2</li>
+            <li>Node.js</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Slide Hookup</h2>
+          <ul>
+            <li>Voice Forth remembers last input / output</li>
+            <li>Back channel to receive commands + i/o</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Long Polling</h2>
+          <ul>
+            <li>Hold open HTTP connection server side</li>
+            <li>~30 second timeout</li>
+            <li>Retry</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Gforth Challenges</h2>
+          <ul>
+            <li>Assistant strongly assumes "proper" English</li>
+            <li>Forth core words are odd</li>
+            <li>Numbers are sometimes words</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>Demo</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Possibilities & Learnings</h2>
+          <ul>
+            <li>Forth's DSL flexibility is brittle</li>
+            <li>More grammatical Forth?</li>
+            <li>Conversational program refinement?</li>
           </ul>
         </section>
 
