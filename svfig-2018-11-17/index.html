@@ -214,6 +214,24 @@
 
         <section data-transition="fade-out">
           <h2>Voice Forth Logo!</h2>
+<pre>
+: square dup * ;
+: dist square swap square + sqrt ;
+: shape
+   x .5 - y .5 - dist .4
+   x .3 - y .7 - atan2 9 * sin .07 * +
+   swap - 30 * ;
+: shadow  1 swap - shape 0.9 - 10 * 0 max 1 min * ;
+: layer
+   push push
+   x .3 - y .5 - dist sin pop * sin
+   x .7 - y .5 - dist sin pop * sin * shadow ;
+23 23 layer   23 22 layer   22 23 layer   shape
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Voice Forth Logo!</h2>
           <img src="voiceforthbig.png">
         </section>
 
