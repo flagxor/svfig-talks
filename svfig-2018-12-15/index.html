@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Lamp Get</title>
+    <meta name="description" content="Lamp Get - December 15, 2018">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/beige.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!-- 
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <style>
+pre {
+  background-color: #dff;
+}
+    </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h1>Lamp Get</h1>
+          <h2>December 15, 2018</h2>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Motivation</h2>
+          <ul>
+            <li>Tell an interactive story</li>
+            <li>Use Forth for something specific</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Interactive Fiction</h2>
+          <ul>
+            <li>Simple text parsers, e.g. [VERB] [OBJECT]</li>
+            <li>Descriptive text in place of graphics</li>
+            <li>Direct world "model"</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Colossal Cave Adventure</h2>
+          <ul>
+            <li>1976 - Will Crowther on PDP-10, in Fortran</li>
+            <li>1977 - Expanded by Don Woods (Stanford)</li>
+            <li>You are in a maze of twisty little passages, all alike.</li>
+            <li>XYZZY, PLUGH</li>
+            <li>Knuth - <i>"What a thrill it was when I first got past the green snake! Clearly the game was potentially addictive, so I forced myself to stop playing"</i></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Infocom</h2>
+          <ul>
+            <li>1977 - Zork (Dungeon)
+            <li>1979 - Infocom forms: Dave Lebling, Marc Blank, Albert Vezza, and Joel Berez</li>
+            <li>A Mind Forever Voyaging</li>
+            <li>Hitchhiker's Guide to the Galaxy</li>
+            <li>Planetfall</li>
+            <li>The Lurking Horror</li>
+            <li class="fragment">Leather Goddesses of Phobos</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>MDL (Muddle)</h2>
+<pre>
+&lt;DEFINE EXIT-TO (EXITS RMS)
+        #DECL ((EXITS) EXIT (RMS) &lt;UVECTOR [REST ROOM]&gt;)
+        &lt;MAPF &lt;&gt;
+              &lt;FUNCTION (E)
+                 #DECL ((E) &lt;OR DIRECTION ROOM CEXIT NEXIT DOOR&gt;)
+                 &lt;COND (&lt;TYPE? .E DIRECTION&gt;)
+                       (&lt;AND &lt;TYPE? .E ROOM&gt; &lt;MEMQ .E .RMS&gt;&gt;
+                        &lt;MAPLEAVE T&gt;)
+                       (&lt;AND &lt;TYPE? .E CEXIT&gt; &lt;MEMQ &lt;2 .E&gt; .RMS&gt;&gt;
+                        &lt;MAPLEAVE T&gt;)
+                       (&lt;AND &lt;TYPE? .E DOOR&gt;
+                             &lt;OR &lt;MEMQ &lt;DROOM1 .E&gt; .RMS&gt;
+                                 &lt;MEMQ &lt;DROOM2 .E&gt; .RMS&gt;&gt;&gt;
+                        &lt;MAPLEAVE T&gt;)&gt;&gt;
+              .EXITS&gt;&gt;
+</pre>
+<small>https://en.wikipedia.org/wiki/MDL_(programming_language)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ZIL / Zilch</h2>
+<pre>
+&lt;OBJECT LANTERN 
+                (LOC LIVING-ROOM) 
+                (SYNONYM LAMP LANTERN LIGHT) 
+                (ADJECTIVE BRASS) 
+                (DESC "brass lantern") 
+                (FLAGS TAKEBIT LIGHTBIT) 
+                (ACTION LANTERN-F) 
+                (FDESC "A battery-powered lantern is on the trophy 
+               case.") 
+                (LDESC "There is a brass lantern (battery-powered) 
+               here.") 
+                (SIZE 15)&gt;
+</pre>
+<small>https://www.filfre.net/2012/01/zil-and-the-z-machine/</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Z-Machine</h2>
+          <ul>
+            <li>64K memory model, 16-bit words, 256 memory mapped globals</li>
+            <li>Dynamic Data (objects, game state)</li>
+            <li>Static Data (grammar table, actions, dictionary)</li>
+            <li>High Data (Z-Code, static strings)</li>
+          </ul>
+<pre>
+  @mul 1000 c -&gt; sp;     d6 2f 03 e8 02 00
+      variable form; count 2OP; opcode number 22; operands:
+          03 e8  long constant (1000 decimal)
+          02     variable c
+      store result to stack pointer (var number 00).
+</pre>
+<small>https://www.inform-fiction.org/zmachine/standards/z1point0/sect04.html</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Z-Machine (Strings)</h2>
+<pre>
+   Z-char 6789abcdef0123456789abcdef
+current   --------------------------
+  A0      abcdefghijklmnopqrstuvwxyz
+  A1      ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  A2       ^0123456789.,!?_#'"/\-:()
+          --------------------------
+</pre>
+<small>https://www.inform-fiction.org/zmachine/standards/z1point0/sect03.html</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Z-Machine (object model)</h2>
+          <ul>
+            <li>Parent, children, sibling</li>
+            <li>24/32 Attributes (Binary Flags)</li>
+            <li>Variable 16-bit properties, with default values</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Interactive Fiction Continues</h2>
+          <ul>
+            <li>1986 - Infocom acquired by Activision</li>
+            <li>Sierra Online</li>
+            <li>LucasArt</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Interactive Fiction as Art</h2>
+          <ul>
+            <li>XYZZY Awards</li>
+            <li>Photopia</li>
+            <li>Lost Pig</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>TADS (Text Adventure Development System)</h2>
+<pre>
+hallway: Room 'Hallway'
+    "This hall is pretty bare,
+    but there are exits to west and south. "
+    south = startRoom
+    west = study
+;
+
+study: Room 'Study'
+    "This study is much as you would expect.
+    A desk stands in the middle of the
+    room. The way out is to the east. "
+    east = hallway
+;
+</pre>
+<small>https://www.tads.org/t3doc/doc/t3QuickStart.htm#sample</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Inform</h2>
+<pre>
+Object  foyer "Foyer of the Opera House"
+  with  description
+           "You are standing in a spacious hall,
+            splendidly decorated in red
+            and gold, with glittering chandeliers overhead.
+            The entrance from the street is to the north,
+            and there are doorways south and west.",
+        s_to  bar,
+        w_to  cloakroom,
+        n_to
+           "You've only just arrived, and besides,
+            the weather outside seems to be getting worse.",
+  has   light;
+</pre>
+<small>http://www.firthworks.com/roger/cloak/inform/index.html</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Inform7 / Natural Inform</h2>
+<pre>
+Foyer of the Opera House is a room.
+"You are standing in a spacious hall,
+splendidly decorated in red and gold,
+with glittering chandeliers overhead.
+The entrance from the street is to the north,
+and there are doorways south and west."
+
+Instead of going north in the Foyer,
+say "You've only just arrived, and besides,
+the weather outside seems to be getting worse."
+</pre>
+<small>http://www.firthworks.com/roger/cloak/inform/index.html</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forth for Interactive Fiction</h2>
+          <ul>
+            <li>Re-use the Forth Parser</li>
+            <li>Mimic the core of the Z-Machine object model</li>
+            <li>Domain Specific Vocabulary for this purpose</li>
+            <li>An eye to targeting JS / Z-Machine</li>
+            <li>Use GForth for now</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Components</h2>
+          <ul>
+            <li>Core Engine</li>
+            <li>Generic World Model</li>
+            <li>Game Specific</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Trailing Strings</h2>
+<pre>
+ROOM: shed   Inside Shed
+DESCRIPTION: The shed is illuminated by a single dim lightbulb.
+A small hatch in the floor leads into darkness. A metal ladder,
+fused with the concrete is visible.
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Trailing Strings</h2>
+<pre>
+( Manipulate the rest of the current line )
+: trailing? ( -- f) source nip &gt;in @ - ;
+: trailing ( -- a n ) source &gt;in @ - swap &gt;in @ + swap ;
+: space? ( -- f ) source drop &gt;in @ + c@ bl = ;
+: skip-space   begin trailing? space? and while 1 &gt;in +! repeat ;
+: skip-trailing   source nip &gt;in ! ;
+: eat-trailing   skip-space trailing skip-trailing ;
+: trailing,   eat-trailing dup , dup &gt;r here swap cmove r&gt; allot ;
+: while-trailing ( xt -- )
+   begin trailing? while dup execute repeat drop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabulary for Parser</h2>
+<pre>
+( Words common to many games )
+game-words set-current
+  NOUNS: north south east west up down
+  NOUNS: northwest northeast southwest southeast
+  NOUNS: n s e w nw ne sw se u d
+  NOUNS: all
+  VERBS: inventory i get drop look examine eat drink go
+  FILLERS: a an the at
+only forth definitions
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabulary for Parser</h2>
+<pre>
+( Handle parts of a phrase )
+variable cmd   variable obj   variable failed
+variable uid   2 uid !
+: noun create uid @++ , does&gt; @ obj @ 8 lshift + obj ! ;
+: NOUNS: ['] noun while-trailing ;
+: verb create uid @++ , does&gt; @ cmd @ 8 lshift + cmd ! ;
+: VERBS: ['] verb while-trailing ;
+: filler create does&gt; drop ;
+: FILLERS: ['] filler while-trailing ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Handling Input</h2>
+<pre>
+  q" drop" verb= if
+    ego find-object
+    dup if
+      room into
+      say: Dropped.
+    else
+      drop
+      say: I don't have that.
+    then
+    exit
+  then
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>String Encoding</h2>
+          <ul>
+            <li>Lots of strings to pass around</li>
+            <li>Mostly immutable strings</li>
+            <li>&gt; 255 characters</li>
+            <li>Use a cell sized counted string!</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Word Wrapping</h2>
+<pre>
+( Print with word wrap )
+: last-ch ( a n -- ch ) dup 0= if 2drop bl else + 1- c@ then ;
+: bl-trim ( a n -- a n ) begin 2dup last-ch bl <> while 1- repeat ;
+: wrap-point ( a n -- n )
+   dup cols &lt; if nip else drop cols 1- bl-trim nip then ;
+: wrap-one ( a n -- a n )
+   2dup wrap-point swap &gt;r over &gt;r dup &gt;r type cr
+   r&gt; r&gt; over + swap r&gt; swap - ;
+: wrap ( a n -- ) begin dup 0&lt;&gt; while wrap-one repeat 2drop cr ;
+: cwrap ( ccs -- ) cc&gt;s wrap ;
+: say:   eat-trailing postpone sliteral postpone wrap ; immediate
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Properties</h2>
+<pre>
+variable property-count
+: property create property-count @++ , does&gt; @ cells + ;
+: PROPERTIES: ['] property while-trailing ;
+( Built-in properties )
+PROPERTIES: .parent .children .sibling
+PROPERTIES: .short-name .description .attributes .called
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Attributes</h2>
+<pre>
+( Game object attributes )
+variable attribute-count
+: attribute create attribute-count @++ 1 swap lshift , does&gt; @ ;
+: ATTRIBUTES: ['] attribute while-trailing ;
+: set ( a attr -- ) swap .attributes or! ;
+: clear ( a attr -- ) invert swap .attributes and! ;
+: get ( a attr -- f ) swap .attributes @ and 0<> ;
+( Built-in attributes )
+ATTRIBUTES: .room .entity .prop
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Applying Properties & Attributes</h2>
+<pre>
+( Additional attributes and properties )
+PROPERTIES: .north .south .east .west .up .down
+PROPERTIES: .northeast .northwest .southwest .southeast
+ATTRIBUTES: .holdable .described
+ATTRIBUTES: .open .locked
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Objects and Lists</h2>
+<pre>
+: remove' ( o -- )
+   dup .parent @ .children begin dup @ while
+     2dup @ = if dup @ .sibling @ swap ! drop exit then
+     @ .sibling
+   repeat 2drop ;
+: insert' ( o p -- )
+   2dup   swap .parent !
+   dup .children @ &gt;r over r&gt; swap .sibling !  .children ! ;
+: into ( o p -- ) over remove' insert' ;
+: contains ( o p -- f ) swap .parent = ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Iteration</h2>
+<pre>
+: iterate ( o xt -- )
+   swap .children begin dup @ while
+     2dup dup @ &gt;r &gt;r &gt;r @ swap execute r&gt; r&gt; r&gt;
+     over @ = if @ .sibling then
+   repeat 2drop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Iteration (cont.)</h2>
+<pre>
+: drop-all-one ( o -- )
+   dup .holdable get if room into else drop then ;
+: drop-all ego ['] drop-all-one iterate ;
+
+: get-all-one ( o -- )
+   dup .holdable get if ego into else drop then ;
+: get-all room ['] get-all-one iterate ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Connecting Rooms</h2>
+<pre>
+create direction-table
+q" n" ,   q" north" ,      ' .north ,
+q" s" ,   q" south" ,      ' .south ,
+q" e" ,   q" east" ,       ' .east ,
+q" w" ,   q" west" ,       ' .west ,
+q" nw" ,  q" northwest" ,  ' .northwest ,
+q" ne" ,  q" northeast" ,  ' .northeast ,
+q" sw" ,  q" southwest" ,  ' .southwest ,
+q" se" ,  q" southeast" ,  ' .southeast ,
+q" u" ,   q" up" ,         ' .up ,
+q" d" ,   q" down" ,       ' .down ,
+10 constant direction-count
+: direction ( n n -- ) swap 3 * + cells direction-table + @ ;
+: short-direction 0 direction ;
+: long-direction 1 direction ;
+: in-direction 2 direction execute @ ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Connecting Rooms (cont.)</h2>
+<pre>
+( Connect rooms )
+: connect-we ( a b -- ) 2dup .west ! swap .east ! ;
+: connect-ns ( a b -- ) 2dup .north ! swap .south ! ;
+: connect-nwse ( a b -- ) 2dup .northwest ! swap .southeast ! ;
+: connect-nesw ( a b -- ) 2dup .northeast ! swap .southwest ! ;
+: connect-ud ( a b -- ) 2dup .up ! swap .down ! ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Maps</h2>
+<pre>
+map-inside:
+ 0  R01  0   0   0  R17 |m
+ 0  R02 R03  0   0  R16 |m
+ 0   0  R04 R05  0  R15 |m
+ 0  R07 R06 R11 R12 R14 |m
+R09 R08  0   0  R13  0  |m
+ 0  R10  0   0   0   0  |m
+;map
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Maps</h2>
+<pre>
+( Build up a map )
+variable map-width  variable map-height
+variable map-start  variable map-outside
+: map-init   0 map-width !  0 map-height !  here map-start ! ;
+: map-inside: 0 map-outside !  map-init ;
+: map-outside: -1 map-outside !  map-init ;
+: |m   depth map-width !  1 map-height +!
+       depth 0 do , loop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Maps</h2>
+<pre>
+: map-x-inside? ( x -- f ) dup 0&gt;= swap map-width @ &lt; and ;
+: map-y-inside? ( y -- f ) dup 0&gt;= swap map-height @ &lt; and ;
+: map-inside? ( x y -- f ) map-y-inside? swap map-x-inside? and ;
+: map-at ( x y -- a ) 2dup map-inside? 0= if 2drop 0 exit then
+                      map-width @ * map-width @ 1- rot - +
+                      cells map-start @ + @ ;
+: validpair ( a b xt -- )
+   -rot 2dup 0&lt;&gt; swap 0&lt;&gt; and if rot execute else 2drop drop then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Maps</h2>
+<pre>
+: ;map map-height @ 0 do map-width @ 0 do
+     i j map-at  i 1+ j    map-at  ['] connect-we validpair
+     i j map-at  i j 1+    map-at  ['] connect-ns validpair
+     map-outside @ if
+       i j map-at  i 1+ j 1+ map-at  ['] connect-nwse validpair
+       i j map-at  i 1- j 1+ map-at  ['] connect-nesw validpair
+     then
+   loop loop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Size and Complexity</h2>
+<pre>
+       4 README.md
+     127 engine.fs
+     194 generic.fs
+     250 svf-adventure.fs
+     575 total
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Thoughts on Complexity</h2>
+          <ul>
+            <li>Z-Machine Object Model is powerful</li>
+            <li>Very DOM like (Web object model)</li>
+            <li>Re-using parser works well, but is harder then needed</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Thoughts on Interactive Fiction</h2>
+          <ul>
+            <li>Tantalizingly potent</li>
+            <li>Cautionary history</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Future Possibilities</h2>
+          <ul>
+            <li>More flexible parser</li>
+            <li>Target Z-Machine / Web</li>
+            <li>A Z-Machine Forth</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/flagxor/svf-adventure">source</a>
+          and
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:<br/>
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="passwd.js"></script>
+    <script src="../common/haiku.js"></script>
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
