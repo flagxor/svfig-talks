@@ -837,7 +837,7 @@ atom 'rectangular   atom 'polar
              (square (imag-part z)))))
   (define (angle z)
     (atan (imag-part z) (real-part z)))
-  (define (make-from-mag-ang r a) 
+  (define (make-from-mag-ang r a)
     (cons (* r (cos a)) (* r (sin a))))
   ;; interface to the rest of the system
   (define (tag x) (attach-tag 'rectangular x))
@@ -845,9 +845,9 @@ atom 'rectangular   atom 'polar
   (put 'imag-part '(rectangular) imag-part)
   (put 'magnitude '(rectangular) magnitude)
   (put 'angle '(rectangular) angle)
-  (put 'make-from-real-imag 'rectangular 
+  (put 'make-from-real-imag 'rectangular
        (lambda (x y) (tag (make-from-real-imag x y))))
-  (put 'make-from-mag-ang 'rectangular 
+  (put 'make-from-mag-ang 'rectangular
        (lambda (r a) (tag (make-from-mag-ang r a))))
   'done)
 </pre>
@@ -888,7 +888,7 @@ private[[
     (* (magnitude z) (cos (angle z))))
   (define (imag-part z)
     (* (magnitude z) (sin (angle z))))
-  (define (make-from-real-imag x y) 
+  (define (make-from-real-imag x y)
     (cons (sqrt (+ (square x) (square y)))
           (atan y x)))
   ;; interface to the rest of the system
@@ -899,7 +899,7 @@ private[[
   (put 'angle '(polar) angle)
   (put 'make-from-real-imag 'polar
        (lambda (x y) (tag (make-from-real-imag x y))))
-  (put 'make-from-mag-ang 'polar 
+  (put 'make-from-mag-ang 'polar
        (lambda (r a) (tag (make-from-mag-ang r a))))
   'done)
 </pre>
@@ -1443,11 +1443,11 @@ variable tsp   transform-stack tsp !
 : beside ( a b -- c ) cons does&gt;
    t{ size 2/ 0 trans
       divisor 1 2 */ scale-x  dup @ execute }t
-   t{ divisor 1 2 */ scale-x  cell+ @ execute }t ; 
+   t{ divisor 1 2 */ scale-x  cell+ @ execute }t ;
 : above ( a b -- c ) cons does&gt;
    t{ 0 size 2/ trans
       divisor 1 2 */ scale-y  dup cell+ @ execute }t
-   t{ divisor 1 2 */ scale-y  @ execute }t ; 
+   t{ divisor 1 2 */ scale-y  @ execute }t ;
 </pre>
         </section>
 
@@ -1456,11 +1456,11 @@ variable tsp   transform-stack tsp !
 : beside3rd ( a b -- c ) cons does&gt;
    t{ size 3 / 0 trans
       divisor 2 3 */ scale-x  dup @ execute }t
-   t{ divisor 1 3 */ scale-x  cell+ @ execute }t ; 
+   t{ divisor 1 3 */ scale-x  cell+ @ execute }t ;
 : above3rd ( a b -- c ) cons does&gt;
    t{ 0 size 2 3 */ trans
       divisor 1 3 */ scale-y  dup cell+ @ execute }t
-   t{ divisor 2 3 */ scale-y  @ execute }t ; 
+   t{ divisor 2 3 */ scale-y  @ execute }t ;
 </pre>
         </section>
 
@@ -1997,6 +1997,15 @@ variable handler
 : throw
    handler @ rp! r&gt; handler ! r&gt; swap &gt;r sp! drop r&gt; ;
 </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CircleForth</h2>
+          <ul>
+            <li>84 circle.fs</li>
+            <li>73 compound.fs</li>
+            <li>DEMO</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
