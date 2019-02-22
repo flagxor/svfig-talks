@@ -109,8 +109,7 @@ divisor 5000 size */ scale
    over rot90 ['] tile-u over rot90 rot90
    r> rot90 r> rot90 rot90 over rot90 nonet ;
 
-\ 3 squarelimit execute
-tile-u
+3 squarelimit execute
 showpage
 
 bye
