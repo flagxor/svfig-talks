@@ -1,0 +1,2049 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Forth thru a Lisp-y Lens</title>
+    <meta name="description"
+          content="Forth thru a Lisp-y Lens - February 23, 2019">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!--
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <style>
+pre {
+  background-color: #ddd;
+}
+pre.lisp {
+  background-color: #fed;
+}
+pre.forth {
+  background-color: #def;
+}
+span.lisp {
+  color: #c80;
+}
+span.forth {
+  color: #08c;
+}
+    </style>
+  </head>
+
+<!--
+Forth thru a Lisp-y Lens
+------------------------
+For over two decades, Abelson and Sussman's seminal work,
+"Structured Interpretation of Computer Programs",
+served as the text for MIT's intro CS course.
+It uses Lisp/Scheme as a vehicle to explore programming in general,
+and explains this choice of language by proposing that a powerful
+programming language should serve as solid framework in which
+to organize ideas.
+Together we'll hold Forth up to that lens and explore how well
+several of the ideas and examples from the book work when expressed
+in Forth.
+https://mitpress.mit.edu/sites/default/files/sicp/index.html
+-->
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h1><span class="forth">Forth</span>
+               thru a
+               <span class="lisp">Lisp-y</span>
+               Lens</h1>
+          <h2>February 23, 2019</h2>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Introduction</h2>
+          <ul>
+            <li>Structured Interpretation of Computer Programs</li>
+            <li>6.001</li>
+            <li>1980 - 2007</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Disclaimers</h2>
+          <ul>
+            <li>SICP is a big book, I'll cover <b>some</b></li>
+            <li>There are many Forths, and many Lisps</li>
+            <li>Reframing from scratch is hard</li>
+            <li>Trying to illuminate, not stack rank</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lisp</h2>
+          <img src="https://imgs.xkcd.com/comics/lisp_cycles.png">
+          <br/>
+          <small>https://imgs.xkcd.com/comics/lisp_cycles.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Chapters</h2>
+          <ul>
+            <li><b>1. Building Abstraction with Procedures</b></li>
+            <li><b>2. Building Abstraction with Data</b></li>
+            <li>3. Modularity, Objects, and State</li>
+            <li><b>4. Metalinguistic Abstraction</b></li>
+            <li>5. Computing with Register Machines</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>1. Building Abstraction with Procedures</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Elements of Programming</h2>
+          <ul>
+            <li>Primitive Expressions</li>
+            <li>Means of Combination</li>
+            <li>Means of Abstraction</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Primitive Expressions</h2>
+<div layout="inline">
+<pre style="float: left; width: 30%;" class="lisp">
+(+ 137 349)
+486
+(- 1000 334)
+666
+(/ 10 5)
+2
+(+ 2.7 10)
+12.7
+</pre>
+<pre style="float: right; width: 30%;" class="forth">
+137 349 + .
+486
+1000 334 - .
+666
+10 5 / .
+2
+2.7e 10e f+ f.
+12.7
+</pre>
+</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Means of Combination</h2>
+<pre class="lisp">
+; Nesting
+(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))
+</pre>
+<pre class="forth">
+\ Nesting by way of stacks
+2 4 * 3 5 + 3 *  10 7 - 6 +  +
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Means of Abstraction</h2>
+<pre class="lisp">
+(define size 2)
+(* 5 size)
+10
+</pre>
+<pre class="forth">
+: size   5 ;    \ 5 constant size
+size 5 * .
+10
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Compound Procedures</h2>
+<pre class="lisp">
+(define (square x) (* x x))
+(square 21)
+441
+</pre>
+<pre class="forth">
+: square   dup * ;
+21 square .
+441
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Compound Procedures</h2>
+<pre class="lisp">
+(define (square x) (* x x))
+(define (sum-of-squares x y)
+   (+ (square x) (square y)))
+(sum-of-squares 3 4)
+25
+</pre>
+<pre class="forth">
+: square   dup * ;
+: sum-of-squares   square swap square + ;
+3 4 sum-of-squares .
+25
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Conditionals</h2>
+<pre class="lisp">
+(define (abs x)
+  (if (&lt; x 0) (- x) x))
+</pre>
+<pre class="forth">
+: abs ( n -- n )
+   dup 0&lt; if negate then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Conditionals</h2>
+<pre class="lisp">
+(define (abs x)
+  (cond ((&gt; x 0) x)
+        ((= x 0) 0)
+        ((< x 0) (- x))))
+</pre>
+<pre class="forth">
+: abs ( n -- n )
+   dup 0&gt; if exit then
+   dup 0= if exit then
+   dup 0&lt; if negate exit then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Euclid's Algorithm</h2>
+<pre class="lisp">
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+</pre>
+<pre class="forth">
+: gcd ( a b -- n )
+   dup 0= if drop else swap over mod recurse then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Square Root</h2>
+<pre class="lisp">
+(define (square x) (* x x))
+(define (average x y) (/ (+ x y) 2))
+(define (improve guess x) (average guess (/ x guess)))
+(define (good-enough? guess x)
+  (&lt; (abs (- (square guess) x)) 0.001))
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+(define (sqrt x) (sqrt-iter 1.0 x))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Square Root</h2>
+<pre class="forth">
+: fsquare ( n -- n2 ) fdup f* ;
+: faverage ( a b -- mid ) f+ 2e f/ ;
+: fgood-enough? ( x guess ) fsquare f- fabs 0.001e f&lt; ;
+: fimprove ( guess x ) fover f/ faverage ;
+: f2dup ( a b -- a b a b ) fover fover ;
+: fsqrt-iter ( x guess )
+   f2dup fgood-enough? if fnip else fover fimprove recurse then ;
+: fsqrt ( x -- rx ) 1.0e fsqrt-iter ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Square Root</h2>
+<pre class="forth">
+: square ( n -- n2 ) dup * ;
+: average ( a b -- mid ) + 2/ ;
+: improve ( guess x ) over / average ;
+: good-enough? ( x guess ) dup &gt;r square - abs r&gt; &lt; ;
+: sqrt-iter ( x guess )
+   2dup good-enough? if nip else over improve recurse then ;
+: sqrt ( x -- rx ) 1 sqrt-iter ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Recursive Factorial</h2>
+<pre class="lisp">
+(define (factorial n)
+  (if (= n 1)
+      1
+      (* n (factorial (- n 1)))))
+</pre>
+<pre class="forth">
+: factorial ( n -- n! )
+  dup 1 &lt;&gt; if dup 1- recurse * then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Recursive Factorial</h2>
+<pre class="lisp">
+(factorial 4)
+(* 4 (factorial 3))
+(* 4 (* 3 (factorial 2)))
+(* 4 (* 3 (* 2 (factorial 1))))
+(* 4 (* 3 (* 2 1)))
+(* 4 (* 3 2))
+(* 4 6)
+24
+</pre>
+<pre class="forth">
+4 factorial
+4 3 factorial *
+4 3 2 factorial * *
+4 3 2 1 factorial * * *
+4 3 2 1 * * *
+4 3 2 * *
+4 6 *
+24
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Iterative Factorial</h2>
+<pre class="lisp">
+(define (factorial n)
+  (fact-iter 1 1 n))
+
+(define (fact-iter product counter max-count)
+  (if (&gt; counter max-count)
+      product
+      (fact-iter (* counter product)
+                 (+ counter 1)
+                 max-count)))
+</pre>
+<pre class="forth">
+: factorial ( n -- n! )
+  1+ 1 swap 1 ?do i * loop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Iterative Factorial</h2>
+<pre class="lisp">
+(factorial 4)
+(fact-iter 1 1 4)
+(fact-iter 1 2 4)
+(fact-iter 2 3 4)
+(fact-iter 6 4 4)
+(fact-iter 24 5 4)
+24
+</pre>
+<pre class="forth">
+4 factorial
+1      ( i = 1 )
+1 2 *  ( i = 2 )
+2 3 *  ( i = 3 )
+6 4 *  ( i = 4 )
+24
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Recursive Fibonacci</h2>
+<pre class="lisp">
+(define (fib n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (else (+ (fib (- n 1))
+                 (fib (- n 2))))))
+</pre>
+<pre class="forth">
+: fib ( n -- nfib )
+    dup 1 &gt; if dup 1- recurse swap 2 - recurse + then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Tree Recursion</h2>
+          <img src="https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/ch1-Z-G-13.gif">
+          <small>https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/ch1-Z-G-13.gif</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Iterative Fibonacci</h2>
+<pre class="lisp">
+(define (fib n)
+  (fib-iter 1 0 n))
+
+(define (fib-iter a b count)
+  (if (= count 0)
+      b
+      (fib-iter (+ a b) a (- count 1))))
+</pre>
+<pre class="forth">
+: fib-iter ( n -- nfib )
+  0 1 rot 0 ?do swap over + loop drop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Counting Change</h2>
+<pre class="lisp">
+(define (count-change amount)
+  (cc amount 5))
+(define (cc amount kinds-of-coins)
+  (cond ((= amount 0) 1)
+        ((or (&lt; amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc amount
+                     (- kinds-of-coins 1))
+                 (cc (- amount
+                        (first-denomination kinds-of-coins))
+                     kinds-of-coins)))))
+(define (first-denomination kinds-of-coins)
+  (cond ((= kinds-of-coins 1) 1)
+        ((= kinds-of-coins 2) 5)
+        ((= kinds-of-coins 3) 10)
+        ((= kinds-of-coins 4) 25)
+        ((= kinds-of-coins 5) 50)))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Counting Change</h2>
+<pre class="forth">
+create denominations 1 , 5 , 10 , 25 , 50 ,
+: first-denomination ( kinds-of-coins -- n )
+   1- cells denominations + @ ;
+: cc ( amount kinds-of-coins )
+   recursive
+   over 0= if 2drop 1 exit then
+   2dup 0= swap 0&lt; or if 2drop 0 exit then
+   2dup 1- cc &gt;r dup &gt;r first-denomination - r&gt; cc r&gt; + ;
+: count-change ( amount -- n ) 5 cc ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Higher Order Procedures</h2>
+          <ul>
+            <li>Procedures that manipulate procedures</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Procedures as Arguments (summing)</h2>
+<pre class="lisp">
+(define sum-integers a b)
+  (if &gt; a b)
+      0
+      (+ a (sum-integers (+ a 1) b))))
+</pre>
+<pre class="forth">
+: sum-integers ( b a -- sum )
+   0 -rot ?do i + loop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Procedures as Arguments (cubes)</h2>
+<pre class="lisp">
+(define sum-cubes a b)
+  (if &gt; a b)
+      0
+      (+ (cube a) (sum-cubes (+ a 1) b))))
+</pre>
+<pre class="forth">
+: sum-cubes ( b a -- sum )
+   0 -rot ?do i cube + loop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Procedures as Arguments (pi-sum)</h2>
+<pre class="lisp">
+(define pi-sum a b)
+  (if &gt; a b)
+      0
+      (+ (/ 1.0 (* a (+ a 2))) (pi-sum (+ a 4) b))))
+</pre>
+<pre class="forth">
+: pi-sum ( b a -- sum )
+   0 -rot ?do
+      1000000000 i 2 + i * / +
+   4 +loop ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Procedures as Arguments</h2>
+<pre class="lisp">
+(define sum term a next b)
+  (if &gt; a b)
+      0
+      (+ (term a) (sum (next a) next b))))
+(define (inc n) (+ n 1))
+(define (sum-cubes a b) (sum cube a inc b))
+</pre>
+<pre class="forth">
+: sum ( next term b a -- n )
+   0 -rot ?do over i swap execute dup . +
+             &gt;r over r&gt; swap execute dup .
+             +loop nip nip ;
+: one 1 ;
+: sum-cubes ( b a -- n )
+   ['] one -rot ['] cube -rot sum ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lambda (?)</h2>
+<pre class="lisp">
+(define (adder a) (lambda (b) (+ a b)))
+((adder 3) 4)  ; 7
+</pre>
+<pre class="forth">
+?
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lambda (create does&gt;)</h2>
+<pre class="lisp">
+(define (adder a) (lambda (b) (+ a b)))
+((adder 3) 4)  ; 7
+</pre>
+<pre class="forth">
+: adder create , does&gt; @ + ;
+3 adder 3plus
+4 3plus  \ 7
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lambda (dynamic)</h2>
+<pre class="lisp">
+(define (adder a) (lambda (b) (+ a b)))
+((adder 3) 4)  ; 7
+</pre>
+<pre class="forth">
+: adder create , does&gt; @ + ;
+4 3 noname adder latestxt execute  \ 7
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lambda (closure)</h2>
+<pre class="lisp">
+(define (adder a) (lambda (b) (+ a b)))
+((adder 3) 4)  ; 7
+</pre>
+<pre class="forth">
+: adder ( n -- xt ) &gt;s [: s&gt; + ;] sdrop ;
+4 3 adder execute
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lambda (closure+)</h2>
+<pre class="lisp">
+(define (adder a) (lambda (b) (+ a b)))
+((adder 3) 4)  ; 7
+</pre>
+<pre class="forth">
+: adder
+   &gt;s ( add to scope stack )
+   [:
+     s&gt; ( pull out of scope )
+     +
+   ;]
+   sdrop ( drop in the parent scope )
+;
+4 3 adder execute
+<small>
+<a href="http://bradn123.github.io/literateforth/out/events_0001.html">August 25, 2012 - Event Driven Programming</a>
+</small>
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>2. Building Abstraction with Data</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Two Kinds of "Closure"</h2>
+          <ul>
+            <li>Combined things can themselves be combined using same ops</li>
+            <li>Function which has its own environment</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Abstraction Barriers</h2>
+          <ul>
+            <li>Define layered abstractions</li>
+            <li>Compose them to isolate implementation details</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Rational Numbers</h2>
+            <u>Programs that use rational numbers</u><br/>
+            Rational numbers in problem domain<br/>
+            <u>add-rat, sub-rat, ...</u><br/>
+            Rational numbers as numerators and denominators<br/>
+            <u>make-rat, numer, denom</u><br/>
+            Rational number as pairs<br/>
+            <u>cons, car, cdr</u><br/>
+            However pairs are implemented<br/>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Bringing Lisp-y Lists to Forth</h2>
+          <ul>
+            <li class="fragment">Store in the dictionary</li>
+            <li class="fragment">Leak like crazy</li>
+            <li class="fragment">Zone/Arena allocation works ok</li>
+            <li class="fragment">Handles / Boehm collector if we're serious</li>
+            <li class="fragment">We probably aren't</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Symbols and Pairs )
+: cons ( a b -- c ) noname create , , latestxt ;
+: car ( c -- a ) execute cell+ @ ;
+: cdr ( c -- b ) execute @ ;
+: atom   create latest , ;
+: atom&gt;string ( x -- a n ) @ name&gt;string ;
+: atom. ( x -- ) atom&gt;string type space ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Generic Operators</h2>
+          <ul>
+            <li>Higher level abstraction</li>
+            <li>Use the power of the closure property</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Reinterpret Floats and Numbers )
+variable ftemp
+: f-&gt;n ftemp f! ftemp @ ;
+: n-&gt;f ftemp ! ftemp f@ ;
+
+( Utility )
+: private[[   get-order wordlist swap 1+ set-order definitions ;
+: ]]private   previous definitions ;
+: fsquare   fdup f* ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(put &lt;op&gt; &lt;type&gt; &lt;item&gt;)
+; installs the &lt;item&gt; in the table,
+;   indexed by the &lt;op&gt; and the &lt;type&gt;.
+
+(get &lt;op&gt; &lt;type&gt;)
+; looks up the &lt;op&gt;, &lt;type&gt; entry in the table
+;   and returns the item found there.
+;   If no item is found, get returns false.
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Type Tags )
+: attach-tag swap cons ;
+: type-tag car ;
+: contents cdr ;
+
+( Type Table )
+variable table
+: put ( item op type -- )
+   cons swap cons table @ cons table ! ;
+: equiv ( a b -- f )
+   2dup car swap car = -rot cdr swap cdr = and ;
+: get ( op type -- item )
+   cons table @ begin dup while
+     2dup car car equiv if nip car cdr exit then
+     cdr repeat -1 throw ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))
+          (error
+            "No method for these types -- APPLY-GENERIC"
+            (list op type-tags))))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+<b>(define (apply-generic op . args)
+  (let ((type-tags (map type-tag args)))
+    (let ((proc (get op type-tags)))
+      (if proc
+          (apply proc (map contents args))</b>
+          (if (= (length args) 2)
+              (let ((type1 (car type-tags))
+                    (type2 (cadr type-tags))
+                    (a1 (car args))
+                    (a2 (cadr args)))
+                (let ((t1-&gt;t2 (get-coercion type1 type2))
+                      (t2-&gt;t1 (get-coercion type2 type1)))
+                  (cond (t1-&gt;t2<b>
+                         (apply-generic op (t1-&gt;t2 a1) a2))
+                        (t2-&gt;t1
+                         (apply-generic op a1 (t2-&gt;t1 a2)))</b>
+                        (else
+                         (error "No method for these types"
+                                (list op type-tags))))))
+              (error "No method for these types"
+                     (list op type-tags)))))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Applying generic ops )
+: apply-generic ( .. op -- .. )
+   over type-tag get swap contents swap execute ;
+: apply-generic2 ( .. op -- .. )
+   over type-tag get rot contents rot contents rot execute ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (real-part z) (apply-generic 'real-part z))
+(define (imag-part z) (apply-generic 'imag-part z))
+(define (magnitude z) (apply-generic 'magnitude z))
+(define (angle z) (apply-generic 'angle z))
+(define (make-from-real-imag x y)
+  ((get 'make-from-real-imag 'rectangular) x y))
+(define (make-from-mag-ang r a)
+  ((get 'make-from-mag-ang 'polar) r a))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Generic Complex Ops )
+atom 'real-part   atom 'imag-part
+atom 'magnitude   atom 'angle
+atom 'make-from-real-imag   atom 'make-from-mag-ang
+atom 'rectangular   atom 'polar
+: real-part 'real-part apply-generic ;
+: imag-part 'imag-part apply-generic ;
+: magnitude 'magnitude apply-generic ;
+: angle 'angle apply-generic ;
+: rect&gt;z 'make-from-real-imag 'rectangular get execute ;
+: polar&gt;z 'make-from-mag-ang 'polar get execute ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (add-complex z1 z2)
+  (make-from-real-imag (+ (real-part z1) (real-part z2))
+                       (+ (imag-part z1) (imag-part z2))))
+(define (sub-complex z1 z2)
+  (make-from-real-imag (- (real-part z1) (real-part z2))
+                       (- (imag-part z1) (imag-part z2))))
+(define (mul-complex z1 z2)
+  (make-from-mag-ang (* (magnitude z1) (magnitude z2))
+                     (+ (angle z1) (angle z2))))
+(define (div-complex z1 z2)
+  (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
+                     (- (angle z1) (angle z2))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Complex Math )
+: z+ ( z1 z2 -- z )
+   2dup real-part real-part f+
+   imag-part imag-part f+ rect&gt;z ;
+: z- ( z1 z2 -- z )
+   2dup real-part real-part fswap f-
+   imag-part imag-part fswap f- rect&gt;z ;
+: z* ( z1 z2 -- z )
+   2dup magnitude magnitude f*
+   angle angle f+ polar&gt;z ;
+: z/ ( z1 z2 -- z )
+   2dup magnitude magnitude fswap f/
+   angle angle fswap f- polar&gt;z ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: zsquare ( z -- z2 ) dup z* ;
+: z. ( z -- )
+   ." ( " dup real-part f. ." + i * " imag-part f. ." ) " ;
+: zp. ( z -- )
+   ." ( " dup magnitude f. ." * e^ ( i * " angle f. ." ) ) " ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (install-rectangular-package)
+  ;; internal procedures
+  (define (real-part z) (car z))
+  (define (imag-part z) (cdr z))
+  (define (make-from-real-imag x y) (cons x y))
+  (define (magnitude z)
+    (sqrt (+ (square (real-part z))
+             (square (imag-part z)))))
+  (define (angle z)
+    (atan (imag-part z) (real-part z)))
+  (define (make-from-mag-ang r a) 
+    (cons (* r (cos a)) (* r (sin a))))
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'rectangular x))
+  (put 'real-part '(rectangular) real-part)
+  (put 'imag-part '(rectangular) imag-part)
+  (put 'magnitude '(rectangular) magnitude)
+  (put 'angle '(rectangular) angle)
+  (put 'make-from-real-imag 'rectangular 
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'rectangular 
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Rectangular Complex Numbers )
+private[[
+: real-part car n-&gt;f ;
+: imag-part cdr n-&gt;f ;
+: magnitude
+   dup real-part fsquare
+   imag-part fsquare f+ fsqrt ;
+: angle
+   dup imag-part
+   real-part fatan2 ;
+: make-from-real-imag
+   f-&gt;n f-&gt;n swap cons 'rectangular attach-tag ;
+
+' real-part 'real-part 'rectangular put
+' imag-part 'imag-part 'rectangular put
+' magnitude 'magnitude 'rectangular put
+' angle 'angle 'rectangular put
+' make-from-real-imag 'make-from-real-imag 'rectangular put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (install-polar-package)
+  ;; internal procedures
+  (define (magnitude z) (car z))
+  (define (angle z) (cdr z))
+  (define (make-from-mag-ang r a) (cons r a))
+  (define (real-part z)
+    (* (magnitude z) (cos (angle z))))
+  (define (imag-part z)
+    (* (magnitude z) (sin (angle z))))
+  (define (make-from-real-imag x y) 
+    (cons (sqrt (+ (square x) (square y)))
+          (atan y x)))
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'polar x))
+  (put 'real-part '(polar) real-part)
+  (put 'imag-part '(polar) imag-part)
+  (put 'magnitude '(polar) magnitude)
+  (put 'angle '(polar) angle)
+  (put 'make-from-real-imag 'polar
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'polar 
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Polar Complex Numbers )
+private[[
+: magnitude car n-&gt;f ;
+: angle cdr n-&gt;f ;
+: real-part dup magnitude angle fcos f* ;
+: imag-part dup magnitude angle fsin f* ;
+: make-from-mag-ang
+  f-&gt;n f-&gt;n swap cons 'polar attach-tag ;
+
+' real-part 'real-part 'polar put
+' imag-part 'imag-part 'polar put
+' magnitude 'magnitude 'polar put
+' angle 'angle 'polar put
+' make-from-mag-ang 'make-from-mag-ang 'polar put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (add x y) (apply-generic 'add x y))
+(define (sub x y) (apply-generic 'sub x y))
+(define (mul x y) (apply-generic 'mul x y))
+(define (div x y) (apply-generic 'div x y))
+(define (make-scheme-number n)
+  ((get 'make 'scheme-number) n))
+(define (make-rational n d)
+  ((get 'make 'rational) n d))
+(define (make-complex-from-real-imag x y)
+  ((get 'make-from-real-imag 'complex) x y))
+(define (make-complex-from-mag-ang r a)
+  ((get 'make-from-mag-ang 'complex) r a))
+(define (make-polynomial var terms)
+  ((get 'make 'polynomial) var terms))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Generic Ops )
+atom '+   atom '-   atom '*   atom '/   atom '.   atom 'make
+atom 'number   atom 'float   atom 'complex
+atom 'rational   atom 'polynomial
+: g+ '+ apply-generic2 ;
+: g- '- apply-generic2 ;
+: g* '* apply-generic2 ;
+: g/ '/ apply-generic2 ;
+: g. '. apply-generic ;
+: make-number 'make 'number get execute ;
+: make-float 'make 'float get execute ;
+: make-complex 'make 'complex get execute ;
+: make-rational 'make 'rational get execute ;
+: make-poly 'make 'polynomial get execute ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (install-scheme-number-package)
+  (define (tag x)
+    (attach-tag 'scheme-number x))
+  (put 'add '(scheme-number scheme-number)
+       (lambda (x y) (tag (+ x y))))
+  (put 'sub '(scheme-number scheme-number)
+       (lambda (x y) (tag (- x y))))
+  (put 'mul '(scheme-number scheme-number)
+       (lambda (x y) (tag (* x y))))
+  (put 'div '(scheme-number scheme-number)
+       (lambda (x y) (tag (/ x y))))
+  (put 'make 'scheme-number
+       (lambda (x) (tag x)))
+  'done)
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Simple Numbers )
+private[[
+: tag 'number attach-tag ;
+: add + tag ;
+: sub - tag ;
+: mul * tag ;
+: div / tag ;
+: print . ;
+: make tag ;
+
+' add '+ 'number put
+' sub '- 'number put
+' mul '* 'number put
+' div '/ 'number put
+' print '. 'number put
+' make 'make 'number put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Simple Floats )
+private[[
+: tag 'float attach-tag ;
+: add f+ tag ;
+: sub f- tag ;
+: mul f* tag ;
+: div f/ tag ;
+: print f. ;
+: make f-&gt;n tag ;
+
+' add '+ 'float put
+' sub '- 'float put
+' mul '* 'float put
+' div '/ 'float put
+' print '. 'float put
+' make 'make 'float put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (install-complex-package)
+  (define (tag z) (attach-tag 'complex z))
+  (put 'add '(complex complex)
+       (lambda (z1 z2) (tag (add-complex z1 z2))))
+  (put 'sub '(complex complex)
+       (lambda (z1 z2) (tag (sub-complex z1 z2))))
+  (put 'mul '(complex complex)
+       (lambda (z1 z2) (tag (mul-complex z1 z2))))
+  (put 'div '(complex complex)
+       (lambda (z1 z2) (tag (div-complex z1 z2))))
+  (put 'make-from-real-imag 'complex
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'complex
+       (lambda (r a) (tag (make-from-mag-ang r a))))
+  'done)
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Complex )
+private[[
+: tag 'complex attach-tag ;
+: add z+ tag ;
+: sub z- tag ;
+: mul z* tag ;
+: div z/ tag ;
+: print z. ;
+: make tag ;
+
+' add '+ 'complex put
+' sub '- 'complex put
+' mul '* 'complex put
+' div '/ 'complex put
+' print '. 'complex put
+' make 'make 'complex put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (install-rational-package)
+  ;; internal procedures
+  (define (numer x) (car x))
+  (define (denom x) (cdr x))
+  (define (make-rat n d)
+    (let ((g (gcd n d)))
+      (cons (/ n g) (/ d g))))
+  (define (add-rat x y)
+    (make-rat (+ (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+  (define (sub-rat x y)
+    (make-rat (- (* (numer x) (denom y))
+                 (* (numer y) (denom x)))
+              (* (denom x) (denom y))))
+  (define (mul-rat x y)
+    (make-rat (* (numer x) (numer y))
+              (* (denom x) (denom y))))
+  (define (div-rat x y)
+    (make-rat (* (numer x) (denom y))
+              (* (denom x) (numer y))))
+  ...
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+  ...
+  ;; interface to rest of the system
+  (define (tag x) (attach-tag 'rational x))
+  (put 'add '(rational rational)
+       (lambda (x y) (tag (add-rat x y))))
+  (put 'sub '(rational rational)
+       (lambda (x y) (tag (sub-rat x y))))
+  (put 'mul '(rational rational)
+       (lambda (x y) (tag (mul-rat x y))))
+  (put 'div '(rational rational)
+       (lambda (x y) (tag (div-rat x y))))
+
+  (put 'make 'rational
+       (lambda (n d) (tag (make-rat n d))))
+  'done)
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Rational )
+private[[
+: gcd ( a b -- n ) dup 0= if drop else swap over mod recurse then ;
+: reduce ( a b -- a' b' ) 2dup gcd swap over / -rot / swap ;
+: tag 'rational attach-tag ;
+: numer car ;
+: denom cdr ;
+: make-rat reduce cons tag ;
+: add 2dup numer swap denom * &gt;r
+      2dup denom swap numer * r&gt; + -rot
+      denom swap denom * make-rat ;
+: sub 2dup numer swap denom * &gt;r
+      2dup denom swap numer * r&gt; - -rot
+      denom swap denom * make-rat ;
+: mul 2dup numer swap numer * -rot
+      denom swap denom * make-rat ;
+: div 2dup denom swap numer * -rot
+      numer swap denom * make-rat ;
+: print ." ( " dup numer . ." / " denom . ." ) " ;
+: make make-rat ;
+...
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+...
+' add '+ 'rational put
+' sub '- 'rational put
+' mul '* 'rational put
+' div '/ 'rational put
+' print '. 'rational put
+' make 'make 'rational put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (install-polynomial-package)
+  ;; internal procedures
+  ;; representation of poly
+  (define (make-poly variable term-list)
+    (cons variable term-list))
+  (define (variable p) (car p))
+  (define (term-list p) (cdr p))
+  <procedures same-variable? and variable? from section 2.3.2>
+  ;; representation of terms and term lists
+  <procedures adjoin-term ...coeff from text below>
+
+  ;; continued on next page
+  ...
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+  ...
+  (define (add-poly p1 p2) ...)
+  <procedures used by add-poly>
+  (define (mul-poly p1 p2) ...)
+  <procedures used by mul-poly>
+  ;; interface to rest of the system
+  (define (tag p) (attach-tag 'polynomial p))
+  (put 'add '(polynomial polynomial)
+       (lambda (p1 p2) (tag (add-poly p1 p2))))
+  (put 'mul '(polynomial polynomial)
+       (lambda (p1 p2) (tag (mul-poly p1 p2))))
+  (put 'make 'polynomial
+       (lambda (var terms) (tag (make-poly var terms))))
+  'done)
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Polynomial )
+private[[
+: make-poly cons ;
+: variable car ;
+: term-list cdr ;
+
+: make-term cons ;
+: coeff car ;
+: order cdr ;
+: add-poly
+   dup variable -rot term-list swap term-list +terms make-poly ;
+: mul-poly
+   dup variable -rot term-list swap term-list *terms make-poly ;
+: print ." [ "
+  dup variable swap term-list
+  begin dup while
+    dup car coeff g. ." " over atom. ." ^" dup car order .
+    cdr dup if ." + " then
+  repeat
+  2drop ." ] "
+;
+...
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+...
+: tag 'polynomial attach-tag ;
+: add add-poly tag ;
+: mul mul-poly tag ;
+: make cons 0 cons make-poly tag ;
+
+' add '+ 'polynomial put
+' mul '* 'polynomial put
+' print '. 'polynomial put
+' make 'make 'polynomial put
+]]private
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (add-terms L1 L2)
+  (cond ((empty-termlist? L1) L2)
+        ((empty-termlist? L2) L1)
+        (else
+         (let ((t1 (first-term L1)) (t2 (first-term L2)))
+           (cond ((&gt; (order t1) (order t2))
+                  (adjoin-term
+                   t1 (add-terms (rest-terms L1) L2)))
+                 ((< (order t1) (order t2))
+                  (adjoin-term
+                   t2 (add-terms L1 (rest-terms L2))))
+                 (else
+                  (adjoin-term
+                   (make-term (order t1)
+                              (add (coeff t1) (coeff t2)))
+                   (add-terms (rest-terms L1)
+                              (rest-terms L2)))))))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: +terms ( L1 L2 -- L )
+   dup 0= if drop exit then
+   over 0= if nip exit then
+   2dup car swap car swap
+   2dup order swap order swap
+   2dup &gt; if 2drop drop -rot swap cdr recurse cons exit then
+   < if nip -rot cdr recurse cons exit then
+   dup order -rot coeff swap coeff g+ swap make-term
+   -rot cdr swap cdr recurse cons
+;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (mul-terms L1 L2)
+  (if (empty-termlist? L1)
+      (the-empty-termlist)
+      (add-terms (mul-term-by-all-terms (first-term L1) L2)
+                 (mul-terms (rest-terms L1) L2))))
+(define (mul-term-by-all-terms t1 L)
+  (if (empty-termlist? L)
+      (the-empty-termlist)
+      (let ((t2 (first-term L)))
+        (adjoin-term
+         (make-term (+ (order t1) (order t2))
+                    (mul (coeff t1) (coeff t2)))
+         (mul-term-by-all-terms t1 (rest-terms L))))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: t*terms ( t L -- L )
+   dup 0= if nip exit then
+   over swap ( t t L )
+   dup &gt;r car 2dup order swap order +
+   -rot coeff swap coeff g* swap make-term
+   swap r&gt; cdr recurse cons
+;
+: *terms ( L1 L2 -- L )
+   dup 0= if nip exit then
+   2dup car swap t*terms
+   -rot cdr recurse +terms
+;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>A Picture Language</h2>
+          <ul>
+            <li>Devise a high level language for describing pictures</li>
+            <li>Build more complex pictures from composition of smaller ones</li>
+            <li>A focus on recursive / symetric images (Escher)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="https://uploads3.wikiart.org/images/m-c-escher/square-limit.jpg!Large.jpg">
+          <br/>
+          <small>https://uploads3.wikiart.org/images/m-c-escher/square-limit.jpg!Large.jpg</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="http://www.sicpdistilled.com/images/frame-diagram-cca5cf2f.png" width="600">
+          <br/>
+          <small>http://www.sicpdistilled.com/images/frame-diagram-cca5cf2f.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="escher1.png" width="600">
+          <br/>
+          <small>https://eprints.soton.ac.uk/257577/1/funcgeo2.pdf</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="escher2.png" width="600">
+          <br/>
+          <small>https://eprints.soton.ac.uk/257577/1/funcgeo2.pdf</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="escher3.png" width="600">
+          <small>https://eprints.soton.ac.uk/257577/1/funcgeo2.pdf</small>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Raw postscript drawing )
+: line ( x1 y1 x2 y2 )
+   ." newpath " swap . . ."  moveto "
+   swap . . ."  lineto 10 setlinewidth stroke" cr ;
+: showpage ." showpage" cr ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (transform-painter painter origin corner1 corner2)
+  (lambda (frame)
+    (let ((m (frame-coord-map frame)))
+      (let ((new-origin (m origin)))
+        (painter
+         (make-frame new-origin
+                     (sub-vect (m corner1) new-origin)
+                     (sub-vect (m corner2) new-origin)))))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Transform stack )
+1000000 constant divisor
+100000 constant size
+variable org-x   variable org-y
+variable hx   variable hy   divisor hx !
+variable vx   variable vy   divisor vy !
+create transform-stack 1000 cells allot
+variable tsp   transform-stack tsp !
+: &gt;t   tsp @ !  cell tsp +! ;
+: t&gt;   -1 cells tsp +!  tsp @ @ ;
+: t{ org-x @ &gt;t  org-y @ &gt;t  hx @ &gt;t  hy @ &gt;t  vx @ &gt;t  vy @ &gt;t ;
+: }t t&gt; vy !  t&gt; vx !  t&gt; hy !  t&gt; hx !  t&gt; org-y !  t&gt; org-x ! ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Transforming lines )
+: @* @ divisor */ ;
+: transform ( x y -- x' y' )
+   2dup vy @* swap hy @* + org-y @ + &gt;r
+        vx @* swap hx @* + org-x @ + r&gt; ;
+: tline ( x1 y1 x2 y2 ) transform &gt;r &gt;r transform r&gt; r&gt; line ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Basic Transformations )
+: scale-x ( n -- ) dup hx @* hx !  hy @* hy ! ;
+: scale-y ( n -- ) dup vx @* vx !  vy @* vy ! ;
+: scale ( n -- ) dup scale-x scale-y ;
+: trans ( x y -- ) transform org-y ! org-x ! ;
+: swap! ( a1 a2 -- ) 2dup @ swap @ rot ! swap ! ;
+: diag-flip   hx vx swap!  hy vy swap! ;
+: turn45   hx @ vx @ + 2/   hy @ vy @ + 2/
+           hx @ vx @ - 2/   hy @ vy @ - 2/
+           vy ! vx ! hy ! hx ! ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Pairs )
+: atom ( a -- c ) noname create , latestxt ;
+: cons ( a b -- c ) noname create , , latestxt ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (beside painter1 painter2)
+  (let ((split-point (make-vect 0.5 0.0)))
+    (let ((paint-left
+           (transform-painter painter1
+                              (make-vect 0.0 0.0)
+                              split-point
+                              (make-vect 0.0 1.0)))
+          (paint-right
+           (transform-painter painter2
+                              split-point
+                              (make-vect 1.0 0.0)
+                              (make-vect 0.5 1.0))))
+      (lambda (frame)
+        (paint-left frame)
+        (paint-right frame)))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: beside ( a b -- c ) cons does&gt;
+   t{ size 2/ 0 trans
+      divisor 1 2 */ scale-x  dup @ execute }t
+   t{ divisor 1 2 */ scale-x  cell+ @ execute }t ; 
+: above ( a b -- c ) cons does&gt;
+   t{ 0 size 2/ trans
+      divisor 1 2 */ scale-y  dup cell+ @ execute }t
+   t{ divisor 1 2 */ scale-y  @ execute }t ; 
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: beside3rd ( a b -- c ) cons does&gt;
+   t{ size 3 / 0 trans
+      divisor 2 3 */ scale-x  dup @ execute }t
+   t{ divisor 1 3 */ scale-x  cell+ @ execute }t ; 
+: above3rd ( a b -- c ) cons does&gt;
+   t{ 0 size 2 3 */ trans
+      divisor 1 3 */ scale-y  dup cell+ @ execute }t
+   t{ divisor 2 3 */ scale-y  @ execute }t ; 
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (flip-vert painter)
+  (transform-painter painter
+                     (make-vect 0.0 1.0)   ; new origin
+                     (make-vect 1.0 1.0)   ; new end of edge1
+                     (make-vect 0.0 0.0))) ; new end of edge2
+
+(define (rotate90 painter)
+  (transform-painter painter
+                     (make-vect 1.0 0.0)
+                     (make-vect 1.0 1.0)
+                     (make-vect 0.0 0.0)))
+
+...
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: hflip ( a -- a' ) atom does&gt;
+   t{ size 0 trans  divisor negate scale-x  @ execute }t ;
+: vflip ( a -- a' ) atom does&gt;
+   t{ 0 size trans   divisor negate scale-y  @ execute }t ;
+: dmirror ( a -- a' ) atom does&gt; t{ diag-flip  @ execute }t ;
+: rot90 ( a -- a' ) dmirror hflip ;
+: rot45' ( a -- a' ) atom does&gt; t{ turn45  @ execute }t ;
+: rot45 ( a -- a' ) rot90 rot45' vflip ;
+: both ( a b -- c ) cons does&gt; dup @ execute cell+ @ execute ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: /10 size swap 10 */ ;
+: /20 size swap 20 */ ;
+: fish
+   0    0       size 0    tline
+   0    0       0    size tline
+   size 0       0    size tline
+   2 /10  1 /10     2 /10  5 /10  tline
+   2 /10  5 /10     4 /10  5 /10  tline
+   2 /10  3 /10     3 /10  3 /10  tline
+   4 /10  1 /10     4 /10  3 /10  tline
+   5 /10  1 /10     7 /10  1 /10  tline
+   5 /10  1 /10     5 /10  2 /10  tline
+   5 /10  2 /10     7 /10  2 /10  tline
+   7 /10  1 /20     7 /10  2 /10  tline
+   7 /10  1 /20     4 /10  1 /20  tline
+;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="fig1.png" width="600">
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: blanky ;
+: fish2   ['] fish rot45 hflip execute ;
+: fish3   ['] fish2 rot90 rot90 rot90 execute ;
+: tile   fish fish2 fish3 ;
+: tile-u
+    ['] fish2 dup rot90 dup rot90 dup rot90
+    both both both execute ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="fig3.png" width="600">
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: quartet ( p q r s -- c ) beside &gt;r beside r&gt; above ;
+: cycle ( p -- c ) dup rot90 dup rot90 dup rot90 quartet ;
+: side ( n -- c )
+   dup 0= if drop ['] blanky else
+     1- recurse dup ['] tile dup rot90 swap quartet then ;
+: corner ( n -- c )
+   dup 0= if drop ['] blanky else
+     1- dup recurse swap side dup rot90 ['] tile-u quartet then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+: nonet ( p q r s t u v w x )
+   beside beside3rd &gt;r
+   beside beside3rd r&gt; above &gt;r
+   beside beside3rd r&gt; above3rd ;
+: squarelimit ( n -- c )
+   dup corner swap side 2dup &gt;r &gt;r over rot90 rot90 rot90
+   over rot90 ['] tile-u over rot90 rot90
+   r&gt; rot90 r&gt; rot90 rot90 over rot90 nonet ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+3 squarelimit execute
+showpage
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="fig2.png" width="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>3. Modularity, Objects, and State</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Registers Machines</h2>
+          <ul>
+            <li>TODO: More exploration of this chapter</li>
+            <li>Explore when Forth overfavors mutable state?</li>
+            <li>Explore simulators in Forth?</li>
+            <li>Generators / Infinite Streams?</li>
+            <li>Concurrency?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>4. Metalinguistic Abstraction</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lisp in Lisp, Forth in Forth</h2>
+          <ul>
+            <li>Meta-circular evaluator / Meta-compilation</li>
+            <li>Implement the semantics of the language</li>
+            <li>Reuse the parser</li>
+            <li>Reuse "basic" operations</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Eval-Apply</h2>
+          <img src="http://www.sicpdistilled.com/images/evalapply-dae3af78.png" width="900">
+          <small>http://www.sicpdistilled.com/section/4.1/</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Eval</h2>
+<pre class="lisp">
+(define (eval exp env)
+  (cond ((self-evaluating? exp) exp)
+        ((variable? exp) (lookup-variable-value exp env))
+        ((quoted? exp) (text-of-quotation exp))
+        ((assignment? exp) (eval-assignment exp env))
+        ((definition? exp) (eval-definition exp env))
+        ((if? exp) (eval-if exp env))
+        ((lambda? exp)
+         (make-procedure (lambda-parameters exp)
+                         (lambda-body exp)
+                         env))
+        ((begin? exp)
+         (eval-sequence (begin-actions exp) env))
+        ((cond? exp) (eval (cond-&gt;if exp) env))
+        ((application? exp)
+         (apply (eval (operator exp) env)
+                (list-of-values (operands exp) env)))
+        (else
+         (error "Unknown expression type -- EVAL" exp))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Apply</h2>
+<pre class="lisp">
+(define (apply procedure arguments)
+  (cond ((primitive-procedure? procedure)
+         (apply-primitive-procedure procedure arguments))
+        ((compound-procedure? procedure)
+         (eval-sequence
+           (procedure-body procedure)
+           (extend-environment
+             (procedure-parameters procedure)
+             arguments
+             (procedure-environment procedure))))
+        (else
+         (error
+          "Unknown procedure type -- APPLY" procedure))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Meta-Compiler (rstack)</h2>
+<pre class="forth">
+( Internal rstack )
+create rstack 1000 cells allot   variable rp rstack rp !
+: rp@ rp @ ;   : rp! rp ! ;  : r@ rp@ @ ;
+: &gt;r cell rp +! rp@ ! ;   : r&gt; r@ -1 cells rp +! ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Meta-Compiler (core)</h2>
+<pre class="forth">
+( Internal IP &amp; W )
+variable ip   variable w
+: run   0 &gt;r begin
+        ip @ @ cell ip +! dup w ! @ execute ip @ 0= until ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (make-procedure parameters body env)
+  (list 'procedure parameters body env))
+(define (compound-procedure? p)
+  (tagged-list? p 'procedure))
+(define (procedure-parameters p) (cadr p))
+(define (procedure-body p) (caddr p))
+(define (procedure-environment p) (cadddr p))
+
+(define (enclosing-environment env) (cdr env))
+(define (first-frame env) (car env))
+(define the-empty-environment '())
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (make-frame variables values)
+  (cons variables values))
+(define (frame-variables frame) (car frame))
+(define (frame-values frame) (cdr frame))
+(define (add-binding-to-frame! var val frame)
+  (set-car! frame (cons var (car frame)))
+  (set-cdr! frame (cons val (cdr frame))))
+
+(define (extend-environment vars vals base-env)
+  (if (= (length vars) (length vals))
+      (cons (make-frame vars vals) base-env)
+      (if (< (length vars) (length vals))
+          (error "Too many arguments supplied" vars vals)
+          (error "Too few arguments supplied" vars vals))))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define (lookup-variable-value var env)
+  (define (env-loop env)
+    (define (scan vars vals)
+      (cond ((null? vars)
+             (env-loop (enclosing-environment env)))
+            ((eq? var (car vars))
+             (car vals))
+            (else (scan (cdr vars) (cdr vals)))))
+    (if (eq? env the-empty-environment)
+        (error "Unbound variable" var)
+        (let ((frame (first-frame env)))
+          (scan (frame-variables frame)
+                (frame-values frame)))))
+  (env-loop env))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Dictionary</h2>
+<pre class="forth">
+variable last
+( Create dictionary entry:
+  { name-bytes name-len flags link code } )
+: splace ( a n -- ) dup &gt;r 0 do dup c@ c, 1+ loop drop r&gt; , ;
+: create-name ( a n -- ) splace 0 , last @ , here 0 , last ! ;
+: code!   last @ ! ;
+: p:   ' dup &gt;name name&gt;string create-name code! ;
+: &gt;p   create-name ' code! ;
+( Access dictionary entry )
+: &gt;link 1 cells - @ ;   : &gt;flags 2 cells - ;
+: &gt;name ( xt -- a n )
+   dup 3 cells - @ swap over - 3 cells - swap ;
+: or! ( n a -- ) dup @ rot or swap ! ;
+: immediate   1 last @ &gt;flags or! ;
+: immediate? &gt;flags @ 1 and 0<> ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Evaluating If</h2>
+<pre class="lisp">
+(define (eval-if exp env)
+  (if (true? (eval (if-predicate exp) env))
+      (eval (if-consequent exp) env)
+      (eval (if-alternative exp) env)))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Threaded Interperter</h2>
+<pre class="forth">
+( Interpreter branching, calling, and literals )
+: docreate: w @ cell+ cell+ ;
+: dodoes: docreate: ip @ &gt;r w @ cell+ @ ip ! ;
+: docol: ip @ &gt;r w @ cell+ ip ! ;
+: dolit: ip @ @ cell ip +! ;
+: branch ip @ @ ip ! ;
+: 0branch if cell ip +! else ip @ @ ip ! then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( CREATE DOES&gt; )
+: create   parse-name create-name ['] docreate: code! 0 , ;
+: does&gt;   ['] dodoes: code! ip @ last @ cell+ ! r&gt; ip ! ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Searching the Dictionary</h2>
+<pre class="forth">
+( Words that traverse the dictionary )
+: find ( a n -- xt )
+   last @ begin &gt;r 2dup r@ &gt;name str= if 2drop r&gt; exit then
+                r&gt; &gt;link dup 0= until drop 2drop 0 ;
+: words last @ begin
+        dup &gt;name type space &gt;link dup 0= until drop cr ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Literal handling )
+p: dolit:   s" dolit:" find constant dolit:-xt
+: aliteral dolit:-xt , , ;   p: aliteral
+( Exit &amp; Execute )
+: 'exit r&gt; ip ! ;   s" exit" &gt;p 'exit
+   s" exit" find constant exit-xt
+: execute ( xt -- ) &gt;r exit-xt &gt;r rp @ 1 cells - ip ! ;
+   p: execute
+( Compiling words )
+variable state
+: colon parse-name create-name ['] docol: code! -1 state ! ;
+   s" :" &gt;p colon
+: semicolon exit-xt , 0 state ! ;   s" ;" &gt;p semicolon immediate
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)
+        <more primitives>
+        ))
+(define (primitive-procedure-names)
+  (map car
+       primitive-procedures))
+
+(define (primitive-procedure-objects)
+  (map (lambda (proc) (list 'primitive (cadr proc)))
+       primitive-procedures))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Pass thru primitives )
+p: 0=   p: 0&lt;   p: +   p: */mod   p: and   p: or   p: xor
+p: dup   p: swap   p: over   p: drop   p: sp@   p: sp!
+p: .   p: type   p: key
+p: @   p: !   p: c@   p: c!
+p: parse-name   p: parse   p: here   p: ,   p: allot
+p: base   p: depth   p: cell
+( Reimplemented primitives )
+p: r@   p: &gt;r   p: r&gt;   p: rp@   p: rp!
+p: words   p: branch   p: 0branch   p: find
+p: immediate   p: create   p: does&gt;
+p: last   p: state
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="lisp">
+(define input-prompt ";;; M-Eval input:")
+(define output-prompt ";;; M-Eval value:")
+(define (driver-loop)
+  (prompt-for-input input-prompt)
+  (let ((input (read)))
+    (let ((output (eval input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+(define (prompt-for-input string)
+  (newline) (newline) (display string) (newline))
+
+(define (announce-output string)
+  (newline) (display string) (newline))
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Evaluate source )
+: one-word dup immediate? 0= state @ and
+    if , else execute run then ;
+: one-number' state @ if aliteral then ;
+: one-number s&gt;number? 0= throw drop one-number' ;
+: one-name 2dup find dup if nip nip one-word
+           else drop one-number then ;
+: prompt source-id 0= if ."  ok" cr then ;
+: eval-line begin parse-name dup
+            if one-name else 2drop exit then again ;
+: boot begin ['] eval-line catch if ." ERROR" cr then
+       prompt refill drop again ;
+: include parse-name slurp-file ['] eval-line execute-parsing ;
+    p: include
+: ok ." CircleForth" cr ."   ok" cr query ;
+    p: ok   : bye cr bye ;   p: bye
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Bootstrap )
+boot
+: (   41 parse drop drop ; immediate
+( And now we have comments! )
+include compound.fs
+ok
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Useful basic compound words )
+: 2drop ( n n -- ) drop drop ;
+: 2dup ( a b -- a b a b ) over over ;
+: nip ( a b -- b ) swap drop ;
+: rdrop ( r: n n -- ) r&gt; r&gt; drop &gt;r ;
+: */ ( n n n -- n ) */mod nip ;
+: * ( n n -- n ) 1 */ ;
+: /mod ( n n -- n n ) 1 swap */mod ;
+: / ( n n -- n ) /mod nip ;
+: mod ( n n -- n ) /mod drop ;
+: invert ( n -- ~n ) -1 xor ;
+: negate ( n -- -n ) invert 1 + ;
+: - ( n n -- n ) negate + ;
+: rot ( a b c -- c a b ) &gt;r swap r&gt; swap ;
+: -rot ( a b c -- b c a ) swap &gt;r swap r&gt; ;
+: cell+ ( n -- n ) cell + ;
+: cells ( n -- n ) cell * ;
+: &lt; ( a b -- a&lt;b) - 0&lt; ;
+: &gt; ( a b -- a&gt;b) swap - 0&lt; ;
+: emit ( n -- ) &gt;r rp@ 1 type rdrop ;
+: bl 32 ;   : space bl emit ;
+: nl 10 ;   : cr nl emit ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Compilation State )
+: [ 0 state ! ; immediate
+: ] -1 state ! ; immediate
+
+( Quoting words )
+: ' parse-name find ;
+: ['] ' aliteral ; immediate
+: char parse-name drop c@ ;
+: [char] char aliteral ; immediate
+: literal aliteral ; immediate
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Core Control Flow )
+: begin here ; immediate
+: again ['] branch , , ; immediate
+: until ['] 0branch , , ; immediate
+: ahead ['] branch , here 0 , ; immediate
+: then here swap ! ; immediate
+: if ['] 0branch , here 0 , ; immediate
+: else ['] branch , here 0 , swap here swap ! ; immediate
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Compound words requiring conditionals )
+: min 2dup &lt; if drop else nip then ;
+: max 2dup &lt; if nip else drop then ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Postpone - done here so we have ['] and if )
+: &gt;flags 2 cells - @ ;
+: immediate? &gt;flags 1 and 1 - 0= ;
+: postpone ' dup immediate? if , else
+           aliteral ['] , , then ; immediate
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Counted Loops )
+: do postpone swap postpone &gt;r postpone &gt;r here ; immediate
+: i postpone r@ ; immediate
+: unloop postpone rdrop postpone rdrop ; immediate
+: +loop postpone r&gt; postpone + postpone r&gt;
+        postpone 2dup postpone &gt;r postpone &gt;r
+        postpone &lt; postpone 0= postpone until
+        postpone unloop ; immediate
+: loop 1 aliteral postpone +loop ; immediate
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+<pre class="forth">
+( Constants and Variables )
+: constant create , does&gt; @ ;
+: variable create 0 , ;
+
+( Exceptions )
+variable handler
+: catch
+   sp@ &gt; handler @ &gt;r rp@ handler ! execute r&gt; handler !
+   r&gt; drop 0 ;
+: throw
+   handler @ rp! r&gt; handler ! r&gt; swap &gt;r sp! drop r&gt; ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>5. Computing with Register Machines</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Registers Machines</h2>
+          <ul>
+            <li>TODO: More exploration of this chapter</li>
+            <li>Explore the Forth machine model?</li>
+            <li>Forth Garbage Collection?</li>
+            <li>Smarter Forth Compilation?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Notable Learnings</h2>
+          <ul>
+            <li>Lists are pretty handy in Forth</li>
+            <li>Closure in the math sense is powerful</li>
+            <li>Escher rocks</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <p>
+         <a href="https://mitpress.mit.edu/sites/default/files/sicp/index.html">
+            SICP</a> is available online
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="passwd.js"></script>
+    <script src="voicer.js"></script>
+    <script src="../common/haiku.js"></script>
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
