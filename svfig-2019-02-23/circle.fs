@@ -18,7 +18,7 @@ variable last
 : p:   ' dup >name name>string create-name code! ;
 : >p   create-name ' code! ;
 ( Access dictionary entry )
-: >link 1 cells - @ ;   : >flags 2 cells - ;
+: >link ( xt -- a ) 1 cells - @ ;   : >flags 2 cells - ;
 : >name ( xt -- a n ) dup 3 cells - @ swap over - 3 cells - swap ;
 : or! ( n a -- ) dup @ rot or swap ! ;
 : immediate   1 last @ >flags or! ;   : immediate? >flags @ 1 and 0<> ;

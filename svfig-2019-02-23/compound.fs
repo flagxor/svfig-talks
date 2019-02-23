@@ -17,8 +17,10 @@
 : -rot ( a b c -- b c a ) swap >r swap r> ;
 : cell+ ( n -- n ) cell + ;
 : cells ( n -- n ) cell * ;
-: < ( a b -- a<b) - 0< ;
-: > ( a b -- a>b) swap - 0< ;
+: < ( a b -- a<b ) - 0< ;
+: > ( a b -- a>b ) swap - 0< ;
+: = ( a b -- a!=b ) - 0= ;
+: <> ( a b -- a!=b ) = 0= ;
 : emit ( n -- ) >r rp@ 1 type rdrop ;
 : bl 32 ;   : space bl emit ;
 : nl 10 ;   : cr nl emit ;
@@ -71,3 +73,11 @@ variable handler
 : catch   sp@ >r handler @ >r rp@ handler ! execute r> handler ! r> drop 0 ;
 : throw   handler @ rp! r> handler ! r> swap >r sp! drop r> ;
 
+( Examine Dictionary )
+: >link ( xt -- a ) 1 cells - @ ;   : >flags 2 cells - ;
+: >name ( xt -- a n ) dup 3 cells - @ swap over - 3 cells - swap ;
+: >body ( xt -- a ) cell+ ;
+: see. ( xt -- ) >name type space ;
+: exit= ( xt -- ) ['] exit = ;
+: see-loop   >body begin dup @ see. cell+ dup @ exit= until ;
+: see   cr ['] : see.  ' dup see.  see-loop drop  ['] ; see.  cr ;
