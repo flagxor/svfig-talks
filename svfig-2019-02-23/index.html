@@ -2008,18 +2008,20 @@ variable handler
    dup 3 cells - @ swap over - 3 cells - swap ;
 : &gt;body ( xt -- a ) cell+ ;
 : see. ( xt -- ) &gt;name type space ;
+: see-one ( xt -- xt+1 )
+   dup @ dup ['] dolit: = if drop cell+ dup @ .
+   else see. then cell+ ;
 : exit= ( xt -- ) ['] exit = ;
-: see-loop   &gt;body begin dup @ see. cell+ dup @ exit= until ;
+: see-loop   &gt;body begin see-one dup @ exit= until ;
 : see
-   cr ['] : see.  ' dup see.  see-loop drop  ['] ; see.  cr ;
-</pre>
+   cr ['] : see.  ' dup see.  see-loop drop  ['] ; see.  cr ;</pre>
         </section>
 
         <section data-transition="fade-out">
           <h2>CircleForth</h2>
           <ul>
             <li>84 circle.fs</li>
-            <li>73 compound.fs</li>
+            <li>85 compound.fs</li>
             <li>DEMO</li>
           </ul>
         </section>

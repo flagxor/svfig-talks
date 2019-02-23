@@ -78,6 +78,8 @@ variable handler
 : >name ( xt -- a n ) dup 3 cells - @ swap over - 3 cells - swap ;
 : >body ( xt -- a ) cell+ ;
 : see. ( xt -- ) >name type space ;
+: see-one ( xt -- xt+1 )
+   dup @ dup ['] dolit: = if drop cell+ dup @ . else see. then cell+ ;
 : exit= ( xt -- ) ['] exit = ;
-: see-loop   >body begin dup @ see. cell+ dup @ exit= until ;
+: see-loop   >body begin see-one dup @ exit= until ;
 : see   cr ['] : see.  ' dup see.  see-loop drop  ['] ; see.  cr ;
