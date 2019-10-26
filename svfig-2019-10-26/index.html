@@ -54,42 +54,6 @@ green, and special considerations when working with Forth software.
 on Windows or Linux, checking  out espforth with Git, and building it to run
 on our robot boards.
 
-title
-movitation
-* history
-sccs
-rcs
-rcs usage
-* rcs branches
-diff
-patch
-cvs
-cvs usage
-clearcase
-perforce
-perforce usage
-subversion
-subversion usage
-bitkeeper
-darcs
-darcs algebra
-git
-mercurial
-* cryptographic hash
-* sha1
-* git structure
-git commit
-git tree
-git blob
-* git packing
-* git branching
-* git merging
-git rebasing
-github
-github pull request
-travis-ci
-travis-ci config
-
 -->
 
   <body>
@@ -124,6 +88,22 @@ travis-ci config
         </section>
 
         <section data-transition="fade-out">
+          <h2>polyFORTH AUDIT</h2>
+          <ul>
+            <li>Compare and merge two versions of a set of source blocks</li>
+            <li>2 PART 100 150 MATCHING<br/>2 PART 100 200 4 AGAINST</li>
+            <li>Integrated with block editor</li>
+            <li>L, O (without diff) V, W (with diff highlighted)</li>
+            <li>KEEP, TOSS to finish a block</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>polyFORTH AUDIT</h2>
+          <img src="audit.png" height="500">
+        </section>
+
+        <section data-transition="fade-out">
           <h2>History</h2>
           <img src="history.png" height="500">
         </section>
@@ -154,7 +134,7 @@ travis-ci config
 
         <section data-transition="fade-out">
           <h2>RCS Usage</h2>
-          <pre>
+<pre>
 ( create a new file called foo.txt)
 ci foo.txt
 co foo.txt
@@ -162,7 +142,7 @@ co foo.txt
 co -l foo.txt
 ( edit foo.txt )
 ci foo.txt
-          </pre>
+</pre>
         </section>
 
         <section data-transition="fade-out">
@@ -294,6 +274,7 @@ cvs commit
           <ul>
             <li>Atomic commits, monotonically increasing revision numbers</li>
             <li>Network protocol</li>
+            <li>A better CVS</li>
           </ul>
         </section>
 
@@ -314,7 +295,7 @@ svn commit
             <li>Proprietary</li>
             <li>First major distributed version control system</li>
             <li>Local copy of reposity history</li>
-            <li>Fast atomic local operation, low effort merges</li>
+            <li>Fast atomic <b>local</b> operation, low effort merges</li>
             <li>Used to much controversy for Linux Kernel</li>
           </ul>
         </section>
@@ -335,7 +316,7 @@ svn commit
           <ul>
             <li>Distributed Version Control</li>
             <li>Linus Tovalds implements in reaction to BitKeeper fiasco</li>
-            <li>Fast atomic local operation, low effort merges</li>
+            <li>Fast atomic <b>local</b> operation, low effort merges</li>
             <li>Implemented in C, with some Perl, Bash, Tcl</li>
           </ul>
         </section>
@@ -345,7 +326,7 @@ svn commit
           <ul>
             <li>Distributed Version Control</li>
             <li>Also kicked off by BitKeeper incident</li>
-            <li>Fast atomic local operation, low effort merges</li>
+            <li>Fast atomic <b>local</b> operation, low effort merges</li>
             <li>"Friendly" syntax closer to subversion</li>
             <li>Implemented in Python, with some C</li>
             <li>Used at Facebook and somewhat at Google</li>
@@ -383,7 +364,7 @@ svn commit
 
         <section data-transition="fade-out">
           <h2>Git Commit</h2>
-          <pre>
+<pre>
 git cat-file -p 84526055cbc8ef43f5352766066f43598acbf464
 ----------------------------------------------------------
 tree 3d3efe3c0a3cfd859a6c3946e6976f503c763c46
@@ -392,12 +373,12 @@ author Brad Nelson <flagxor@gmail.com> 1571510583 -0700
 committer Brad Nelson <flagxor@gmail.com> 1571510583 -0700
 
 Starting next talk.
-          </pre>
+</pre>
         </section>
 
         <section data-transition="fade-out">
           <h2>Git Tree</h2>
-          <pre font-size="small">
+<pre>
 git cat-file -p 3d3efe3c0a3cfd859a6c3946e6976f503c763c46
 --------------------------------------------------------
 100644 blob d140ea...919970e7f88263	.gitignore
@@ -415,18 +396,18 @@ git cat-file -p 3d3efe3c0a3cfd859a6c3946e6976f503c763c46
 040000 tree 699e54...1d2e885827f13b	svfig-2015-08-22
 040000 tree 44991d...800e5d821d263d	svfig-2015-11-21
 040000 tree 9ee021...f31bd91df36274	svfig-2016-01-23
-          </pre>
+</pre>
         </section>
 
         <section data-transition="fade-out">
           <h2>Git Blob</h2>
-          <pre font-size="small">
+<pre>
 git cat-file -p 42d896146a714d53b123706dfd1dede9bcc9cfb4
 --------------------------------------------------------
 Slides for Brad Nelson's SVFIG Talks.
 
 View at: https://flagxor.github.io/svfig-talks
-          </pre>
+</pre>
         </section>
 
         <section data-transition="fade-out">
@@ -435,6 +416,103 @@ View at: https://flagxor.github.io/svfig-talks
         </section>
 
         <section data-transition="fade-out">
+          <h2>Git Rebasing</h2>
+<pre>
+pick 4ffe208 Adding more to the talk.
+pick c16e35a More improvements.
+pick 1993d9d More
+
+# Rebase 933b026..1993d9d onto 933b026 (3 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+# .       create a merge commit using the original merge commit's
+# .       message (or the oneline, if no original merge commit was
+# .       specified). Use -c <commit> to reword the commit message.
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Getting Git</h2>
+          <ul>
+            <li>Linux: sudo apt-get install git</li>
+            <li>Windows: Linux subsystem, cygwin, or native</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Usage</h2>
+<pre>
+git init
+( create foo.fs )
+git add foo.fs
+git commit
+( edit foo.fs )
+git commit -a
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Pushing and Pull</h2>
+          <ul>
+            <li>git push - push a branch to a remote server</li>
+            <li>git pull - fetch and merge changes from a remote server</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Github</h2>
+          <ul>
+            <li>Centralized hosting for git repositories</li>
+            <li>Free for open source</li>
+            <li>Integrated code review via "pull requests"</li>
+            <li>Integrated web hosting of revisioned content</li>
+            <li>Integrated web based editor, syntax highlighting</li>
+            <li>Integrated markdown documentation</li>
+            <li>Wildly popular for hosting open source projects</li>
+            <li>Recently acquired by Microsoft</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Travis-CI</h2>
+          <ul>
+            <li>Continuous Integration, integrated with github</li>
+            <li>Free (as in beer) for open source projects</li>
+            <li>Build instructions with each commit run in the cloud</li>
+            <li>Integration with github API to show status, enforce policy</li>
+            <li>Possible to provide credential keys to upload artifacts</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>.travis.yml</h2>
+<pre>
+language: node_js
+
+node_js:
+  - "node"
+
+script:
+  - bash ./test/run-tests.sh
+
+os:
+  - linux
+  - osx
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Tutorial</h2>
           <p>
           <a href="https://github.com/flagxor/svfig-talks">slides</a>
           at:
@@ -449,9 +527,6 @@ View at: https://flagxor.github.io/svfig-talks
      </div>
     </div>
 
-    <script src="passwd.js"></script>
-    <script src="voicer.js"></script>
-    <script src="../common/haiku.js"></script>
     <script src="../reveal.js/lib/js/head.min.js"></script>
     <script src="../reveal.js/js/reveal.js"></script>
     <script src="../common/config_vision.js"></script>
