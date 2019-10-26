@@ -54,6 +54,42 @@ green, and special considerations when working with Forth software.
 on Windows or Linux, checking  out espforth with Git, and building it to run
 on our robot boards.
 
+title
+movitation
+* history
+sccs
+rcs
+rcs usage
+* rcs branches
+diff
+patch
+cvs
+cvs usage
+clearcase
+perforce
+perforce usage
+subversion
+subversion usage
+bitkeeper
+darcs
+darcs algebra
+git
+mercurial
+* cryptographic hash
+* sha1
+* git structure
+git commit
+git tree
+git blob
+* git packing
+* git branching
+* git merging
+git rebasing
+github
+github pull request
+travis-ci
+travis-ci config
+
 -->
 
   <body>
@@ -77,10 +113,116 @@ on our robot boards.
         </section>
 
         <section data-transition="fade-out">
-          <h2>Introduction</h2>
+          <h2>Motivation</h2>
           <ul>
-            <li>TODO</li>
+            <li>Keep a record of software as it changes</li>
+            <li>Go back to different versions</li>
+            <li>Compare versions</li>
+            <li>Work on software in groups</li>
+            <li class="fragment">Hell is other people</li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>History</h2>
+          <ul>
+            <li>SCCS (SNOBOL) - 1972</li>
+	    <li>diff - 1974</li>
+            <li><b>SCCS</b> (C) - 1977</li>
+            <li><b>RCS</b> (C) - 1982</li>
+	    <li>patch - 1985</li>
+            <li><b>CVS</b> (C) - 1990</li>
+            <li><b>ClearCase</b> (C) - 1992</li>
+            <li><b>Perforce</b> (closed source) - 1995</li>
+            <li><b>Subversion</b> (C) - 2000</li>
+            <li><b>Bitkeeper</b> (C) - 2000</li>
+            <li>Darcs (Haskell) - 2003</li>
+            <li><b>Git</b> (C) - 2005</li>
+            <li>Mercurial - 2005</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SCCS (Source Code Control System)</h2>
+          <ul>
+            <li>SCCS (SNOBOL) - 1972</li>
+            <li>SCCS (C) - 1977</li>
+            <li>Store version history per file</li>
+            <li>Record changes a series of edits</li>
+            <li>Used as internal format of BitKeeper, Teamware</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>RCS (Revision Control System)</h2>
+          <ul>
+            <li>Store version history per file</li>
+            <li>Files are checked in and out with locking</li>
+            <li>Support for branches and merging</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>RCS Branches</h2>
+          <img src="rcs_versions.png" height="300">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Structure</h2>
+          <img src="git_structure.png" height="500">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Branch / Merge</h2>
+          <img src="git_merge.png" height="500">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Commit</h2>
+          <pre>
+git cat-file -p 84526055cbc8ef43f5352766066f43598acbf464
+----------------------------------------------------------
+tree 3d3efe3c0a3cfd859a6c3946e6976f503c763c46
+parent f45dde8ffd994689de229b67439021484164a7a3
+author Brad Nelson <flagxor@gmail.com> 1571510583 -0700
+committer Brad Nelson <flagxor@gmail.com> 1571510583 -0700
+
+Starting next talk.
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Tree</h2>
+          <pre font-size="small">
+git cat-file -p 3d3efe3c0a3cfd859a6c3946e6976f503c763c46
+--------------------------------------------------------
+100644 blob d140ea...919970e7f88263	.gitignore
+100644 blob 0908dd...2abe8af39aa0c4	.gitmodules
+100644 blob b31ff8...f815b589370f27	Makefile
+100644 blob 42d896...1dede9bcc9cfb4	README.md
+040000 tree e9ce26...d8a43fd617c6fa	common
+160000 commit 525e4f...41ac574475819f	impress.js
+100644 blob b3560e...9392b53bbc2318	index.html
+040000 tree 46efbd...28d5cc4c3b77cc	intro-2018-01-30
+160000 commit 43eada...7831aef8e76759	reveal.js
+040000 tree a92893...28aa4839243024	svfig-2015-04-25
+040000 tree f2d72f...c232d967724c9c	svfig-2015-06-27
+040000 tree 1fb97e...300822c331f04d	svfig-2015-07-25
+040000 tree 699e54...1d2e885827f13b	svfig-2015-08-22
+040000 tree 44991d...800e5d821d263d	svfig-2015-11-21
+040000 tree 9ee021...f31bd91df36274	svfig-2016-01-23
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Blob</h2>
+          <pre font-size="small">
+git cat-file -p 42d896146a714d53b123706dfd1dede9bcc9cfb4
+--------------------------------------------------------
+Slides for Brad Nelson's SVFIG Talks.
+
+View at: https://flagxor.github.io/svfig-talks
+          </pre>
         </section>
 
         <section data-transition="fade-out">
