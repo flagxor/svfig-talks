@@ -129,8 +129,9 @@ travis-ci config
         </section>
 
         <section data-transition="fade-out">
-          <h2>SCCS (Source Code Control System)</h2>
+          <h2>SCCS</h2>
           <ul>
+            <li>SCCS = Source Code Control System</li>
             <li>SCCS (SNOBOL) - 1972</li>
             <li>SCCS (C) - 1977</li>
             <li>Store version history per file</li>
@@ -140,12 +141,14 @@ travis-ci config
         </section>
 
         <section data-transition="fade-out">
-          <h2>RCS (Revision Control System) - 1982</h2>
+          <h2>RCS - 1982</h2>
           <ul>
+            <li>RCS = Revision Control System</li>
             <li>Store version history per file</li>
             <li>Files are checked in and out with locking</li>
             <li>Support for branches and merging</li>
             <li>Used internally by CVS</li>
+            <li>Sharing often via NFS or other file shares</li>
           </ul>
         </section>
 
@@ -237,8 +240,9 @@ over the lazy dog.
         </section>
 
         <section data-transition="fade-out">
-          <h2>CVS (Concurrent Version System) - 1990</h2>
+          <h2>CVS - 1990</h2>
           <ul>
+            <li>CVS = Concurrent Version System</li>
             <li>Created by Dick Grune to work with his grad students</li>
             <li>Checkouts can be edited conncurrently</li>
             <li>Before a develop can commit they have update and resolve conflicts</li>
@@ -278,20 +282,103 @@ cvs commit
             <li>Proprietary</li>
             <li>Scales to large repositories</li>
             <li>External APIs</li>
-            <li>Atomic commits, monotonically increasing CL# (Change List)"</li>
+            <li>Atomic commits, monotonically increasing CL# (Change List)</li>
+            <li>Branches supported, but merging is so-so</li>
             <li>Centralized repository and administration</li>
             <li>Influenced internal tools at Google and Microsoft</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
-          <h2>Git Structure</h2>
-          <img src="git_structure.png" height="500">
+          <h2>Subversion - 2000</h2>
+          <ul>
+            <li>Atomic commits, monotonically increasing revision numbers</li>
+            <li>Network protocol</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
-          <h2>Git Branch / Merge</h2>
-          <img src="git_merge.png" height="500">
+          <h2>Subversion Usage</h2>
+<pre>
+svn checkout http://src.chromium.org/chrome/
+svn update
+( add foo.c )
+svn add foo.c
+svn commit
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>BitKeeper - 2000</h2>
+          <ul>
+            <li>Proprietary</li>
+            <li>First major distributed version control system</li>
+            <li>Local copy of reposity history</li>
+            <li>Fast atomic local operation, low effort merges</li>
+            <li>Used to much controversy for Linux Kernel</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Darcs - 2003</h2>
+          <ul>
+            <li>Darcs Advanced Revision Control System</li>
+            <li>Implemented in Haskell</li>
+            <li>History is viewed as series of patches</li>
+            <li>Patch algebra involving commuting and inverting patches</li>
+            <li>Potentially exponential time merges</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git - 2005</h2>
+          <ul>
+            <li>Distributed Version Control</li>
+            <li>Linus Tovalds implements in reaction to BitKeeper fiasco</li>
+            <li>Fast atomic local operation, low effort merges</li>
+            <li>Implemented in C, with some Perl, Bash, Tcl</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Mercurial - 2005</h2>
+          <ul>
+            <li>Distributed Version Control</li>
+            <li>Also kicked off by BitKeeper incident</li>
+            <li>Fast atomic local operation, low effort merges</li>
+            <li>"Friendly" syntax closer to subversion</li>
+            <li>Implemented in Python, with some C</li>
+            <li>Used at Facebook and somewhat at Google</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Crytographic Hashing</h2>
+          <ul>
+            <li>Input bits should maximally impact hash bits</li>
+            <li>Unbiased in constrast to a CRC</li>
+            <li>Likelihood of collisions low enough it can be ignored</li>
+            <li>Allows a "global unique id" for data without centralization coordination</li>
+            <li>Used as a digest for cryptographic signing</li>
+            <li>Used in proof of work algorithms for cryptocurrencies (Bitcoin)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SHA1 for Git</h2>
+          <ul>
+            <li>160-bit, 20-byte, 40-hex digit digest</li>
+            <li>Theoretical attacks since 2005</li>
+            <li>Deprecated by NIST in 2011</li>
+            <li>PDF collision demonstrated by Google in 2017</li>
+            <li>Used for Git!</li>
+          </ul>
+	  <img src="https://shattered.io/static/shattered.png" height="200">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Structure</h2>
+          <img src="git_structure.png" height="500">
         </section>
 
         <section data-transition="fade-out">
@@ -340,6 +427,11 @@ Slides for Brad Nelson's SVFIG Talks.
 
 View at: https://flagxor.github.io/svfig-talks
           </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Git Branch / Merge</h2>
+          <img src="git_merge.png" height="500">
         </section>
 
         <section data-transition="fade-out">
