@@ -125,21 +125,7 @@ travis-ci config
 
         <section data-transition="fade-out">
           <h2>History</h2>
-          <ul>
-            <li>SCCS (SNOBOL) - 1972</li>
-	    <li>diff - 1974</li>
-            <li><b>SCCS</b> (C) - 1977</li>
-            <li><b>RCS</b> (C) - 1982</li>
-	    <li>patch - 1985</li>
-            <li><b>CVS</b> (C) - 1990</li>
-            <li><b>ClearCase</b> (C) - 1992</li>
-            <li><b>Perforce</b> (closed source) - 1995</li>
-            <li><b>Subversion</b> (C) - 2000</li>
-            <li><b>Bitkeeper</b> (C) - 2000</li>
-            <li>Darcs (Haskell) - 2003</li>
-            <li><b>Git</b> (C) - 2005</li>
-            <li>Mercurial - 2005</li>
-          </ul>
+          <img src="history.png" height="500">
         </section>
 
         <section data-transition="fade-out">
@@ -154,17 +140,148 @@ travis-ci config
         </section>
 
         <section data-transition="fade-out">
-          <h2>RCS (Revision Control System)</h2>
+          <h2>RCS (Revision Control System) - 1982</h2>
           <ul>
             <li>Store version history per file</li>
             <li>Files are checked in and out with locking</li>
             <li>Support for branches and merging</li>
+            <li>Used internally by CVS</li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>RCS Usage</h2>
+          <pre>
+( create a new file called foo.txt)
+ci foo.txt
+co foo.txt
+( compile or otherwise use it )
+co -l foo.txt
+( edit foo.txt )
+ci foo.txt
+          </pre>
         </section>
 
         <section data-transition="fade-out">
           <h2>RCS Branches</h2>
           <img src="rcs_versions.png" height="300">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>diff - 1974</h2>
+<pre>
+diff a.txt b.txt 
+<span class="gold">2,3</span>c<span class="blue">2,3</span>
+<span class="gold">&lt; In this example, some
+&lt; things will be changed.</span>
+---
+<span class="blue">&gt; In this example, one
+&gt; thing will be changed.</span>
+</pre>
+<pre style="float: left; width: 40%;" class="gold">
+This is an example.
+In this example, some
+things will be changed.
+The quick brown fox jumped
+over the lazy dog.
+</pre>
+<pre style="float: right; width: 40%;" class="blue">
+This is an example.
+In this example, one
+thing will be changed.
+The quick brown fox jumped
+over the lazy dog.
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>diff (unified) - 1990</h2>
+<pre>
+diff -u a.txt b.txt 
+<span class="gold">--- a.txt	2019-10-25 22:56:26.000000000 -0700</span>
+<span class="blue">+++ b.txt	2019-10-25 22:56:52.000000000 -0700</span>
+@@ <span class="gold">-1,6</span> <span class="blue">+1,6</span> @@
+ This is an example.
+<span class="gold">-In this example, some</span>
+<span class="gold">-things will be changed.</span>
+<span class="blue">+In this example, one</span>
+<span class="blue">+thing will be changed.</span>
+ The quick brown fox jumped
+ over the lazy dog.
+</pre>
+<pre style="float: left; width: 40%;" class="gold">
+This is an example.
+In this example, some
+things will be changed.
+The quick brown fox jumped
+over the lazy dog.
+</pre>
+<pre style="float: right; width: 40%;" class="blue">
+This is an example.
+In this example, one
+thing will be changed.
+The quick brown fox jumped
+over the lazy dog.
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>patch - 1985</h2>
+          <ul>
+            <li>Reverse what diff does!</li>
+            <li>Created by Larry Wall (inventor of Perl)</li>
+            <li>Developers can now send "patches"</li>
+            <li>Diffs can sometimes apply even if things change</li>
+            <li>Diffs can partially apply</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CVS (Concurrent Version System) - 1990</h2>
+          <ul>
+            <li>Created by Dick Grune to work with his grad students</li>
+            <li>Checkouts can be edited conncurrently</li>
+            <li>Before a develop can commit they have update and resolve conflicts</li>
+            <li>Uses RCS underneath</li>
+            <li>Commits are not atomic</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CVS Usage</h2>
+<pre>
+cvs checkout prog1
+cd prog1
+( create foo.txt )
+cvs add foo.txt
+cvs commit
+( edit foo.txt 0
+cvs commit
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ClearCase - 1992</h2>
+          <ul>
+            <li>Proprietary</li>
+            <li>Source control integrated with file system</li>
+            <li>Non-atomic commits</li>
+            <li>Track a "bill of materials"</li>
+            <li>Integration with build system</li>
+            <li>Centralized repository and administration</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Perforce - 1995</h2>
+          <ul>
+            <li>Proprietary</li>
+            <li>Scales to large repositories</li>
+            <li>External APIs</li>
+            <li>Atomic commits, monotonically increasing CL# (Change List)"</li>
+            <li>Centralized repository and administration</li>
+            <li>Influenced internal tools at Google and Microsoft</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
