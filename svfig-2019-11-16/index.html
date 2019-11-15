@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Squeezing Forth into 64 Bits</title>
+    <meta name="description"
+          content="Squeezing Forth into 64 Bits - November 16, 2019">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!--
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <style>
+pre {
+  background-color: #ddd;
+}
+pre.gold {
+  background-color: #fed;
+}
+pre.blue {
+  background-color: #def;
+}
+span.gold {
+  color: #c80;
+}
+span.blue {
+  color: #08c;
+}
+    </style>
+  </head>
+
+<!--
+
+!"#$%&'()*+,-./
+0123456789:;<=>?
+@ABCDEFGHIJKLMNO
+PQRSTUVWXYZ[\]^_
+`abcdefghijklmno
+pqrstuvwxyz{|}~
+
+Squeezing Forth into 64 Bits
+----------------------------
+Over the last decade 64-bit processors have largely displaced 32-bit,
+outside of embedded applications. Recently, operating systems have begun
+dropping  support for running 32-bit processes on 64-bit systems.
+
+A larger natural cell size, enough to fit whole Forth word strings
+into a single machine word, is an opportunity to simplify the design
+of Forth. I'll explore what this looks like in a small Forth, and
+touch on how OS hosted Forths fit into a world of ever growing
+complexity.
+
+-->
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2><span class="blue">
+          Squeezing Forth into 64 Bits</h2>
+          <h2>November 16, 2019</h2>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Motivation</h2>
+          <ul>
+            <li>TODO</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <p>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
