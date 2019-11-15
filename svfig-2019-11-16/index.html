@@ -37,17 +37,17 @@ span.gold {
 span.blue {
   color: #08c;
 }
+div.code {
+  font-family: monospace;
+}
+span.revlabel {
+  color: #aaa;
+  background-color: #000;
+}
     </style>
   </head>
 
 <!--
-
-!"#$%&'()*+,-./
-0123456789:;<=>?
-@ABCDEFGHIJKLMNO
-PQRSTUVWXYZ[\]^_
-`abcdefghijklmno
-pqrstuvwxyz{|}~
 
 Squeezing Forth into 64 Bits
 ----------------------------
@@ -87,6 +87,61 @@ complexity.
           <h2>Motivation</h2>
           <ul>
             <li>TODO</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forth's Character Set</h2>
+          <ul>
+            <li>Why don't we use ` ~ | {} ?</li>
+            <li>Why do some Eforths AND with $5F ?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forth's Character Set</h2>
+          <div class="code">
+&nbsp;&nbsp;<span class="revlabel">0123456789ABCDEF</span><br/>
+<span class="revlabel">0x</span><span class="gold">@ABCDEFGHIJKLMNO</span><br/>
+<span class="revlabel">1x</span><span class="gold">PQRSTUVWXYZ[\]^_</span><br/>
+<span class="revlabel">2x</span>&nbsp;!"#$%&amp;'()*+,-./<br/>
+<span class="revlabel">3x</span>0123456789:;&lt;=&gt;?<br/>
+<span class="revlabel">4x</span>@ABCDEFGHIJKLMNO<br/>
+<span class="revlabel">5x</span>PQRSTUVWXYZ[\]^_<br/>
+<span class="revlabel">6x</span>`abcdefghijklmno<br/>
+<span class="revlabel">7x</span>pqrstuvwxyz{|}~<span class="gold">?</span><br/>
+          </div>
+          <div><span class="gold">Ctrl</span></div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forth's Character Set</h2>
+          <div class="code">
+&nbsp;&nbsp;<span class="revlabel">0123456789ABCDEF</span><br/>
+<span class="revlabel">0x</span><span class="gold">@ABCDEFGHIJKLMNO</span><br/>
+<span class="revlabel">1x</span><span class="gold">PQRSTUVWXYZ[\]^_</span><br/>
+<span class="revlabel">2x</span><span class="blue">&nbsp;!"#$%&'()*+,-./</span><br/>
+<span class="revlabel">3x</span><span class="blue">0123456789:;<=>?</span><br/>
+<span class="revlabel">4x</span><span class="blue">@ABCDEFGHIJKLMNO</span><br/>
+<span class="revlabel">5x</span><span class="blue">PQRSTUVWXYZ[\]^_</span><br/>
+<span class="revlabel">6x</span>`abcdefghijklmno<br/>
+<span class="revlabel">7x</span>pqrstuvwxyz{|}~<span class="gold">?</span><br/>
+          </div>
+          <div><span class="gold">Ctrl</span> --
+               <span class="blue">Forth</span></div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forth's Character Set</h2>
+          <ul>
+            <li>Basically a 6-bit character set!</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>All your bases are belong to us</h2>
+          <ul>
+            <li>: DIGIT ( ch -- n ) 9 over < 7 and + [char] 0 + ;</li>
           </ul>
         </section>
 
