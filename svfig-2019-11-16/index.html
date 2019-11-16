@@ -86,13 +86,21 @@ complexity.
         <section data-transition="fade-out">
           <h2>Caveats</h2>
           <ul>
-            <li></li>
+            <li>Simplicity is in the eye of the beholder.</li>
+            <li>
+            Wise and venerable practitioners have tried many methods.<br/>
+            <i>And some things that should not have been forgotten were lost.</i>
+            </li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
           <h2>Forthopedia</h2>
           <ul>
+            <li>A lot of debate and thought went into the choices in Forth,
+            but is not well documented.</li>
+            <li>How a word came to be matters!</li>
+            <li>Help me record "WHY?"</li>
             <li><a href="https://github.com/flagxor/forthopedia">
             https://github.com/flagxor/forthopedia</a></li>
           </ul>
@@ -138,6 +146,113 @@ I'm not sentimental.  Good riddance.
             <li>SwiftForth for macOS: Mac OS X 10.6 through macOS <b>10.14 (requires 32-bit library support)</b></li>
             <li>SwiftForth for Linux: Linux 2.6 kernel or later with <b>32-bit library support</b></li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lamentation of Complexity</h2>
+          <ul>
+            <li>64-bit instruction sets are complex,
+            grafted onto 32-bit ones.</li>
+            <li>64-bit calling conventions are complex,
+            involving alignment and "redzones".</li>
+            <li>64-bit has become common,
+            even though it is usually less memory effient,
+            to allow a single complex configuration to prevail.</li>
+            <li>Software doesn't need to be this way,
+            but it is because it has become cumulative.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>What can be made Simpler with 64-bit?</h2>
+          <ul>
+            <li>Less need for double length words.</li>
+            <li>Less need for double length words.</li>
+            <li>64-bits is 8 bytes, ma64-bit calling conventions are complex,
+            involving alignment and "redzones".</li>
+            <li>Software doesn't need to be this way,
+            but it is because it has become cumulative.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ColorForth</h2>
+          <img src="colorforth_source.png">
+          <ul>
+            <li>Source code encoded in 32-bit words
+            <ul>
+              <li>4-bit tag for color</li>
+              <li>28-bits of variable length characters</li>
+            </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ColorForth Character Set</h2>
+<pre>
+   0 000    0      10 000 s  8    1100 000 d 16
+   0 001 r  1      10 001 m  9    1100 001 v 17
+   0 010 t  2      10 010 c 10    1100 010 p 18
+   0 011 o  3      10 011 y 11    1100 011 b 19
+   0 100 e  4      10 100 l 12    1100 100 h 20
+   0 101 a  5      10 101 g 13    1100 101 x 21
+   0 110 n  6      10 110 f 14    1100 110 u 22
+   0 111 i  7      10 111 w 15    1100 111 q 23
+
+1101 000 0 24    1110 000 8 32    1111 000 ; 40
+1101 001 1 25    1110 001 9 33    1111 001 ' 41
+1101 010 2 26    1110 010 j 34    1111 010 ! 42
+1101 011 3 27    1110 011 - 35    1111 011 + 43
+1101 100 4 28    1110 100 k 36    1111 100 @ 44
+1101 101 5 29    1110 101 . 37    1111 101 * 45
+1101 110 6 30    1110 110 z 38    1111 110 , 46
+1101 111 7 31    1110 111 / 39    1111 111 ? 47
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>DSSP</h2>
+          <ul>
+            <li>Forth cousin for the Setun-70 (ternary computer)</li>
+            <li>Key philosophy:
+            <i>"one word of text - one word of machine code"</i></li>
+          </ul>
+          <small>http://brokestream.com/daf.txt</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>DSSP</h2>
+<pre>
+  <b>DSSP</b>            <b>Forth</b>
+  [n] IF+ A       [n] 0> IF A THEN
+  [n] IF0 A       [n] 0= IF A THEN
+  [n] IF- A       [n] 0< IF A THEN
+  [n] BR+ A B     [n] 0> IF A ELSE B THEN
+  [n] BR- A B     [n] 0< NEG IF A ELSE B THEN
+  [n] BR0 A B     [n] 0= IF A ELSE B THEN
+  [n] BRS X Y Z
+  [n] BR c1 p1  c2 p2 ... cN pN else pN+1
+</pre>
+          <small>http://brokestream.com/daf.txt</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>DSSP</h2>
+<pre>
+  <b>DSSP</b>            <b>Forth</b>
+  [ ] RP A        []  BEGIN  A 0 UNTIL
+  [n] DO A        [n,0] DO A LOOP
+
+    To leave the cycle  4 break operators can be used:
+
+   <b>DSSP</b>   <b>Forth</b>
+    EX    LEAVE
+    EX-   O< IF LEAVE THEN
+    EX0   0= IF LEAVE THEN
+    EX+   0> IF LEAVE THEN
+</pre>
+          <small>http://brokestream.com/daf.txt</small>
         </section>
 
         <section data-transition="fade-out">
