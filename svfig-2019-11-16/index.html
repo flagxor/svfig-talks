@@ -167,17 +167,14 @@ I'm not sentimental.  Good riddance.
           <h2>What can be made Simpler with 64-bit?</h2>
           <ul>
             <li>Less need for double length words.</li>
-            <li>Less need for double length words.</li>
-            <li>64-bits is 8 bytes, ma64-bit calling conventions are complex,
-            involving alignment and "redzones".</li>
-            <li>Software doesn't need to be this way,
-            but it is because it has become cumulative.</li>
+            <li>64-bits could encode
+            a fairly complex single instruction machine?</li>
+            <li>64-bits is 8 bytes!, 8 letters is a lot.</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
           <h2>ColorForth</h2>
-          <img src="colorforth_source.png">
           <ul>
             <li>Source code encoded in 32-bit words
             <ul>
@@ -186,6 +183,7 @@ I'm not sentimental.  Good riddance.
             </ul>
             </li>
           </ul>
+          <img src="colorforth_source.png" width="400">
         </section>
 
         <section data-transition="fade-out">
@@ -209,6 +207,7 @@ I'm not sentimental.  Good riddance.
 1101 110 6 30    1110 110 z 38    1111 110 , 46
 1101 111 7 31    1110 111 / 39    1111 111 ? 47
 </pre>
+          <small>http://www.greenarraychips.com/home/documents/greg/cf-characters.htm</small>
         </section>
 
         <section data-transition="fade-out">
@@ -322,6 +321,109 @@ I'm not sentimental.  Good riddance.
 : DIGIT? ( c base -- u t )
    >R [char] 0 - 9 OVER <
    IF 7 - DUP 10 < OR THEN DUP R> U< ;</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Make Life Easier</h2>
+<pre class="code">
+ 0123456789abcdefghijklmnopqrstuvwxyz!"#$%&'()*+,-./:;<=>?@[\]^_
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Even Easier?</h2>
+          <ul>
+            <li>6-bit * 10 = 60-bits</li>
+            <li>Use 4-bit tag for: string(0), decimal(1), hex(2)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CircleForth</h2>
+          <ul>
+            <li>84 circle.fs</li>
+            <li>85 compound.fs</li>
+            <li>DEMO</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ESPForth (AIBOT)</h2>
+          <ul>
+            <li>815 espforth.c</li>
+            <li>DEMO</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Interfacing with the OS</h2>
+          <ul>
+            <li>Kernels still use simple register calling conventions
+            <ul>
+              <li>But they assume you know complex struct layouts...</li>
+              <li>And hide complexity in binary blob graphics and modem drivers...</li>
+              <li>And they're aren't technically a stable ABI</li>
+              <li>And much of the OS is really dynamic library code</li>
+            </ul></li>
+            <li>dlopen / dlsym ?</li>
+            <li>Write your API interface code in C ?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Matthew 22:21</h3>
+          Then saith he unto them, <font color="red">Render therefore unto Caesar
+          the things which are Caesar's;<br/>
+          and unto God the things that are God's.</font>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Lead me not into Complexity</h2>
+          <ul>
+            <li>If you use an OS facility, embrace its details.</li>
+            <li>Try to abstain from doing so!</li>
+            <li>Write a wrapper outside Forth if you want the capability,
+                instead of the whole "library".
+              <ul>
+                <li>Simplify a GUI to just render bitmap in a window,
+                    if you just want to get pixels on the screen.</li>
+                <li>Reduce Wi-Fi to running an HTTP server offering
+                    remote transport.</li>
+              </ul>
+            </li>
+            <li>Running multiple programs can separate concerns.</li>
+            <li>Portability is a profound temptation.
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Parser Tug and Pull</h2>
+          <ul>
+            <li>Conventional Forth mixes if interpreting drives parsing,
+            or parsing drives interpreting.</li>
+            <li>Interpreter Driven: WORD, PARSE, CREATE</li>
+            <li>Parser Driven: STATE, Number parsing</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ColorForth Solution</h2>
+          <ul>
+            <li>Mostly Parser Driven</li>
+            <li>Color call table decides how to respond.</li>
+            <li>Numbers are pre-parsed.</li>
+            <li><b>Downside, more statefulness</b></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Coroutines</h2>
+          <ul>
+            <li>Parsing words yield to parser.</li>
+            <li>Loading / evaluating words run as the parsing co-routine.</li>
+            <li>[ and ] terminate and restart interpret / compile.</li>
+            <li><b>Downside, more complexity</b></li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
