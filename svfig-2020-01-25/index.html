@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Connecting Forth to the World</title>
+    <meta name="description"
+          content="Connecting Forth to the World - January 25, 2020">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!--
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <style>
+pre {
+  background-color: #ddd;
+}
+pre.gold {
+  background-color: #fed;
+}
+pre.blue {
+  background-color: #def;
+}
+span.gold {
+  color: #c80;
+}
+span.blue {
+  color: #08c;
+}
+div.code {
+  font-family: monospace;
+}
+span.revlabel {
+  color: #aaa;
+  background-color: #000;
+}
+    </style>
+  </head>
+
+<!--
+
+Connecting Forth to the World
+-----------------------------
+I'll describe my journey migrating flagxor.com from AppEngine to
+a Google Cloud server running Nginx and Forth.
+Along the way I'll discuss ways to plug Forth into Linux syscalls,
+processes, forking, pipes, semaphores, and sockets.
+We'll learn about SCGI, certbot, Let's Encrypt, and more.
+
+-->
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2><span class="blue">
+          Connecting Forth to the World</h2>
+          <h2>January 25, 2020</h2>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>The Quest</h2>
+          <ul>
+            <li>Run flagxor.com on Forth</li>
+            <li>Keep existing content</li>
+            <li>Add dynamic content</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CGI</h2>
+          <ul>
+            <li></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a>
+          at:
+          <a href="https://github.com/flagxor">
+            github.com/flagxor</a></p>
+          <p>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
