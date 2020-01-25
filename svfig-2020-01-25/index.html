@@ -289,13 +289,23 @@ Content-type: text/html
         </section>
 
         <section data-transition="fade-out">
-          <h2>SCGI Request</h2>
+          <h2>SCGI Reply</h2>
           <pre>
 "Status: 200 OK" &lt;0d 0a&gt;
 "Content-Type: text/plain" &lt;0d 0a&gt;
 "" &lt;0d 0a&gt;
 "42"
           </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why not a Proxy?</h2>
+          <ul>
+            <li>SCGI sanitizes inputs</li>
+            <li>HTTP Keep-alive</li>
+            <li>HTTP is complex</li>
+            <li>Somewhat of a pain to test</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
@@ -391,6 +401,7 @@ end-code
           <ul>
             <li>await -- Wait for a wakeup</li>
             <li>awake -- Wake up all waiters</li>
+            <li>mmap some shared data</li>
           </ul>
         </section>
 
