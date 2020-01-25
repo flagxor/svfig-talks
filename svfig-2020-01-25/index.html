@@ -57,28 +57,6 @@ Along the way I'll discuss ways to plug Forth into Linux syscalls,
 processes, forking, pipes, semaphores, and sockets.
 We'll learn about SCGI, certbot, Let's Encrypt, and more.
 
-old solution:
-  app engine
-  static content
-  python
-  topics not needed
-  gcloud now requires cloud compile
-new solution:
-  static content
-  CGI
-  FastCGI
-  sCGI
-http://python.ca/scgi/protocol.txt
-  nginx
-  LEt's encrypt
-  certbot
-  threads
-  posix
-  pipes
-  fork + processes
-  sockets
-  mmap
-  semaphores
 -->
 
   <body>
@@ -111,19 +89,341 @@ http://python.ca/scgi/protocol.txt
         </section>
 
         <section data-transition="fade-out">
-          <h2>CGI</h2>
+          <h2>The Old Solution</h2>
           <ul>
-            <li></li>
+            <li>App Engine</li>
+            <li>Static Content</li>
+            <li>Python script + templates</li>
+            <li>Topics (categories)</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
+          <h2>App Engine</h2>
+          <ul>
+            <li>Google's opinionated scalable web solution</li>
+            <li>Runtimes for Python, Java, Go, Node.js</li>
+            <li>app.yaml</li>
+            <li>Free!</li>
+            <li>Now requires gcloud compilation :-(</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Python Templates</h2>
+          <ul>
+            <li>Transform data into canned pages</li>
+            <li>Deploy pages via app engine as static content</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>gen.py</h2>
+          <pre>
+ARTICLES = [
+  {
+    'title': 'Source Code',
+    'date': 'February 19, 2015',
+    'topics': ['Forth', 'Programming Languages'],
+    'summary': """\
+&lt;p&gt;
+Source code, while a common property of programming languages,
+is by no mean universal. Languages like Smalltalk, traditional
+interactive BASICs, and some Forths often have "source of truth"
+representations other than text files. Additional REPLs of all
+sorts often retain program state that exists only for the
+duration of an interactive session. What are the trade-offs
+and why does text continue to be the dominant format?
+&lt;/p&gt;
+""",
+    'rest': """\
+&lt;p&gt;
+A key feature of early micro-computers was an integrated BASIC
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Topics (categories)</h2>
+          <ul>
+            <li>Aspirationally lots of topics:
+            Forth, Blogging, Forth Haiku, Programming Languages</li>
+            <li>In practice, not so much</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>The New Solution</h2>
+          <ul>
+            <li>Static &amp; Dynamic Content</li>
+            <li>Minimalistic Markup with Smarter JavaScript</li>
+            <li>Google Cloud Server Hosting</li>
+            <li>Conventional Web Server with Gateway to Forth Server</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Minimalistic Markup</h2>
+          <pre>
+&lt;!DOCTYPE html&gt;
+&lt;body&gt;&lt;div id="main"&gt;
+&lt;script src="../../flagxor.js"&gt;&lt;/script&gt;
+&lt;h1&gt;Source Code&lt;/h1&gt;
+&lt;h2&gt;February 19, 2015&lt;/h2&gt;
+&lt;p&gt;
+Source code, while a common property of programming languages,
+is by no mean universal. Languages like Smalltalk, traditional
+interactive BASICs, and some Forths often have "source of truth"
+representations other than text files. Additional REPLs of all
+sorts often retain program state that exists only for the
+duration of an interactive session. What are the trade-offs
+and why does text continue to be the dominant format?
+&lt;/p&gt;
+&lt;hr/&gt;
+&lt;p&gt;
+A key feature of early micro-computers was an integrated BASIC
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Google Cloud Compute Engine</h2>
+          <ul>
+            <li>Run Virtual Machines in the Cloud</li>
+            <li>Wimpy Debian Server (1 vCPU + 0.6GB Mem + 10GB Disk)
+                under free caps</li>
+            <li>Install Arbitrary Linux Stuff, including Gforth</li>
+            <li>Need to keep a credit card on file</li>
+            <li>Spend caps configurable</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Nginx</h2>
+          <ul>
+            <li>Popular lightweight webserver</li>
+            <li>Easier to configure than Apache2</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Dynamic Content</h2>
+          <ul>
+            <li>Web pages that compute or store server side</li>
+            <li>Applications: web counters, web apps, anything stateful</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CGI</h2>
+          <ul>
+            <li>Common Gateway Interface</li>
+            <li>Starts a script once per page load</li>
+            <li>Standardized environment variables for decoded request</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>HTTP Request</h2>
+          <pre>
+GET /mypage/foo.html HTTP/1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36
+    (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36
+Host: flagxor.com:8080
+Accept: image/gif, image/jpeg, */*
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>HTTP Reply</h2>
+          <pre>
+HTTP/1.0 200 ok
+Content-type: text/html
+
+&lt;html&gt;
+&lt;title&gt;My Page&lt;/title&gt;
+...
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CGI</h2>
+          <ul>
+            <li>REQUEST_METHOD="GET"</li>
+            <li>REMOTE_ADDR="127.0.0.1"</li>
+            <li>HTTP_HOST="foo.com""</li>
+            <li>REQUEST_URI="/cgi-bin/foo.pl?var1=1&amp;var2=3"</li>
+            <li>SCRIPT_NAME="/cgi-bin/foo.pl"</li>
+            <li>QUERY_STRING="var1=2&amp;var=3"</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>FastCGI</h2>
+          <ul>
+            <li>Gateway to over named pipe or domain socket</li>
+            <li>Multiplexing</li>
+            <li>Multiple Requests per connection</li>
+            <li>Complex protocol</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SCGI</h2>
+          <ul>
+            <li>Simple Common Gateway Interface</li>
+            <li>Simple <a href="http://python.ca/scgi/protocol.txt">100 Line Spec</a></li>
+            <li>One connection per request</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SCGI Request</h2>
+          <pre>
+"70:"
+  "CONTENT_LENGTH" &lt;00&gt; "27" &lt;00&gt;
+  "SCGI" &lt;00&gt; "1" &lt;00&gt;
+  "REQUEST_METHOD" &lt;00&gt; "POST" &lt;00&gt;
+  "REQUEST_URI" &lt;00&gt; "/deepthought" &lt;00&gt;
+","
+"What is the answer to life?"
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SCGI Request</h2>
+          <pre>
+"Status: 200 OK" &lt;0d 0a&gt;
+"Content-Type: text/plain" &lt;0d 0a&gt;
+"" &lt;0d 0a&gt;
+"42"
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Let's Encrypt</h2>
+          <ul>
+            <li>Non-profit Certificate Authority</li>
+            <li>Part of a push to replace HTTP with HTTPS everywhere</li>
+            <li>Free certificates</li>
+            <li>Fairly short expiration</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Certbot</h2>
+          <ul>
+            <li>Tool Help Certificate Renewal and Deployment</li>
+            <li>Easy to use</li>
+            <li>sudo certbot --nginx</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Talking to Posix</h2>
+<pre>
+\c #include &lt;unistd.h&gt;
+c-function fork fork -- n
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Aside on Gforth + ABI-Code</h2>
+          <ul>
+            <li>gforth-0.7.3 is everywhere, but is NOT the latest!</li>
+            <li>Reached out to Anton Ertl + Bernd Paysan,
+                but not heard back</li>
+            <li>gforth-0.7.9 can be built from source</li>
+            <li>ABI-CODE allows ABI portable asm</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>ABI-CODE</h2>
+<pre>
+Cell *word(Cell *sp, Float **fp_pointer);
+
+abi-code my+ ( n1 n2 -- n3 )
+\ SP passed in rdi, returned in rax
+lea rax,[rdi+8] \ new sp in result reg
+mov rdx,[rdi] \ get old tos
+add [rax],rdx \ add to new tos
+ret \ return from my+
+end-code
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Aside on Ye Unix of Old</h2>
+          <ul>
+            <li>Early UNIX got by without non-blocking I/O</li>
+            <li>fork() + pipe() for everything</li>
+            <li>Careful patterns of multi-writer / multi-reader</li>
+            <li>Pipes writes &lt; 4096 bytes are atomic</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Threads vs Processes</h2>
+          <ul>
+            <li>Shared Address Space vs Copy-on-Write</li>
+            <li>Maximum performance vs Separation of Concerns</li>
+            <li>Newer API vs Simpler API</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Sockets</h2>
+          <ul>
+            <li>File-like on Unix</li>
+            <li>Learn on \c and a little C for setup</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Sharing Between Workers</h2>
+          <ul>
+            <li>mmap</li>
+            <li>semaphores</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Simple Sharing Pattern</h2>
+          <ul>
+            <li>await -- Wait for a wakeup</li>
+            <li>awake -- Wake up all waiters</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Simple Sharing Pattern</h2>
+          <pre>
+: clock-pulse begin 1000 ms awake again ;
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Aside on Stack Leaks</h2>
+          <pre>
+: gnd   depth throw ;
+
+: clock-pulse begin 1000 ms awake <b>gnd</b> again ;
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Dynamic Toys</h2>
+          <ul>
+            <li>IP Map</li>
+            <li>Shared Board</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Demo Time!</h2>
           <p>
-          <a href="https://github.com/flagxor/svfig-talks">slides</a>
-          at:
-          <a href="https://github.com/flagxor">
-            github.com/flagxor</a></p>
-          <p>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          <a href="https://github.com/flagxor/flagxor.com">code</a>
           </p>
           <h1>&#x2698;</h1>
           <h2>Thank you</h2>
