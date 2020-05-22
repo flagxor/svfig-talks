@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Seeking Inspiration from Jupiter Ace Forth</title>
+    <meta name="description"
+          content="Seeking Inspiration from Jupiter Ace Forth - March 23, 2020">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/css/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!--
+      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+    <style>
+pre {
+  background-color: #ddd;
+}
+pre.gold {
+  background-color: #fed;
+}
+pre.blue {
+  background-color: #def;
+}
+span.gold {
+  color: #c80;
+}
+span.blue {
+  color: #08c;
+}
+div.code {
+  font-family: monospace;
+}
+span.revlabel {
+  color: #aaa;
+  background-color: #000;
+}
+    </style>
+  </head>
+
+<!--
+
+Seeking Inspiration from Jupiter Ace Forth
+------------------------------------------
+The Jupiter Ace was an early microcomputer that uniquely
+featured a built-in Forth rather than BASIC.
+Weighing in with an 8KB ROM, default config of 2KB video memory,
+and a mere 1KB of program RAM, this clever Forth is filled will
+a range of interesting ideas: simplified vocabularies,
+"compiler" and "definer" words, redefinition of words, and more.
+We'll take a look at these novel ideas and
+take a peek under the hood of this one of a kind Forth.
+
+-->
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2><span class="blue">
+          Seeking Inspiration from Jupiter Ace Forth</h2>
+          <h2>March 23, 2020</h2>
+	  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Jupiter_ACE_%28restored%29.JPG/375px-Jupiter_ACE_%28restored%29.JPG">
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Jupiter Ace</h2>
+          <ul>
+            <li>Add dynamic content</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          <a href="https://github.com/flagxor/flagxor.com">code</a>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../reveal.js/lib/js/head.min.js"></script>
+    <script src="../reveal.js/js/reveal.js"></script>
+    <script src="../common/config_vision.js"></script>
+  </body>
+</html>
