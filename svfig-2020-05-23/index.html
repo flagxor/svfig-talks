@@ -76,7 +76,7 @@ take a peek under the hood of this one of a kind Forth.
           <h2><span class="blue">
           Seeking Inspiration from Jupiter Ace Forth</h2>
           <h2>March 23, 2020</h2>
-	  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Jupiter_ACE_%28restored%29.JPG/375px-Jupiter_ACE_%28restored%29.JPG">
+	  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Jupiter_ACE_%28restored%29.JPG">
           <p>
           <small><a href="http://flagxor.com">Brad Nelson</a> /
             <a href="http://twitter.com/flagxor">@flagxor</a></small>
@@ -86,7 +86,307 @@ take a peek under the hood of this one of a kind Forth.
         <section data-transition="fade-out">
           <h2>Jupiter Ace</h2>
           <ul>
-            <li>Add dynamic content</li>
+            <li>keyboard</li>
+            <li>Editor</li>
+            <li>comments quotes</li>
+            <li>Vocabularies</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Jupiter Ace</h2>
+          <ul>
+            <li>Company: Jupiter Cantab</li>
+            <li>Founders: Richard Altwasser (hardware) and Steven Vickers (software)</li>
+            <li>Worked on ZX-81, ZX-Spectrum</li>
+            <li>Named after Automatic Computing Engine (early British Computer)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Jupiter Ace</h2>
+          <ul>
+            <li>1982</li>
+            <li>CPU: Zilog Z80A 3.25MHz</li>
+            <li>ROM: 8KB Forth</li>
+            <li>RAM: 1KB base (expandable to 49KB)</li>
+            <li>Video RAM: 1KB charmap, 1KB charset (write only)</li>
+            <li>10 x 4 = 40 QWERTY Membrane keyboard</li>
+            <li>Character set: ASCII-1967 + ↑, £ and ©</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Sinclair ZX-80</h2>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/ZX80.jpg" height="300"><br/>
+          <ul>
+            <li>Z80 3.25 MHz</li>
+            <li>1KB RAM!</li>
+            <li>4KB ROM BASIC</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Sinclair ZX-81</h2>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Sinclair-ZX81.png" height="300">
+          <img src="zxchess.png" height="300">
+          <ul>
+            <li>Z80 3.25 MHz</li>
+            <li>1KB RAM!</li>
+            <li>8KB ROM BASIC</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Sinclair ZX Spectrum</h2>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/ZXSpectrum48k.jpg" height="300">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/37/Towdie_Screenshot.png" height="300">
+          <ul>
+            <li>Z80A 3.25MHz</li>
+            <li>16-colors</li>
+            <li>16KB ROM BASIC, 16-128KB RAM</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Emulators</h2>
+          <ul>
+            <li>xAce</li>
+            <li>Jupiler (Retrolandia)</li>
+            <li>SpudACE, no$zx, EightyOne, Ace32xp, Vace, MESS, Multi Machine</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>8080 Registers</h2>
+          <ul>
+            <li>A, Flags (AF)</li>
+            <li>B, C (BC)</li>
+            <li>D, E (DE)</li>
+            <li>H, L (HL)</li>
+            <li>SP (16-bit)</li>
+            <li>PC (16-bit)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Z80 Registers</h2>
+          <ul>
+            <li>A, Flags (AF)</li>
+            <li>B, C (BC)</li>
+            <li>D, E (DE)</li>
+            <li>H, L (HL)</li>
+            <li>IX (16-bit)</li>
+            <li>IY (16-bit)</li>
+            <li>SP (16-bit)</li>
+            <li>PC (16-bit)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forth Register Use</h2>
+          <ul>
+            <li>AF - Temporary</li>
+            <li>BC - Temporary</li>
+            <li>DE - Temporary</li>
+            <li>HL - Temporary</li>
+            <li>IX - System Variables ($3C00)</li>
+            <li>IY - Interpreter Pointer</li>
+            <li>SP - Return Stack Pointer (IP on top)</li>
+            <li>$3C3B - Data Stack Pointer</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Interpreter (fast)</h2>
+<pre>
+; DE = *IP++;  (IP==*SP)
+POP     HL
+LD      E,(HL)
+INC     HL
+LD      D,(HL)
+INC     HL
+PUSH    HL
+; HL = *DE++;
+EX      DE,HL
+LD      E,(HL)
+INC     HL
+LD      D,(HL)
+INC     HL
+EX      DE,HL
+; goto HL
+JP      (HL)       
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Interpreter (slow)</h2>
+          <ul>
+            <li>Check for stack underflow</li>
+            <li>Check free memory</li>
+            <li>Check BREAK key</li>
+            <li>Call iy_fast</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Memory Map</h2>
+          <ul>
+            <li><b>0000 - 1FFF</b> = ROM</li>
+            <li><b>2000 - 23FF</b> = 768 charmap + 256 PAD (CPU wins)</li>
+            <li><b>2400 - 27FF</b> = 768 charmap + 256 PAD (Video wins)</li>
+            <li><b>2800 - 2BFF</b> = 1KB charset (CPU wins)</li>
+            <li><b>2C00 - 2FFF</b> = 1KB charset (Video wins)</li>
+            <li><b>3000 - 3BFF</b> = RAM 1KB x 3 mirrors</li>
+            <li><b>3C00 - 3FFF</b> = RAM 1KB</li>
+            <li><b>3C00 - FFFF</b> = Expansion RAM (0-48KB)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Defining Words</h2>
+          <ul>
+            <li>Explicit syntax for defining words</li>
+            <li><code>DOES&gt;</code> only allowed in <code>DEFINER</code></li>
+            <li>Allows redefinition, updating existing created words (caveats)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Defining Words</h2>
+<pre>
+DEFINER CONSTANT
+  ,
+DOES&gt;
+  @ ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Compiler Words</h2>
+          <ul>
+            <li>Explicit syntax for words with inline data</li>
+            <li><code>RUNS&gt;</code> only allowed in <code>COMPILER</code></li>
+            <li>Implicitly <code>IMMEDIATE</code></li>
+            <li>Fixed or variable (-1) length</li>
+            <li>Allows redefinition, updating existing references (caveats)</li>
+            <li>Inline data isn't visible</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Compiler Words</h2>
+<pre>
+2 COMPILER LITERAL
+  ,
+RUNS&gt;
+  @ ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Compiler Words</h2>
+<pre>
+-1 COMPILER S"
+  ASCII " WORD DUP 1+ SWAP C@
+  DUP , 0
+  DO
+    DUP C@ C, 1+
+  LOOP
+  DROP
+RUNS&gt;
+  DUP 2+ SWAP @ ;
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Compiler Words</h2>
+          <img src="stringquote.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Character Set</h2>
+          <img src="acechars.png" height="500">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>List</h2>
+          <img src="list.png" height="500">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+          <ul>
+            <li>Structured as a tree</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabulary Structure</h2>
+          <ul>
+            <li>NAM<span style="background-color: #000; color: #fff">E</span> (n bytes)</li>
+            <li>Link Field (2 bytes)</li>
+            <li>Name Length &amp; Flags (1 bytes, 0x40=immediate)</li>
+            <li>Code Field (2 bytes)</li>
+            <hr/>
+            <li>Newest Word (2 bytes, name length field)</li>
+            <li>Zero (1 byte)</li>
+            <li>Next Vocabulary (2 bytes)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+          <ul>
+            <li><code>VOCABULARY name</code></li>
+            <li><code>DEFINITIONS</code></li>
+            <li><code>CURRENT</code> (lookup)</li>
+            <li><code>CONTEXT</code> (writing)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Built-In Dictionary Format</h2>
+          <ul>
+            <li>NAM<span style="background-color: #000; color: #fff">E</span> (n bytes)</li>
+            <li>Link Field (2 bytes)</li>
+            <li>Name Length &amp; Flags (1 bytes, 0x40=immediate)</li>
+            <li>Code Field (2 bytes)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>User Dictionary Format</h2>
+          <ul>
+            <li>NAM<span style="background-color: #000; color: #fff">E</span> (n bytes)</li>
+            <li>Length Field (2 bytes, length - name)</li>
+            <li>Link Field (2 bytes)</li>
+            <li>Name Length &amp; Flags (1 bytes, 0x40=immediate)</li>
+            <li>Code Field (2 bytes)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Word Types</h2>
+          <ul>
+            <li>Regular words (listable)</li>
+            <li>Definer words (listable)</li>
+            <li>Compiler words (listable)</li>
+            <li>Code words</li>
+            <li>Defined words</li>
+            <li>CREATEed words</li>
+            <li>VOCABULARY words</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Save and Load</h2>
+          <ul>
+            <li>Cassette tape storage</li>
+            <li>Optional filename</li>
+            <li>Saves whole RAM dictionary</li>
+            <li><code>SAVE, LOAD, VERIFY</code></li>
+            <li><code>BSAVE, BLOAD, BVERIFY</code></li>
           </ul>
         </section>
 
