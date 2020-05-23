@@ -18,6 +18,7 @@
       <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
     -->
     <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
     <!--[if lt IE 9]>
     <script src="../reveal.js/lib/js/html5shiv.js"></script>
     <![endif]-->
@@ -43,6 +44,11 @@ div.code {
 span.revlabel {
   color: #aaa;
   background-color: #000;
+}
+
+.dotfile {
+  width: 1000px;
+  height: 500px;
 }
     </style>
   </head>
@@ -76,7 +82,7 @@ take a peek under the hood of this one of a kind Forth.
           <h2><span class="blue">
           Seeking Inspiration from Jupiter Ace Forth</h2>
           <h2>March 23, 2020</h2>
-	  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Jupiter_ACE_%28restored%29.JPG">
+	  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/Jupiter_ACE_%28restored%29.JPG" height="200">
           <p>
           <small><a href="http://flagxor.com">Brad Nelson</a> /
             <a href="http://twitter.com/flagxor">@flagxor</a></small>
@@ -86,33 +92,32 @@ take a peek under the hood of this one of a kind Forth.
         <section data-transition="fade-out">
           <h2>Jupiter Ace</h2>
           <ul>
-            <li>keyboard</li>
-            <li>Editor</li>
-            <li>comments quotes</li>
-            <li>Vocabularies</li>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>Jupiter Ace</h2>
-          <ul>
             <li>Company: Jupiter Cantab</li>
             <li>Founders: Richard Altwasser (hardware) and Steven Vickers (software)</li>
-            <li>Worked on ZX-81, ZX-Spectrum</li>
+            <li>Had worked on ZX-81, ZX-Spectrum at Sinclair</li>
             <li>Named after Automatic Computing Engine (early British Computer)</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
-          <h2>Jupiter Ace</h2>
+          <h2>Specifications</h2>
           <ul>
-            <li>1982</li>
             <li>CPU: Zilog Z80A 3.25MHz</li>
-            <li>ROM: 8KB Forth</li>
+            <li>ROM: 8KB</li>
             <li>RAM: 1KB base (expandable to 49KB)</li>
             <li>Video RAM: 1KB charmap, 1KB charset (write only)</li>
             <li>10 x 4 = 40 QWERTY Membrane keyboard</li>
             <li>Character set: ASCII-1967 + ↑, £ and ©</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Jupiter Ace Forth</h2>
+          <ul>
+            <li>134 Built-in Words</li>
+            <li>Double and Float Words</li>
+            <li>Special DEFINER and COMPILER Words</li>
+            <li>No disk drive &rarr; Dictionary Editing</li>
           </ul>
         </section>
 
@@ -149,11 +154,15 @@ take a peek under the hood of this one of a kind Forth.
         </section>
 
         <section data-transition="fade-out">
-          <h2>Emulators</h2>
+          <h2>Jupiter Ace Graphics</h2>
+          <img src="acechars.png" height="500">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Zilog Z80 CPU</h2>
           <ul>
-            <li>xAce</li>
-            <li>Jupiler (Retrolandia)</li>
-            <li>SpudACE, no$zx, EightyOne, Ace32xp, Vace, MESS, Multi Machine</li>
+            <li>8-bit CPU, with 16-bit Register pairing</li>
+            <li>Binary compatiable with Intel 8080</li>
           </ul>
         </section>
 
@@ -305,43 +314,22 @@ RUNS&gt;
         </section>
 
         <section data-transition="fade-out">
-          <h2>Character Set</h2>
-          <img src="acechars.png" height="500">
-        </section>
-
-        <section data-transition="fade-out">
           <h2>List</h2>
           <img src="list.png" height="500">
         </section>
 
         <section data-transition="fade-out">
-          <h2>Vocabularies</h2>
-          <ul>
-            <li>Structured as a tree</li>
-          </ul>
+          <h2>Edit</h2>
+          <img src="edit.png" height="500">
         </section>
 
         <section data-transition="fade-out">
-          <h2>Vocabulary Structure</h2>
+          <h2>REDEFINE</h2>
           <ul>
-            <li>NAM<span style="background-color: #000; color: #fff">E</span> (n bytes)</li>
-            <li>Link Field (2 bytes)</li>
-            <li>Name Length &amp; Flags (1 bytes, 0x40=immediate)</li>
-            <li>Code Field (2 bytes)</li>
-            <hr/>
-            <li>Newest Word (2 bytes, name length field)</li>
-            <li>Zero (1 byte)</li>
-            <li>Next Vocabulary (2 bytes)</li>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>Vocabularies</h2>
-          <ul>
-            <li><code>VOCABULARY name</code></li>
-            <li><code>DEFINITIONS</code></li>
-            <li><code>CURRENT</code> (lookup)</li>
-            <li><code>CONTEXT</code> (writing)</li>
+            <li>Replace a word with the last word defined</li>
+            <li>Allows for editing prior definitions</li>
+            <li>Allows for renaming</li>
+            <li>Moves words in memory! - Subtle ramifications</li>
           </ul>
         </section>
 
@@ -367,15 +355,231 @@ RUNS&gt;
         </section>
 
         <section data-transition="fade-out">
+          <h2>Relocatable Code</h2>
+          <ul>
+            <li>Only some word forms and dictionary structure is fixed up</li>
+            <li>Words are assumed to be position independent</li>
+            <li>CREATEd and VARIABLEs should not store dictionary addresses</li>
+            <li>Dispatch tables done with regular words</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Dispatch Table</h2>
+<pre>
+: mux ( n -- xt ) 2* r&gt; + @ ;
+: operations ( n -- xt ) mux + - * / ;
+7 3 1 operations execute .
+==
+4 OK
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+          <ul>
+            <li>Structured as a tree</li>
+            <li>Linked list of all vocabularies</li>
+            <li>Tricks to hook up child vocabularies</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+          <ul>
+            <li><code>VOCABULARY name</code></li>
+            <li><code>DEFINITIONS</code></li>
+            <li><code>CURRENT</code> (lookup)</li>
+            <li><code>CONTEXT</code> (writing)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabulary Structure</h2>
+          <ul>
+            <li>NAM<span style="background-color: #000; color: #fff">E</span> (n bytes)</li>
+            <li>Link Field (2 bytes)</li>
+            <li>Name Length &amp; Flags (1 bytes, 0x40=immediate)</li>
+            <li>Code Field (2 bytes)</li>
+            <hr/>
+            <li>Newest Word (2 bytes)</li>
+            <li>Zero (1 byte, fake name length field)</li>
+            <li>Next Vocabulary (2 bytes)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+<div class="dotfile" id="mynetwork0">Hello</div>
+<script type="text/javascript">
+  var container = document.getElementById('mynetwork0');
+  var data = vis.parseDOTNetwork(`
+digraph {
+  node [shape=box, fontsize=20, y=100]
+  edge [lenth=50, color=black, fontcolor=black]
+
+  VocabHead [label=head, shape=circle, fillcolor=orange]
+  FORTH [fillcolor=orange]
+  Root [shape=circle, color=gray]
+  VocabHead -> FORTH [style=dotted, penwidth=3, color=orange];
+
+  Word1 -> Root;
+  Word2 -> Word1;
+  Word3 -> Word2;
+
+  FORTH -> Word3 [style=dashed, color=blue];
+}
+`);
+  var network = new vis.Network(container, data, {layout: {randomSeed: 3}});
+</script>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+<div class="dotfile" id="mynetwork1">Hello</div>
+<script type="text/javascript">
+  var container = document.getElementById('mynetwork1');
+  var data = vis.parseDOTNetwork(`
+digraph {
+  node [shape=box fontsize=20, y=100]
+  edge [color=black, fontcolor=black]
+
+  VocabHead [label=head, shape=circle, fillcolor=orange]
+  VocabHead -> Vocabulary1 [style=dotted, penwidth=3, color=orange];
+  Root [shape=circle, color=gray]
+
+  Word1 -> Root;
+  Word2 -> Word1;
+  Word3 -> Word2;
+
+  FORTH [fillcolor=orange]
+  Vocabulary1 [fillcolor=orange]
+  Vocabulary1 -> Word3;
+  Vocabulary1 -> FORTH [style=dotted, penwidth=3, color=orange];
+  WordA -> FORTH [style=dotted];
+  WordB -> WordA;
+  WordC -> WordB;
+  Vocabulary1 -> WordC [style=dashed, color=blue];
+
+  FORTH -> Vocabulary1 [style=dashed, color=blue];
+}
+`);
+  var network = new vis.Network(container, data, {layout: {randomSeed: 99}});
+</script>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+<div class="dotfile" id="mynetwork2">Hello</div>
+<script type="text/javascript">
+  var container = document.getElementById('mynetwork2');
+  var data = vis.parseDOTNetwork(`
+digraph {
+  node [shape=box fontsize=20, y=100]
+  edge [color=black, fontcolor=black]
+
+  VocabHead [label=head, shape=circle, fillcolor=orange]
+  VocabHead -> Vocabulary2 [style=dotted, penwidth=3, color=orange];
+  Root [shape=circle, color=gray]
+
+  Word1 -> Root;
+  Word2 -> Word1;
+  Word3 -> Word2;
+
+  FORTH [fillcolor=orange]
+  Vocabulary1 [fillcolor=orange]
+  Vocabulary1 -> Word3;
+  Vocabulary1 -> FORTH [style=dotted, penwidth=3, color=orange];
+  WordA -> FORTH [style=dotted];
+  WordB -> WordA;
+  WordC -> WordB;
+  Vocabulary1 -> WordC [style=dashed, color=blue];
+
+  Vocabulary2 [fillcolor=orange]
+  Vocabulary2 -> Vocabulary1;
+  Vocabulary2 -> Vocabulary1 [style=dotted, penwidth=3 color=orange];
+  WordX -> FORTH [style=dotted];
+  WordY -> WordX;
+  WordZ -> WordY;
+  Vocabulary2 -> WordZ [style=dashed, color=blue];
+
+  FORTH -> Vocabulary2 [style=dashed, color=blue];
+}
+`);
+  var network = new vis.Network(container, data, {layout: {randomSeed: 823}});
+</script>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Vocabularies</h2>
+<div class="dotfile" id="mynetwork3">Hello</div>
+<script type="text/javascript">
+  var container = document.getElementById('mynetwork3');
+  var data = vis.parseDOTNetwork(`
+digraph {
+  node [shape=box fontsize=20]
+  edge [color=black, fontcolor=black]
+
+  VocabHead [label=head, shape=circle, fillcolor=orange]
+  VocabHead -> Vocabulary3 [style=dotted, penwidth=3, color=orange];
+  Root [shape=circle, color=gray]
+
+  Word1 -> Root;
+  Word2 -> Word1;
+  Word3 -> Word2;
+
+  Vocabulary1 [fillcolor=orange]
+  Vocabulary1 -> Word3;
+  FORTH [fillcolor=orange]
+  Vocabulary1 -> FORTH [style=dotted, penwidth=3, color=orange];
+  WordA -> FORTH [style=dotted];
+  WordB -> WordA;
+  Vocabulary3 -> WordB;
+  WordC -> Vocabulary3;
+  Vocabulary1 -> WordC [style=dashed, color=blue];
+
+  Vocabulary2 [fillcolor=orange]
+  Vocabulary2 -> Vocabulary1;
+  Vocabulary2 -> Vocabulary1 [style=dotted, penwidth=3 color=orange];
+  WordX -> FORTH [style=dotted];
+  WordY -> WordX;
+  WordZ -> WordY;
+  Vocabulary2 -> WordZ [style=dashed, color=blue];
+
+  Vocabulary3 [fillcolor=orange]
+  Vocabulary3 -> Vocabulary2 [style=dotted, penwidth=3 color=orange];
+  WordQ -> Vocabulary1 [style=dotted];
+  WordR -> WordQ;
+  WordS -> WordR;
+  Vocabulary3 -> WordS [style=dashed, color=blue];
+
+  FORTH -> Vocabulary2 [style=dashed, color=blue];
+}
+`);
+  var network = new vis.Network(container, data, {layout: {randomSeed: 8}});
+</script>
+        </section>
+
+        <section data-transition="fade-out">
           <h2>Word Types</h2>
           <ul>
-            <li>Regular words (listable)</li>
-            <li>Definer words (listable)</li>
-            <li>Compiler words (listable)</li>
-            <li>Code words</li>
-            <li>Defined words</li>
-            <li>CREATEed words</li>
-            <li>VOCABULARY words</li>
+            <li>Listable
+              <ul> 
+                <li>Regular words</li>
+                <li>Definer words</li>
+                <li>Compiler words</li>
+                <li>Compiler word references (minus data)</li>
+                <li>Comments/Print String</li>
+              </ul>
+            </li>
+            <li>Not Listable
+              <ul> 
+                <li>Code words</li>
+                <li>Defined words</li>
+                <li>CREATEed words, VARIABLEs, CONSTANTs</li>
+                <li>VOCABULARY words</li>
+              </ul>
+            </li>
           </ul>
         </section>
 
@@ -391,7 +595,19 @@ RUNS&gt;
         </section>
 
         <section data-transition="fade-out">
+          <h2>Emulators</h2>
+          <ul>
+            <li>xAce</li>
+            <li>Jupiler (Retrolandia)</li>
+            <li>SpudACE, no$zx, EightyOne, Ace32xp, Vace, MESS, Multi Machine</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
           <p>
+          <a href="https://www.tablix.org/~avian/spectrum/rom/ace.htm">ROM disassembly</a><br/>
+          <a href="http://k1.spdns.de/Vintage/Sinclair/80/Jupiter%20Ace/Manual/Jupiter%20Ace%204000%20Forth%20Programming.pdf">User Manual</a><br/>
+          <br/>
           <a href="https://www.flagxor.com/">flagxor.com</a><br/>
           <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
           <a href="https://github.com/flagxor/flagxor.com">code</a>
@@ -399,12 +615,12 @@ RUNS&gt;
           <h1>&#x2698;</h1>
           <h2>Thank you</h2>
         </section>
-
      </div>
     </div>
 
     <script src="../reveal.js/lib/js/head.min.js"></script>
     <script src="../reveal.js/js/reveal.js"></script>
     <script src="../common/config_vision.js"></script>
+
   </body>
 </html>
