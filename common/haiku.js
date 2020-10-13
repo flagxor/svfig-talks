@@ -5,7 +5,9 @@
 function fixup(i) {
   var url = 'https://forthsalon.appspot.com/haiku-bare/';
   url += i.getAttribute('data-haiku');
-  var zoomLevel = zoom.zoomLevel();
+  // TODO: what happened to this?
+  //var zoomLevel = zoom.zoomLevel();
+  var zoomLevel = 0.9;
   url += '?width=' + Math.ceil(i.clientWidth * zoomLevel) +
     '&height=' + Math.ceil(i.clientHeight * zoomLevel);
   // TODO: This doesn't work for some reason.

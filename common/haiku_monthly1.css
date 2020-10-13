@@ -353,4 +353,5 @@ body {
 iframe {
   background-color: transparent;
   overflow: hidden;
+  border-style: none;
 }

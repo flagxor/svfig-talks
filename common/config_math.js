@@ -4,13 +4,7 @@ Reveal.initialize({
   history: true,
   center: true,
 
-  parallaxBackgroundImage: '../common/sakura1.jpg',
-  parallaxBackgroundSize: '2000px 800px',
-
-  parallaxBackgroundHorizontal: '400',
-  parallaxBackgroundVertical: '0',
-
-  transition: 'default',
+  transition: 'slide',
 
   // Optional reveal.js plugins
   dependencies: [
@@ -20,7 +14,18 @@ Reveal.initialize({
   { src: reveal_js + '/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
   { src: reveal_js + '/plugin/zoom/zoom.js', async: true },
   { src: reveal_js + '/plugin/notes/notes.js', async: true }
-  ]
+  ],
+  math: {
+    // mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+    config: 'TeX-AMS_HTML-full',
+    TeX: {
+      Macros: {
+        R: '\\mathbb{R}',
+        set: [ '\\left\\{#1 \\; ; \\; #2\\right\\}', 2 ]
+      }
+    }
+  },
+  plugins: [ RevealMath ]
 });
 
 

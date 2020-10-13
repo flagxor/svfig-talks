@@ -4,7 +4,7 @@ Reveal.initialize({
   history: true,
   center: true,
 
-  transition: Reveal.getQueryHash().transition || 'slide',
+  transition: 'slide',
 
   // Optional reveal.js plugins
   dependencies: [
@@ -12,7 +12,7 @@ Reveal.initialize({
   { src: reveal_js + '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
   { src: reveal_js + '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
   { src: reveal_js + '/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
-  { src: reveal_js + '/plugin/zoom-js/zoom.js', async: true },
+  { src: reveal_js + '/plugin/zoom/zoom.js', async: true },
   { src: reveal_js + '/plugin/notes/notes.js', async: true }
   ]
 });

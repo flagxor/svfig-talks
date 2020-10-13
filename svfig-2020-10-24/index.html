@@ -11,17 +11,16 @@
     content="black-translucent" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-    <link rel="stylesheet" href="../reveal.js/css/reveal.css">
-    <link rel="stylesheet" href="../reveal.js/css/theme/simple.css" id="theme">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/simple.css" id="theme">
     <!-- Code syntax highlighting -->
-    <!--
-      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
-    -->
+    <link rel="stylesheet" href="../reveal.js/plugin/highlight/zenburn.css">
     <script src="../common/printing.js"></script>
     <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
     <!--[if lt IE 9]>
     <script src="../reveal.js/lib/js/html5shiv.js"></script>
     <![endif]-->
+
     <style>
 pre {
   background-color: #ddd;
@@ -74,10 +73,7 @@ span.revlabel {
         </section>
 
         <section data-transition="fade-out">
-          <h2>TODO</h2>
-          <ul>
-            <li>TODO</li>
-          </ul>
+          <div>\[ \sum_{n=1}^{\infty} 2^{-n} = 1 \]</div>
         </section>
 
         <section data-transition="fade-out">
@@ -93,9 +89,9 @@ span.revlabel {
      </div>
     </div>
 
-    <script src="../reveal.js/lib/js/head.min.js"></script>
-    <script src="../reveal.js/js/reveal.js"></script>
-    <script src="../common/config_vision.js"></script>
+		<script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../common/config_math.js"></script>
 
   </body>
 </html>
