@@ -45,6 +45,10 @@ span.revlabel {
   background-color: #000;
 }
 
+div.tiny {
+  font-size: 16px;
+}
+
 .dotfile {
   width: 1000px;
   height: 500px;
@@ -73,7 +77,78 @@ span.revlabel {
         </section>
 
         <section data-transition="fade-out">
-          <div>\[ \sum_{n=1}^{\infty} 2^{-n} = 1 \]</div>
+          <h2>Bailey-Borwein-Plouffe</h2>
+          <div>\[ \pi = \sum_{k=0}^{\infty} \frac{1}{16^k}
+                   \left( \frac{4}{8k + 1}
+                     - \frac{2}{8k + 4}
+                     - \frac{1}{8k + 5}
+                     - \frac{1}{8k + 6} \right) \]</div>
+          <div class="tiny">
+          https://www.davidhbailey.com/dhbpapers/bbp-alg.pdf</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <div>
+          \[
+          \pi = 4S_1 - 2S_4 - S_5 - S_6
+          \]
+          </div>
+          <div>\[ S_j = \sum_{k=0}^{\infty} \frac{1}{16^k (8k + j)} \]</div>
+          <div class="tiny">
+          https://www.davidhbailey.com/dhbpapers/bbp-alg.pdf</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <div>
+          \[
+          16^d \pi = 4 S_1 16^d - 2 S_4 16^d - S_5 16^d - S_6 16^d
+          \]
+          </div>
+          <div>
+          \[
+          {16^d S_j} = \sum_{k=0}^{\infty} \frac{16^{d-k}}{8k + j}
+          \]
+          </div>
+          <div class="tiny">
+          https://www.davidhbailey.com/dhbpapers/bbp-alg.pdf</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <div>
+          \[
+          16^d S_j =
+          \sum_{k=0}^{d} \frac{16^{d-k}}{8k + j}
+          + \sum_{k=d+1}^{\infty} \frac{16^{d-k}}{8k + j}
+          \]
+          </div>
+          <div class="tiny">
+          https://www.davidhbailey.com/dhbpapers/bbp-alg.pdf</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <div>
+          \[
+          \{16^d S_j\} =
+          \left\{ \sum_{k=0}^{d} \frac{16^{d-k} \bmod 8k+j}{8k + j} \right\}
+          + \sum_{k=d+1}^{\infty} \frac{16^{d-k}}{8k + j}
+          \]
+          </div>
+          <div>
+          \[
+          \{ * \} = \text{fractional part}
+          \]
+          </div>
+          <div class="tiny">
+          https://www.davidhbailey.com/dhbpapers/bbp-alg.pdf</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <div>
+          \[
+          a^b \bmod n \equiv \prod_{i=0}^{\text{bits}-1}
+          (b_i a^{2^i} \bmod n) \bmod n
+          \]
+          </div>
         </section>
 
         <section data-transition="fade-out">
