@@ -207,7 +207,12 @@ x y bwsample
     </div>
 
     <script src="../common/haiku.js"></script>
-		<script src="../reveal.js/dist/reveal.js"></script>
-    <script src="../common/config_vision.js"></script>
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script>
+      Reveal.initialize({
+        plugins: [RevealHighlight],
+      });
+    </script>
   </body>
 </html>

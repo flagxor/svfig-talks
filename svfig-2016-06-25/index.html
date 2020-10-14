@@ -268,6 +268,12 @@ s" dev/fb0" r/w open-file throw constant fb
     </div>
 
 		<script src="../reveal.js/dist/reveal.js"></script>
-    <script src="../common/config3.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script>
+      Reveal.initialize({
+        plugins: [RevealHighlight],
+        transition: 'slide',
+     });
+    </script>
   </body>
 </html>

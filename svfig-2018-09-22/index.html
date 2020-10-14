@@ -423,7 +423,13 @@ would be nice to have online code playground for this..<br/>
      </div>
     </div>
 
-		<script src="../reveal.js/dist/reveal.js"></script>
-    <script src="../common/config_vision.js"></script>
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script>
+      Reveal.initialize({
+        plugins: [RevealHighlight],
+     });
+    </script>
+
   </body>
 </html>
