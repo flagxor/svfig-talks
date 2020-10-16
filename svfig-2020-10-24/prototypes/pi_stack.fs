@@ -7,11 +7,11 @@
 : odd? ( n -- f ) 1 and ;
 : 3drop ( n n n -- ) 2drop drop ;
 
-: b^2 ( r a m b -- r a*a m b/2 ) >r 2dup >r swap *mod r> r> 2/ ;
-: b* ( r a m b -- r*a a m b ) >r 2dup >r >r *mod r> r> r> ;
-: ?b* ( r a m b -- ?r*a a m b ) dup odd? if b* then ;
+: a^2 ( r a m b -- r a*a m b/2 ) >r 2dup >r swap *mod r> r> 2/ ;
+: a* ( r a m b -- r*a a m b ) >r 2dup >r >r *mod r> r> r> ;
+: ?a* ( r a m b -- ?r*a a m b ) dup odd? if a* then ;
 : **mod0 ( a b m -- 1 a m b ) >r 1 -rot r> swap ;
-: **mod ( a b m -- n ) **mod0 begin ?b* b^2 dup 0= until 3drop ;
+: **mod ( a b m -- n ) **mod0 begin ?a* a^2 dup 0= until 3drop ;
 
 : under+ ( x y z n -- x+n y z ) >r rot r> + -rot ;
 : 16^-n ( n -- n ) one swap 4 * 63 min rshift ;

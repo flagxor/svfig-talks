@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="../reveal.js/dist/theme/serif.css" id="theme">
     <!-- Code syntax highlighting -->
-    <link rel="stylesheet" href="../reveal.js/plugin/highlight/zenburn.css">
+    <link rel="stylesheet" href="../common/forth.css">
     <script src="../common/printing.js"></script>
     <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
     <!--[if lt IE 9]>
@@ -24,34 +24,6 @@
     <style>
 pre {
   background-color: #dff;
-}
-pre.gold {
-  background-color: #fed;
-}
-pre.blue {
-  background-color: #def;
-}
-span.gold {
-  color: #c80;
-}
-span.blue {
-  color: #08c;
-}
-div.code {
-  font-family: monospace;
-}
-span.revlabel {
-  color: #aaa;
-  background-color: #000;
-}
-
-div.tiny {
-  font-size: 16px;
-}
-
-.dotfile {
-  width: 1000px;
-  height: 500px;
 }
     </style>
   </head>
@@ -152,11 +124,113 @@ div.tiny {
         </section>
 
         <section data-transition="fade-out">
-          <pre data-id="code-animation"><code class="hljs" data-trim>
+          <pre data-id="code-animation"><code data-trim>
+: bd. ( n b -- ) base @ >r base ! 0 <# # #> type r> base ! ;
 : *mod ( a b m -- n ) */mod drop ;
 : odd? ( n -- f ) 1 and ;
 : 3drop ( n n n -- ) 2drop drop ;
+
+create foo
+variable hi
+10 value hi
+CREATE FOO
+: test ." hello this is a test there" ;
+: test s" hello this is a test there" ;
+: test me more ; \ hello there
+: this is a test ;
+foo bar baz
+16 pi-n
+
 					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: a^2 ( r a m b -- r a*a m b/2 )
+  >r 2dup >r swap *mod r> r> 2/ ;
+: a* ( r a m b -- r*a a m b )
+  >r 2dup >r >r *mod r> r> r> ;
+: ?a* ( r a m b -- ?r*a a m b )
+  dup odd? if a* then ;
+: **mod0 ( a b m -- 1 a m b )
+  >r 1 -rot r> swap ;
+: **mod ( a b m -- n )
+  **mod0 begin ?a* a^2 dup 0= until 3drop ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: **mod 1 { a b m r -- n }
+   begin
+     b odd? if a r m *mod to r then
+     b 2/ to b
+     a a m *mod to a
+   b 0= until r ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: 16^-n ( n -- n )
+  one swap 4 * 63 min rshift ;
+: s-right { d j -- n }
+  0 17 1 do i 16^-n i d + 8 * j + / + loop ;
+: slterm { d j i -- n }
+  one 16 d i - i 8 * j + dup >r **mod r> */ ;
+: s-left { d j -- n }
+  0 d 1+ 0 do d j i slterm + loop ;
+: s { d j -- n }
+  d j s-left d j s-right + ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: under+ ( x y z n -- x+n y z ) >r rot r> + -rot ;
+: 16^-n ( n -- n )
+  one swap 4 * 63 min rshift ;
+: s-right ( d j -- n )
+  0 -rot 17 1 do
+    over i + 8 * over + i 16^-n swap / under+
+  loop 2drop ;
+: slterm ( d-i i*8+j -- n )
+  dup >r >r >r one 16 r> r> **mod r> */ ;
+: s-left ( d j -- n )
+  0 -rot over 1+ 0 do
+    i 8 * over + rot dup i - >r -rot r> swap slterm under+
+  loop 2drop ;
+: s ( d j -- n ) 2dup s-left >r s-right r> + ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: pi<< { d -- n }
+  d 1 s 4 * d 4 s 2* - d 5 s - d 6 s - 16
+  swap one */ 15 and ;
+: pih-n ( n -- )
+  ." 3." 0 do i pi<< 16 bd. loop ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: pi-cell<< ( d -- n )
+  0 16 0 do 4 lshift over 16 * i + pi<< or loop nip ;
+: pi-fill ( a n -- )
+  0 do i ." ." pi-cell<< over i cells + ! loop drop cr ;
+: 10th 0 { a n t -- n }
+  0 n 1- do
+    i cells a + dup @ 10 um* t 0 d+ to t swap ! -1
+  +loop t ;
+
+: pi-n ( n -- )
+  here over pi-fill
+  ." 3." dup 18 * 0 do
+    here over 10th 10 bd.
+  loop drop ;
+          </code></pre>
         </section>
 
         <section data-transition="fade-out">
@@ -164,7 +238,6 @@ div.tiny {
           <br/>
           <a href="https://www.flagxor.com/">flagxor.com</a><br/>
           <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
-          <a href="https://github.com/flagxor/flagxor.com">code</a>
           </p>
           <h1>&#x2698;</h1>
           <h2>Thank you</h2>
@@ -175,11 +248,7 @@ div.tiny {
     <script src="../reveal.js/dist/reveal.js"></script>
     <script src="../reveal.js/plugin/math/math.js"></script>
     <script src="../reveal.js/plugin/highlight/highlight.js"></script>
-    <script>
-      Reveal.initialize({
-        plugins: [RevealMath, RevealHighlight],
-     });
-    </script>
+    <script src="../common/forth.js"></script>
 
   </body>
 </html>

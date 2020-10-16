@@ -1,0 +1,38 @@
+.hljs {
+  color: #ccc;
+}
+
+.hljs-string {
+  color: #fc0;
+}
+
+.hljs-number {
+  color: #fc0;
+}
+
+.hljs-comment {
+  color: #0cf;
+}
+
+.hljs-variable {
+  color: #fff;
+  font-weight: bold;
+}
+
+.hljs-function {
+  color: #fff;
+  font-weight: bold;
+}
+
+.hljs-params {
+  color: #0cf;
+  font-weight: bold;
+}
+
+.tiny {
+  font-size: 16px;
+}
+
+code {
+  background: #000;
+}

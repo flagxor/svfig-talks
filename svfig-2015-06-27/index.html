@@ -16,7 +16,7 @@
     rel="stylesheet" type="text/css">
 
     <!-- Code syntax highlighting -->
-    <link rel="stylesheet" href="../reveal.js/plugin/highlight/zenburn.css">
+    <link rel="stylesheet" href="../common/forth.css">
     <script src="../common/printing.js"></script>
     <!--[if lt IE 9]>
     <script src="../reveal.js/lib/js/html5shiv.js"></script>
@@ -257,7 +257,7 @@ x h 0.3 + y k 0.5 + * pop * cos 0 max + ;
 
         <section>
           <h3>Measure of Relatedness</h3>
-          <pre><code data-trim style="font-size: 20px">
+          <pre><code data-trim style="font-size: 20px" class="lang-python">
 def StringSimilarity(a, b):
   return difflib.SequenceMatcher(a=a.lower(), b=b.lower()).ratio()
           </code></pre>
@@ -434,10 +434,7 @@ rot a * ;
     <script src="../common/haiku.js"></script>
 		<script src="../reveal.js/dist/reveal.js"></script>
     <script src="../reveal.js/plugin/highlight/highlight.js"></script>
-    <script>
-      Reveal.initialize({
-        plugins: [RevealHighlight],
-     });
-    </script>
+    <script src="../common/forth.js"></script>
+
   </body>
 </html>
