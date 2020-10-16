@@ -309,7 +309,8 @@ B47D84A5C33B8B5EBEE06F75D885C12073401A449F56C16AA64ED3AA62363F77
 : 10th 0 { a n t -- n }
   0 n 1- do i cells a + dup @ 10 um* t 0 d+ to t swap ! -1 +loop t ;
 : pi-n ( n -- )
-  here over pi-fill ." 3." dup 18 * 0 do here over 10th 10 bd. loop drop ;
+  here over pi-fill ." 3." dup
+  18 * 0 do here over 10th 10 bd. loop drop ;
           </code></pre>
         </section>
 
