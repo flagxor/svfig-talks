@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     plugins.push(window.RevealMath);
   }
   Reveal.initialize({
+    history: true,
     plugins: plugins,
     highlight: {
       highlightOnLoad: false,
