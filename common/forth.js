@@ -12,13 +12,18 @@ function ForthLanguage(hljs) {
       hljs.COMMENT(/\\/, /$/, {relevance: 0}),
       {
         className: 'variable',
-        begin: /(variable|create|value)/,
-        end: /.*/,
+        begin: /(constant|variable|create|value)/,
+        end: /\s[^\s]+/,
       },
       {
         className: 'function',
-        begin: ':',
-        end: / [^ \t\n\r]+ /,
+        begin: /[^ \t\n\r]*: /,
+        end: /\s/,
+      },
+      {
+        className: 'function',
+        begin: ':noname',
+        end: /\s/,
       },
       {
         className: 'params',
@@ -27,8 +32,13 @@ function ForthLanguage(hljs) {
       },
       {
         className: 'string',
-        begin: /[^ \n\r\t]*["]/,
-        end: '"',
+        begin: /\[char\]\s/,
+        end: /\s/,
+      },
+      {
+        className: 'string',
+        begin: /[^\s]*["] /,
+        end: '["\n\r]',
       },
     ],
   };

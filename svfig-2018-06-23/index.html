@@ -14,9 +14,7 @@
     <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
     <link rel="stylesheet" href="../reveal.js/dist/theme/blood.css" id="theme">
     <!-- Code syntax highlighting -->
-    <!-- 
-      <link rel="stylesheet" href="../reveal.js/lib/css/zenburn.css">
-    -->
+    <link rel="stylesheet" href="../common/forth.css">
     <script src="../common/printing.js"></script>
     <!--[if lt IE 9]>
     <script src="../reveal.js/lib/js/html5shiv.js"></script>
@@ -151,7 +149,7 @@
             <li class="fragment">Robert McClure, extended by Doug McIlroy</li>
             <li class="fragment">Predecessor of YACC</li>
           </ul>
-          <pre class="fragment"><code data-trim>
+          <pre class="fragment"><code data-trim class="lang-yacc">
 expr: <(>/exp1 expr operator expr <)> = { 3 1 2 };
 exp1: ident = { < LOAD > 1 };
 operator:
@@ -360,7 +358,7 @@ bnf: &lt;NUMBER&gt;   &lt;DIGIT&gt; &lt;NUMBER&gt; | &lt;DIGIT&gt; ;bnf
 
         <section data-transition="fade-out">
           <h3>Elimination of Left Recursion</h3>
-          <pre><code data-trim>
+          <pre><code data-trim class="lang-text">
 E &rarr; E + T | T
 T &rarr; T * F | F
 F &rarr; ( E ) | id
@@ -475,11 +473,7 @@ variable $$
     <script src="../common/haiku.js"></script>
     <script src="../reveal.js/dist/reveal.js"></script>
     <script src="../reveal.js/plugin/highlight/highlight.js"></script>
-    <script>
-      Reveal.initialize({
-        plugins: [RevealHighlight],
-     });
-    </script>
+    <script src="../common/forth.js"></script>
 
   </body>
 </html>

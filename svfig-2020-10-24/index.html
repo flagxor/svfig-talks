@@ -124,27 +124,19 @@ pre {
         </section>
 
         <section data-transition="fade-out">
+          <h3>Utilities</h3>
           <pre data-id="code-animation"><code data-trim>
+1 50 lshift constant one
+
 : bd. ( n b -- ) base @ >r base ! 0 <# # #> type r> base ! ;
 : *mod ( a b m -- n ) */mod drop ;
 : odd? ( n -- f ) 1 and ;
 : 3drop ( n n n -- ) 2drop drop ;
-
-create foo
-variable hi
-10 value hi
-CREATE FOO
-: test ." hello this is a test there" ;
-: test s" hello this is a test there" ;
-: test me more ; \ hello there
-: this is a test ;
-foo bar baz
-16 pi-n
-
 					</code></pre>
         </section>
 
         <section data-transition="fade-out">
+          <h3>Modular Exponentiation<br/>(stack)</h3>
           <pre data-id="code-animation"><code data-trim>
 : a^2 ( r a m b -- r a*a m b/2 )
   >r 2dup >r swap *mod r> r> 2/ ;
@@ -160,6 +152,7 @@ foo bar baz
         </section>
 
         <section data-transition="fade-out">
+          <h3>Modular Exponentiation<br/>(locals)</h3>
           <pre data-id="code-animation"><code data-trim>
 : **mod 1 { a b m r -- n }
    begin
@@ -171,6 +164,7 @@ foo bar baz
         </section>
 
         <section data-transition="fade-out">
+          <h3>Summation<br/>(locals)</h3>
           <pre data-id="code-animation"><code data-trim>
 : 16^-n ( n -- n )
   one swap 4 * 63 min rshift ;
@@ -186,6 +180,7 @@ foo bar baz
         </section>
 
         <section data-transition="fade-out">
+          <h3>Summation<br/>(stack)</h3>
           <pre data-id="code-animation"><code data-trim>
 : under+ ( x y z n -- x+n y z ) >r rot r> + -rot ;
 : 16^-n ( n -- n )
@@ -205,6 +200,7 @@ foo bar baz
         </section>
 
         <section data-transition="fade-out">
+          <h3>Hex Digits</h3>
           <pre data-id="code-animation"><code data-trim>
 : pi<< { d -- n }
   d 1 s 4 * d 4 s 2* - d 5 s - d 6 s - 16
@@ -215,6 +211,31 @@ foo bar baz
         </section>
 
         <section data-transition="fade-out">
+          <h3>Hex Digits</h3>
+          <pre data-id="code-animation" class="stretch"><code data-trim>
+1000 pih-n
+
+3.243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C
+89452821E638D01377BE5466CF34E90C6CC0AC29B7C97C50DD3F84D5B5B54709
+179216D5D98979FB1BD1310BA698DFB5AC2FFD72DBD01ADFB7B8E1AFED6A267E
+96BA7C9045F12C7F9924A19947B3916CF70801F2E2858EFC16636920D871574E
+69A458FEA3F4933D7E0D95748F728EB658718BCD5882154AEE7B54A41DC25A59
+B59C30D5392AF26013C5D1B023286085F0CA417918B8DB38EF8E79DCB0603A18
+0E6C9E0E8BB01E8A3ED71577C1BD314B2778AF2FDA55605C60E65525F3AA55AB
+945748986263E8144055CA396A2AAB10B6B4CC5C341141E8CEA15486AF7C72E9
+93B3EE1411636FBC2A2BA9C55D741831F6CE5C3E169B87931EAFD6BA336C24CF
+5C7A325381289586773B8F48986B4BB9AFC4BFE81B6628219361D809CCFB21A9
+91487CAC605DEC8032EF845D5DE98575B1DC262302EB651B8823893E81D396AC
+C50F6D6FF383F442392E0B4482A484200469C8F04A9E1F9B5E21C66842F6E96C
+9A670C9C61ABD388F06A51A0D2D8542F68960FA728AB5133A36EEF0B6C137A3B
+E4BA3BF0507EFB2A98A1F1651D39AF017666CA593E82430E888CEE8619456F9F
+B47D84A5C33B8B5EBEE06F75D885C12073401A449F56C16AA64ED3AA62363F77
+061BFEDF72429B023D37D0D724D00A1248DB0FEAD3
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Decimal Digits</h3>
           <pre data-id="code-animation"><code data-trim>
 : pi-cell<< ( d -- n )
   0 16 0 do 4 lshift over 16 * i + pi<< or loop nip ;
@@ -234,10 +255,70 @@ foo bar baz
         </section>
 
         <section data-transition="fade-out">
+          <h3>Decimal Digits</h3>
+          <pre data-id="code-animation" class="stretch"><code data-trim>
+1000 18 / pi-n .......................................................
+3.14159265358979323846264338327950288419716939937510582097494459
+2307816406286208998628034825342117067982148086513282306647093844
+6095505822317253594081284811174502841027019385211055596446229489
+5493038196442881097566593344612847564823378678316527120190914564
+8566923460348610454326648213393607260249141273724587006606315588
+1748815209209628292540917153643678925903600113305305488204665213
+8414695194151160943305727036575959195309218611738193261179310511
+8548074462379962749567351885752724891227938183011949129833673362
+4406566430860213949463952247371907021798609437027705392171762931
+7675238467481846766940513200056812714526356082778577134275778960
+9173637178721468440901224953430146549585371050792279689258923542
+0199561121290219608640344181598136297747713099605187072113499999
+9837297804995105973173281609631859502445945534690830264252230825
+3344685035261931188171010003137838752886587533208381420617177669
+1473035982534904287554687311595628638823537875937519577818577805
+32171226806613001927876611195909
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation" class="stretch"><code data-trim>
+1 50 lshift constant one
+
+: bd. ( n b -- ) base @ >r base ! 0 <# # #> type r> base ! ;
+: *mod ( a b m -- n ) */mod drop ;
+: odd? ( n -- f ) 1 and ;
+: 3drop ( n n n -- ) 2drop drop ;
+
+: a^2 ( r a m b -- r a*a m b/2 ) >r 2dup >r swap *mod r> r> 2/ ;
+: a* ( r a m b -- r*a a m b ) >r 2dup >r >r *mod r> r> r> ;
+: ?a* ( r a m b -- ?r*a a m b ) dup odd? if a* then ;
+: **mod0 ( a b m -- 1 a m b ) >r 1 -rot r> swap ;
+: **mod ( a b m -- n ) **mod0 begin ?a* a^2 dup 0= until 3drop ;
+
+: 16^-n ( n -- n ) one swap 4 * 63 min rshift ;
+: s-right { d j -- n } 0 17 1 do i 16^-n i d + 8 * j + / + loop ;
+: slterm { d j i -- n } one 16 d i - i 8 * j + dup >r **mod r> */ ;
+: s-left { d j -- n } 0 d 1+ 0 do d j i slterm + loop ;
+: s { d j -- n } d j s-left d j s-right + ;
+
+: pi<< { d -- n }
+  d 1 s 4 * d 4 s 2* - d 5 s - d 6 s - 16 swap one */ 15 and ;
+: pih-n ( n -- ) ." 3." 0 do i pi<< 16 bd. loop ;
+
+: pi-cell<< ( d -- n )
+  0 16 0 do 4 lshift over 16 * i + pi<< or loop nip ;
+: pi-fill ( a n -- )
+  0 do i ." ." pi-cell<< over i cells + ! loop drop cr ;
+: 10th 0 { a n t -- n }
+  0 n 1- do i cells a + dup @ 10 um* t 0 d+ to t swap ! -1 +loop t ;
+: pi-n ( n -- )
+  here over pi-fill ." 3." dup 18 * 0 do here over 10th 10 bd. loop drop ;
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
           <p>
           <br/>
           <a href="https://www.flagxor.com/">flagxor.com</a><br/>
           <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks/blob/gh-pages/svfig-2020-10-24/pi.fs">code</a><br/>
           </p>
           <h1>&#x2698;</h1>
           <h2>Thank you</h2>

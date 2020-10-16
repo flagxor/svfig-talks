@@ -16,7 +16,7 @@
     <link href="http://fonts.googleapis.com/css?family=Mrs+Sheppards"
     rel="stylesheet" type="text/css">
     <!-- Code syntax highlighting -->
-    <link rel="stylesheet" href="../reveal.js/plugin/highlight/zenburn.css">
+    <link rel="stylesheet" href="../common/forth.css">
     <script src="../common/printing.js"></script>
     <!--[if lt IE 9]>
     <script src="../reveal.js/lib/js/html5shiv.js"></script>
@@ -378,7 +378,7 @@ moveto up up
         </section>
 
         <section data-transition="fade-out">
-          <pre><code data-trim>
+          <pre><code data-trim class="lang-javascript">
 chrome.runtime.onConnectExternal.addListener(
     function(port) {
   port.onMessage.addListener(function(msg) {
@@ -458,11 +458,7 @@ chrome.runtime.onConnectExternal.addListener(
     <script src="../common/haiku.js"></script>
 		<script src="../reveal.js/dist/reveal.js"></script>
     <script src="../reveal.js/plugin/highlight/highlight.js"></script>
-    <script>
-      Reveal.initialize({
-        plugins: [RevealHighlight],
-     });
-    </script>
+    <script src="../common/forth.js"></script>
     <script src="../common/sakura1.js"></script>
   </body>
 </html>

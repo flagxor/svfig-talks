@@ -18,13 +18,13 @@
 : slterm { d j i -- n } one 16 d i - i 8 * j + dup >r **mod r> */ ;
 : s-left { d j -- n } 0 d 1+ 0 do d j i slterm + loop ;
 : s { d j -- n } d j s-left d j s-right + ;
+
 : pi<< { d -- n } d 1 s 4 * d 4 s 2* - d 5 s - d 6 s - 16 swap one */ 15 and ;
+: pih-n ( n -- ) ." 3." 0 do i pi<< 16 bd. loop ;
 
 : pi-cell<< ( d -- n ) 0 16 0 do 4 lshift over 16 * i + pi<< or loop nip ;
 : pi-fill ( a n -- ) 0 do i ." ." pi-cell<< over i cells + ! loop drop cr ;
 : 10th 0 { a n t -- n }
    0 n 1- do i cells a + dup @ 10 um* t 0 d+ to t swap ! -1 +loop t ;
-
-: pih-n ( n -- ) ." 3." 0 do i pi<< 16 bd. loop ;
 : pi-n ( n -- )
    here over pi-fill ." 3." dup 18 * 0 do here over 10th 10 bd. loop drop ;
