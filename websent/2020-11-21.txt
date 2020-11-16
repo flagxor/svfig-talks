@@ -1,0 +1,15 @@
+EForth implemented in C
+by Brad Nelson
+Forth Day - November 21, 2020
+
+Presentation Format
+  • suckless - sent
+  • Takahashi
+  • Minimalistic presentation style
+  • Focus on content
+    • Left justified text
+    • Full page images
+
+QUESTIONS?
+       ⚘
+thank you!

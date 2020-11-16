@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>websent</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <style>
+body {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  position: absolute;
+}
+    </style>
+  </head>
+  <body>
+    <canvas id="screen" width="10" height="10"></canvas>
+    <script>
+var screen = document.getElementById('screen');
+var context = screen.getContext('2d');
+var pages = [];
+var activeSlide = 0;
+
+function Load(data) {
+  var lines = data.split('\n');
+  var page = [];
+  for (var i = 0; i < lines.length; ++i) {
+    if (lines[i] == '') {
+      pages.push(page);
+      page = [];
+    } else {
+      page.push(lines[i]);
+    }
+  }
+}
+
+function Resize() {
+  screen.width = window.innerWidth;
+  screen.height = window.innerHeight;
+  Goto(activeSlide);
+}
+
+function MeasureSize(page, size) {
+  context.font = size + 'px Arial';
+  var w = 0;
+  var h = 0;
+  for (var i = 0; i < page.length; ++i) {
+    w = Math.max(w, context.measureText(page[i]).width);
+    h += size;
+  }
+  return [w, h];
+}
+
+function Goto(n) {
+  activeSlide = n;
+
+  context.fillStyle = '#fff';
+  context.fillRect(0, 0, screen.width, screen.height);
+
+  context.fillStyle = '#000';
+  context.textBaseline = 'top'
+  var width = screen.width * 7 / 8;
+  var height = screen.height * 7 / 8;
+  var page = pages[activeSlide];
+  var limit = Math.max(width, height);
+  for (var size = 40; size < limit; ++size) {
+    var dimensions = MeasureSize(page, size);
+    if (dimensions[0] > width  || dimensions[1] > height) {
+      break;
+    }
+  }
+  --size;
+  var dimensions = MeasureSize(page, size);
+  dimensions[0] = (screen.width - dimensions[0]) / 2;
+  dimensions[1] = (screen.height - dimensions[1]) / 2;
+  for (var i = 0; i < page.length; ++i) {
+    context.fillText(page[i], dimensions[0], dimensions[1]);
+    dimensions[1] += size;
+  }
+}
+
+window.onload = function() {
+  var request = new XMLHttpRequest();
+  request.onload = function() {
+    Load(request.responseText);
+    Resize();
+    Goto(0);
+  };
+  request.open('GET', window.location.search.substring(1));
+  request.send();
+};
+
+window.onkeydown = function(e) {
+  if (e.keyCode === 37) {
+    Goto(Math.max(0, activeSlide - 1));
+  } else if (e.keyCode == 39) {
+    Goto(Math.min(pages.length - 1, activeSlide + 1));
+  }
+};
+
+window.onresize = Resize;
+    </script>
+  </body>
+</html>
