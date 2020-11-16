@@ -20,6 +20,12 @@ canvas {
   <body>
     <canvas id="screen" width="10" height="10"></canvas>
     <script>
+var FOREGROUND = '#000';
+var BACKGROUND = '#fff';
+var USABLE = 0.75;
+var LINE_SPACING = 1.4;
+var FONT = 'dejavu sans, roboto, ubuntu';
+
 var screen = document.getElementById('screen');
 var context = screen.getContext('2d');
 var pages = [];
@@ -44,42 +50,43 @@ function Resize() {
   Goto(activeSlide);
 }
 
-function MeasureSize(page, size) {
-  context.font = size + 'px Arial';
+function PickSize(width, height, page) {
+  var line_frac = (LINE_SPACING * (page.length - 1)) + 1;
+  var size = Math.floor(height / line_frac);
   var w = 0;
-  var h = 0;
   for (var i = 0; i < page.length; ++i) {
-    w = Math.max(w, context.measureText(page[i]).width);
-    h += size;
+    for (;;) {
+      context.font = size + 'px ' + FONT;
+      var rw = context.measureText(page[i]).width;
+      if (rw <= width) {
+        break;
+      }
+      --size; 
+    }
+    w = Math.max(w, rw);
   }
-  return [w, h];
+  var rsize = size * LINE_SPACING;
+  return [w, size * line_frac, rsize];
 }
 
 function Goto(n) {
   activeSlide = n;
 
-  context.fillStyle = '#fff';
+  context.fillStyle = BACKGROUND;
   context.fillRect(0, 0, screen.width, screen.height);
 
-  context.fillStyle = '#000';
+  context.fillStyle = FOREGROUND;
   context.textBaseline = 'top'
-  var width = screen.width * 7 / 8;
-  var height = screen.height * 7 / 8;
+  var width = screen.width * USABLE;
+  var height = screen.height * USABLE;
   var page = pages[activeSlide];
   var limit = Math.max(width, height);
-  for (var size = 40; size < limit; ++size) {
-    var dimensions = MeasureSize(page, size);
-    if (dimensions[0] > width  || dimensions[1] > height) {
-      break;
-    }
-  }
-  --size;
-  var dimensions = MeasureSize(page, size);
+  var dimensions = PickSize(width, height, page);
   dimensions[0] = (screen.width - dimensions[0]) / 2;
   dimensions[1] = (screen.height - dimensions[1]) / 2;
   for (var i = 0; i < page.length; ++i) {
     context.fillText(page[i], dimensions[0], dimensions[1]);
-    dimensions[1] += size;
+    dimensions[1] += dimensions[2];
   }
 }
 
