@@ -35,6 +35,7 @@ function Load(data) {
     if (pages[i].length && pages[i][0][0] == '@') {
       var element = document.createElement('img');
       element.src = pages[i][0].substr(1);
+      element.style.imageRendering = 'pixelated';
     } else {
       var element = document.createElement('pre');
       element.innerHTML = pages[i].join('\n');
