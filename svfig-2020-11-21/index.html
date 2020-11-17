@@ -26,30 +26,30 @@ Presentation Format
     • Left justified text
     • Full page images
 
-#define PRIMITIVE_LIST \
-  X("DROP", DROP, tos = *sp; --sp) \
-  X("SWAP", SWAP, w = tos; tos = *sp; *sp = w) \
-  X("AND", AND, tos = tos & *sp; --sp) \
-  X("OR", OR, tos = tos | *sp; --sp) \
+ #define PRIMITIVE_LIST \
+   X("DROP", DROP, tos = *sp; --sp) \
+   X("SWAP", SWAP, w = tos; tos = *sp; *sp = w) \
+   X("AND", AND, tos = tos & *sp; --sp) \
+   X("OR", OR, tos = tos | *sp; --sp) \
 
-enum {
-#define X(sname, name, code) OP_ ## name,
-PRIMITIVE_LIST
-#undef X
-};
+ enum {
+ #define X(sname, name, code) OP_ ## name,
+ PRIMITIVE_LIST
+ #undef X
+ };
 
-for (;;) {
-  ir = ip[w];
-  ++ip;
-  switch (ir & 0xff) {
-#define X(sname, name, code) case OP_ ## name: code; break;
-    PRIMITIVE_LIST
-#undef X
-    default:
-      break;
-  }
-  break;
-}
+ for (;;) {
+   ir = ip[w];
+   ++ip;
+   switch (ir & 0xff) {
+ #define X(sname, name, code) case OP_ ## name: code; break;
+     PRIMITIVE_LIST
+ #undef X
+     default:
+       break;
+   }
+   break;
+ }
 
 QUESTIONS?
     ⚘
