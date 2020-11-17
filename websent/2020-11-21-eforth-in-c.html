@@ -1,22 +1,56 @@
 <!DOCTYPE html>
-<script src="websent.js"></script><pre>
+<script src="websent.js"></script><script>
+FONT = 'Courier New';
+USABLE = 0.95;
+BACKGROUND = '#000';
+FOREGROUND = '#cfc';
+</script><pre>
 
 EForth implemented in C
 UNDER CONSTRUCTION!!!
 by Brad Nelson
 Forth Day - November 21, 2020
 
+Hello!
+
+SVFIG
+
 @starrose.png
 <img src="starrose.png">
 
 Presentation Format
-  • suckless - sent
-  • Takahashi
-  • Minimalistic presentation style
+  • Takahashi Method
+    • Minimalistic presentation style
+    • suckless →  sent →  websent
   • Focus on content
     • Left justified text
     • Full page images
 
+#define PRIMITIVE_LIST \
+  X("DROP", DROP, tos = *sp; --sp) \
+  X("SWAP", SWAP, w = tos; tos = *sp; *sp = w) \
+  X("AND", AND, tos = tos & *sp; --sp) \
+  X("OR", OR, tos = tos | *sp; --sp) \
+
+enum {
+#define X(sname, name, code) OP_ ## name,
+PRIMITIVE_LIST
+#undef X
+};
+
+for (;;) {
+  ir = ip[w];
+  ++ip;
+  switch (ir & 0xff) {
+#define X(sname, name, code) case OP_ ## name: code; break;
+    PRIMITIVE_LIST
+#undef X
+    default:
+      break;
+  }
+  break;
+}
+
 QUESTIONS?
-       ⚘
+    ⚘
 thank you!

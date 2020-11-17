@@ -13,7 +13,7 @@ var screen;
 var context;
 var image;
 var pages = [];
-var activeSlide = 0;
+var activeSlide = 0 | location.hash.match(/\d+/);
 var touchStartX = 0;
 var touchLastX = 0;
 
@@ -68,6 +68,7 @@ function PickSize(width, height, page) {
 
 function Goto(n) {
   activeSlide = n;
+  window.location.hash = activeSlide;
 
   var width = screen.width * USABLE;
   var height = screen.height * USABLE;
@@ -146,8 +147,10 @@ function Next() {
 }
 
 window.addEventListener('keydown', function(e) {
-  if ([82].indexOf(e.keyCode) >= 0) {  // restart
+  if ([36].indexOf(e.keyCode) >= 0) {  // home
     Goto(0);
+  } else if ([35].indexOf(e.keyCode) >= 0) {  // end
+    Goto(pages.length - 1);
   } else if ([37, 72, 75, 37, 38, 80, 33, 8].indexOf(e.keyCode) >= 0) {
     Back();
   } else if ([39, 13, 40, 74, 76, 34, 78, 32].indexOf(e.keyCode) >= 0) {
@@ -181,6 +184,10 @@ window.addEventListener('touchend', function(e) {
   } else if (delta > screen.width / 8) {
     Back(); 
   }
+});
+
+window.addEventListener('popstate', function(e) {
+  Goto(0 | location.hash.match(/\d+/));
 });
 
 window.addEventListener('resize', Resize);
