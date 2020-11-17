@@ -14,6 +14,7 @@ var context;
 var image;
 var pages = [];
 var activeSlide = 0;
+var touchStartX = 0;
 
 function Load(data) {
   var lines = data.split('\n');
@@ -135,17 +136,43 @@ window.addEventListener('load', function() {
   }
 });
 
+function Back() {
+  Goto(Math.max(0, activeSlide - 1));
+}
+
+function Next() {
+  Goto(Math.min(pages.length - 1, activeSlide + 1));
+}
+
 window.addEventListener('keydown', function(e) {
   if ([82].indexOf(e.keyCode) >= 0) {  // restart
     Goto(0);
   } else if ([37, 72, 75, 37, 38, 80, 33, 8].indexOf(e.keyCode) >= 0) {
-    // prior
-    Goto(Math.max(0, activeSlide - 1));
+    Back();
   } else if ([39, 13, 40, 74, 76, 34, 78, 32].indexOf(e.keyCode) >= 0) {
-    // next
-    Goto(Math.min(pages.length - 1, activeSlide + 1));
+    Next();
   } else if ([70].indexOf(e.keyCode) >= 0) {  // fullscreen
     screen.requestFullscreen();
+  }
+});
+
+window.addEventListener('mousedown', function(e) {
+  if (event.which === 1) {
+    Next();
+  } else {
+    Back();
+  }
+});
+
+window.addEventListener('touchstart', function(e) {
+  touchStartX = e.screenX;
+});
+
+window.addEventListener('touchend', function(e) {
+  if (e.screen.X - touchStartX < -screen.width / 4) {
+    Next();
+  } else if (e.screen.X - touchStartX > screen.width / 4) {
+    Back(); 
   }
 });
 
