@@ -15,6 +15,7 @@ var image;
 var pages = [];
 var activeSlide = 0;
 var touchStartX = 0;
+var touchLastX = 0;
 
 function Load(data) {
   var lines = data.split('\n');
@@ -165,13 +166,19 @@ window.addEventListener('mousedown', function(e) {
 });
 
 window.addEventListener('touchstart', function(e) {
-  touchStartX = e.screenX;
+  touchStartX = e.targetTouches[0].screenX;
+  touchLastX = touchStartX;
+});
+
+window.addEventListener('touchmove', function(e) {
+  touchLastX = e.targetTouches[0].screenX;
 });
 
 window.addEventListener('touchend', function(e) {
-  if (e.screen.X - touchStartX < -screen.width / 4) {
+  var delta = touchLastX - touchStartX;
+  if (delta < -screen.width / 8) {
     Next();
-  } else if (e.screen.X - touchStartX > screen.width / 4) {
+  } else if (delta > screen.width / 8) {
     Back(); 
   }
 });
