@@ -26,6 +26,7 @@ function Load(data) {
       page.push(lines[i]);
     }
   }
+  document.title = pages[0][0];
 }
 
 function Resize() {
