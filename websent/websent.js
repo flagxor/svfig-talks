@@ -9,16 +9,16 @@ var WebSent;
 
 (function() {
 
-var screen;
-var context;
-var image;
+var slides = [];
 var pages = [];
-var activeSlide = 0 | location.hash.match(/\d+/);
+var activeSlide = -1;
+var activeElement = null;
 var touchStartX = 0;
 var touchLastX = 0;
 
 function Load(data) {
   var lines = data.split('\n');
+  var pages = [];
   var page = [];
   for (var i = 0; i < lines.length; ++i) {
     if (lines[i] == '') {
@@ -28,7 +28,27 @@ function Load(data) {
       page.push(lines[i]);
     }
   }
+  // Process into slides.
   document.title = pages[0][0];
+  document.body.style.backgroundColor = BACKGROUND;
+  for (var i = 0; i < pages.length; ++i) {
+    if (pages[i].length && pages[i][0][0] == '@') {
+      var element = document.createElement('img');
+      element.src = pages[i][0].substr(1);
+    } else {
+      var element = document.createElement('pre');
+      element.innerHTML = pages[i].join('\n');
+      element.style.color = FOREGROUND;
+      element.style.fontFamily = FONT;
+      element.style.lineHeight = LINE_SPACING * 100 + '%';
+    }
+    element.style.position = 'absolute';
+    element.style.display = 'inline';
+    element.style.margin = '0';
+    element.style.border = '0';
+    element.style.padding = '0';
+    slides.push(element);
+  }
 }
 
 function AddMeta(name, content) {
@@ -39,94 +59,59 @@ function AddMeta(name, content) {
 }
 
 function Resize() {
-  screen.width = window.innerWidth;
-  screen.height = window.innerHeight;
-  if (context === undefined) {
-    context = screen.getContext('2d');
-  }
+  activeSlide = -1;
   Goto(activeSlide);
 }
 
-function PickSize(width, height, page) {
-  var line_frac = (LINE_SPACING * (page.length - 1)) + 1;
-  var size = Math.floor(height / line_frac);
-  var w = 0;
-  for (var i = 0; i < page.length; ++i) {
-    for (;;) {
-      context.font = size + 'px ' + FONT;
-      var rw = context.measureText(page[i]).width;
-      if (rw <= width) {
-        break;
-      }
-      --size; 
-    }
-    w = Math.max(w, rw);
-  }
-  var rsize = size * LINE_SPACING;
-  return [w, size * line_frac, rsize];
-}
-
 function Goto(n) {
+  n = Math.max(0, Math.min(n, slides.length - 1));
+  if (n === activeSlide) {
+    return;
+  }
   activeSlide = n;
-  window.location.hash = activeSlide;
 
-  var width = screen.width * USABLE;
-  var height = screen.height * USABLE;
+  window.location.hash = n;
+  var width = window.innerWidth * USABLE;
+  var height = window.innerHeight * USABLE;
 
-  context.fillStyle = BACKGROUND;
-  context.fillRect(0, 0, screen.width, screen.height);
-
-  var page = pages[activeSlide];
-  if (page.length && page[0][0] == '@') {
-    image.src = page[0].substr(1);
-    var altw = image.width * height / image.height;
-    var alth = image.height * width / image.width;
-    var w = width, h = height;
-    if (altw * height < width * alth) {
-      w = altw;
-    } else {
-      h = alth;
-    }
-    var x = (screen.width - w) / 2;
-    var y = (screen.height - h) / 2;
-    image.onload = function() {
-      context.drawImage(image, x, y, w, h);
-    };
+  if (activeElement) {
+    document.body.replaceChild(slides[n], activeElement);
   } else {
-    context.fillStyle = FOREGROUND;
-    context.textBaseline = 'top'
-    var limit = Math.max(width, height);
-    var dimensions = PickSize(width, height, page);
-    dimensions[0] = (screen.width - dimensions[0]) / 2;
-    dimensions[1] = (screen.height - dimensions[1]) / 2;
-    for (var i = 0; i < page.length; ++i) {
-      context.fillText(page[i], dimensions[0], dimensions[1]);
-      dimensions[1] += dimensions[2];
+    document.body.appendChild(slides[n]);
+  }
+  activeElement = slides[n];
+  var e = activeElement;
+
+  var min = 1;
+  var max = window.innerHeight;
+  for (;;) {
+    if (min >= max) {
+      break;
+    }
+    var mid = Math.floor((min + max + 1) / 2);
+    e.style.fontSize = mid + 'px';
+    e.height = mid;
+    if (e.offsetWidth < width && e.offsetHeight < height) {
+      min = mid;
+    } else {
+      max = mid - 1;
     }
   }
+  --min;
+  e.style.fontSize = min + 'px';
+  e.height = mid;
+  e.style.left = (window.innerWidth - e.offsetWidth)/ 2 + 'px';
+  e.style.top = (window.innerHeight - e.offsetHeight)/ 2 + 'px';
 }
-
-function Main(data) {
-  Load(data);
-  Resize();
-}
-WebSent = Main;
 
 window.addEventListener('load', function() {
   AddMeta('apple-mobile-web-app-capable', 'yes');
   AddMeta('apple-mobile-web-app-status-bar-style', 'black-translucent');
   AddMeta('viewport', 'width=device-width, initial-scale=1.0, ' +
                       'maximum-scale=1.0, user-scalable=no, minimal-ui');
-
-  screen = document.createElement('canvas');
-  screen.style.position = 'absolute';
-  document.body.appendChild(screen);
   document.body.style.border = '0';
   document.body.style.margin = '0';
   document.body.style.padding = '0';
-
-  image = document.createElement('img');
-  image.style.display = 'none';
 
   var pre = document.getElementsByTagName('pre');
   if (pre.length) {
@@ -139,58 +124,59 @@ window.addEventListener('load', function() {
   }
 });
 
-function Back() {
-  Goto(Math.max(0, activeSlide - 1));
-}
-
-function Next() {
-  Goto(Math.min(pages.length - 1, activeSlide + 1));
-}
-
 window.addEventListener('keydown', function(e) {
+  if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+    return;
+  }
   if ([36].indexOf(e.keyCode) >= 0) {  // home
     Goto(0);
   } else if ([35].indexOf(e.keyCode) >= 0) {  // end
-    Goto(pages.length - 1);
+    Goto(slides.length - 1);
   } else if ([37, 72, 75, 37, 38, 80, 33, 8].indexOf(e.keyCode) >= 0) {
-    Back();
+    Goto(activeSlide - 1);
   } else if ([39, 13, 40, 74, 76, 34, 78, 32].indexOf(e.keyCode) >= 0) {
-    Next();
+    Goto(activeSlide + 1);
   } else if ([70].indexOf(e.keyCode) >= 0) {  // fullscreen
-    screen.requestFullscreen();
+    document.body.requestFullscreen();
   }
-});
-
-window.addEventListener('mousedown', function(e) {
-  if (event.which === 1) {
-    Next();
-  } else {
-    Back();
-  }
+  e.preventDefault();
 });
 
 window.addEventListener('touchstart', function(e) {
   touchStartX = e.targetTouches[0].screenX;
   touchLastX = touchStartX;
+  e.preventDefault();
 });
 
 window.addEventListener('touchmove', function(e) {
   touchLastX = e.targetTouches[0].screenX;
+  e.preventDefault();
 });
 
 window.addEventListener('touchend', function(e) {
   var delta = touchLastX - touchStartX;
   if (delta < -screen.width / 8) {
-    Next();
+    Goto(activeSlide + 1);
   } else if (delta > screen.width / 8) {
-    Back(); 
+    Goto(activeSlide - 1);
   }
+  e.preventDefault();
 });
 
-window.addEventListener('popstate', function(e) {
+function GotoHash() {
   Goto(0 | location.hash.match(/\d+/));
+}
+
+window.addEventListener('popstate', function(e) {
+  GotoHash();
 });
 
 window.addEventListener('resize', Resize);
+
+function Main(data) {
+  Load(data);
+  GotoHash();
+}
+WebSent = Main;
 
 })();
