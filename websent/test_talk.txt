@@ -6,8 +6,8 @@ More testing.
 So much more test.
 
 Things:
-• Alpha
-• Beta
-• Gamma
+  • Alpha
+  • Beta
+  • Gamma
 
 THE END
