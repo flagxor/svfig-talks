@@ -115,7 +115,8 @@ WebSent = Main;
 window.addEventListener('load', function() {
   AddMeta('apple-mobile-web-app-capable', 'yes');
   AddMeta('apple-mobile-web-app-status-bar-style', 'black-translucent');
-  AddMeta('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui');
+  AddMeta('viewport', 'width=device-width, initial-scale=1.0, ' +
+                      'maximum-scale=1.0, user-scalable=no, minimal-ui');
 
   screen = document.createElement('canvas');
   screen.style.position = 'absolute';
