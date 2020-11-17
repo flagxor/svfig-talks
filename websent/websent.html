@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<script src="websent.js"></script><script>
+window.addEventListener('load', function() {
+  var url = new URL(window.location);
+  var request = new XMLHttpRequest();
+  request.onload = function() {
+    WebSent(request.responseText);
+  };
+  request.open('GET', url.searchParams.get('q'));
+  request.send();
+});
+</script>

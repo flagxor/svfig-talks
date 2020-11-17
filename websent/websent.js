@@ -1,33 +1,16 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>websent</title>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-    <style>
-body {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-canvas {
-  position: absolute;
-}
-    </style>
-  </head>
-  <body>
-    <canvas id="screen" width="10" height="10"></canvas>
-    <script>
+'use strict';
+
 var FOREGROUND = '#000';
 var BACKGROUND = '#fff';
 var USABLE = 0.75;
 var LINE_SPACING = 1.4;
 var FONT = 'dejavu sans, roboto, ubuntu';
+var WebSent;
 
-var screen = document.getElementById('screen');
-var context = screen.getContext('2d');
+(function() {
+
+var screen;
+var context;
 var pages = [];
 var activeSlide = 0;
 
@@ -47,6 +30,9 @@ function Load(data) {
 function Resize() {
   screen.width = window.innerWidth;
   screen.height = window.innerHeight;
+  if (context === undefined) {
+    context = screen.getContext('2d');
+  }
   Goto(activeSlide);
 }
 
@@ -90,26 +76,39 @@ function Goto(n) {
   }
 }
 
-window.onload = function() {
-  var request = new XMLHttpRequest();
-  request.onload = function() {
-    Load(request.responseText);
-    Resize();
-    Goto(0);
-  };
-  request.open('GET', window.location.search.substring(1));
-  request.send();
-};
+function Main(data) {
+  Load(data);
+  Resize();
+}
+WebSent = Main;
 
-window.onkeydown = function(e) {
+window.addEventListener('load', function() {
+  screen = document.createElement('canvas');
+  screen.style.position = 'absolute';
+  document.body.appendChild(screen);
+  document.body.style.border = '0';
+  document.body.style.margin = '0';
+  document.body.style.padding = '0';
+
+  var pre = document.getElementsByTagName('pre');
+  if (pre.length) {
+    var data = pre[0].innerHTML;
+    if (data[0] === '\n') {
+      data = data.substr(1);
+    }
+    Main(data);
+    pre[0].parentNode.removeChild(pre[0]);
+  }
+});
+
+window.addEventListener('keydown', function(e) {
   if (e.keyCode === 37) {
     Goto(Math.max(0, activeSlide - 1));
   } else if (e.keyCode == 39) {
     Goto(Math.min(pages.length - 1, activeSlide + 1));
   }
-};
+});
 
-window.onresize = Resize;
-    </script>
-  </body>
-</html>
+window.addEventListener('resize', Resize);
+
+})();
