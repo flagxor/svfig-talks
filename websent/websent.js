@@ -29,6 +29,13 @@ function Load(data) {
   document.title = pages[0][0];
 }
 
+function AddMeta(name, content) {
+  var meta = document.createElement('meta');
+  meta.name = name;
+  meta.content = content;
+  document.head.appendChild(meta);
+}
+
 function Resize() {
   screen.width = window.innerWidth;
   screen.height = window.innerHeight;
@@ -103,6 +110,10 @@ function Main(data) {
 WebSent = Main;
 
 window.addEventListener('load', function() {
+  AddMeta('apple-mobile-web-app-capable', 'yes');
+  AddMeta('apple-mobile-web-app-status-bar-style', 'black-translucent');
+  AddMeta('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui');
+
   screen = document.createElement('canvas');
   screen.style.position = 'absolute';
   document.body.appendChild(screen);
