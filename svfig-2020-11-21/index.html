@@ -3,22 +3,24 @@
 FONT = 'Courier';
 USABLE = 0.9;
 LINE_SPACING = 1.2;
-BACKGROUND = '#000';
+BACKGROUND = '#222';
 FOREGROUND = '#cfc';
 </script><pre>
 
-EForth implemented in C
-UNDER CONSTRUCTION!!!
-by Brad Nelson
-Forth Day - November 21, 2020
-😷
+     EFORTH
+ IMPLEMENTED IN C
+         
+   Brad Nelson
+       😷
+    Forth Day
+November 21, 2020
 
 Hello!
 
 SVFIG
 
-@../websent/starrose.png
-<img src="../websent/starrose.png">
+@stenoforth.png
+<img src="stenoforth.png">
 
 Presentation Format
   • Takahashi Method
@@ -38,14 +40,16 @@ Compilation
 Convention
 
 LINUX/OSX x64 CONVENTION
+             ✾
   Arguments: RDI, RSI, RDX, RCX, R8, R9
   Caller saved: RAX, R10, R11
-  Callee saved: RBx, RBP,
+  Callee saved: RBX, RBP,
                 RSP, R12, R13, R14, R15
-  16-byte aligned stack, 128 byte red zone
+     16-byte aligned stack, 128 byte red zone
 
 MICROSOFT x64 CONVENTION
-  Arguments: RCX, RDx, R8, R9
+             ✾
+  Arguments: RCX, RDX, R8, R9
   Caller saved: RAX, R10, R11
   Callee saved: RBX, RBP, RDI, RSI,
                 RSP, R12, R13, R14, R15
@@ -215,8 +219,10 @@ and:
   tos &= *sp--;
   NEXT;
 
-MOVING FORTH
-https://www.bradrodriguez.com/papers/moving1.htm
+         MOVING FORTH
+              ❦
+https://www.bradrodriguez.com
+           /papers/moving1.htm
 
 DIRECT THREADED
    (IP) -> W   fetch memory pointed by IP into "W" register
@@ -232,29 +238,27 @@ INDIRECT THREADED
               ...X now holds address of the machine code 
    JP (X)     jump to the address in the X register
 
+ trees
+🌲🌲🌲🌲
+ 
+ evil
 🙈🙉🙊
+ 
+♠ spades
+♥ hearts
+♦ diamonds
+♣ spades
 
-💯
-
-🖖
-
+ trees
 🌲🌲🌲🌲
 
-🍃🍃🍃
+ evil
+🙈🙉🙊
 
-🔪
-
-🚀
-
-♠♥♦♣
-
-🎨
-
-💰
-
-🗿
-
-🔴
+♠ spades
+♥ hearts
+♦ diamonds
+♣ spades
 
 QUESTIONS?
     ⚘

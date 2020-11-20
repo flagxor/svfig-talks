@@ -14,6 +14,7 @@ var activeSlide = -1;
 var activeElement = null;
 var touchStartX = 0;
 var touchLastX = 0;
+var refresh = false;
 
 function Load(data) {
   var lines = data.split('\n');
@@ -37,7 +38,7 @@ function Load(data) {
     if (pages[i].length && pages[i][0][0] == '@') {
       var element = document.createElement('img');
       element.src = pages[i][0].substr(1);
-      element.style.imageRendering = 'pixelated';
+      element.style.imageRendering = 'crisp-edges';
     } else {
       var element = document.createElement('pre');
       element.innerHTML = pages[i].join('\n');
@@ -62,16 +63,17 @@ function AddMeta(name, content) {
 }
 
 function Resize() {
-  activeSlide = -1;
+  refresh = true;
   Goto(activeSlide);
 }
 
 function Goto(n) {
   n = Math.max(0, Math.min(n, slides.length - 1));
-  if (n === activeSlide) {
+  if (n === activeSlide && !refresh) {
     return;
   }
   activeSlide = n;
+  refresh = false;
 
   window.location.hash = n;
   var width = window.innerWidth * USABLE;
