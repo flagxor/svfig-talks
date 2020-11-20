@@ -10,7 +10,6 @@ var WebSent;
 (function() {
 
 var slides = [];
-var pages = [];
 var activeSlide = -1;
 var activeElement = null;
 var touchStartX = 0;
@@ -27,6 +26,9 @@ function Load(data) {
     } else {
       page.push(lines[i]);
     }
+  }
+  if (page.length) {
+    pages.push(page);
   }
   // Process into slides.
   document.title = pages[0][0];

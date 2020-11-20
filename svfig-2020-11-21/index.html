@@ -2,6 +2,7 @@
 <script src="../websent/websent.js"></script><script>
 FONT = 'Courier';
 USABLE = 0.9;
+LINE_SPACING = 1.2;
 BACKGROUND = '#000';
 FOREGROUND = '#cfc';
 </script><pre>
@@ -63,6 +64,112 @@ Structure
    }
    break;
  }
+
+NOP
+
+90
+6690
+0f1f00
+0f1f4000
+0f1f440000
+660f1f440000
+0f1f8000000000
+0f1f840000000000
+660f1f840000000000
+
+NOP
+66 NOP
+NOP DWORD ptr [EAX]
+NOP DWORD ptr [EAX + 00H]
+NOP DWORD ptr [EAX + EAX*1 + 00H]
+66 NOP DWORD ptr [EAX + EAX*1 + 00H]
+NOP DWORD ptr [EAX + 00000000H]
+NOP DWORD ptr [EAX + EAX*1 + 00000000H]
+66 NOP DWORD ptr [EAX + EAX*1 + 00000000H]
+
+Alignment
+
+#define IDT_NEXT \
+  w = (cell_t *) *ip++; \
+  x = (cell_t *) *w; \
+  goto *x;
+
+#define DT_NEXT \
+  w = (cell_t *) *ip++; \
+  goto *w;
+
+#define CORE_WORDS \
+  X(dup, *++sp = tos) \
+  X(add, tos += *sp--) \
+  X(and, tos &= *sp--) \
+  X(or, tos |= *sp--) \
+  X(dolit, *++sp = tos; tos = *ip++) \
+  X(docolon, *++rp = (cell_t) ip; ip = ((cell_t *) w) + 1) \
+  X(doexit, ip = (cell_t *) *rp--) \
+  X(load, tos = * (cell_t *) tos) \
+  X(store, *(cell_t *) tos = *sp--; tos = *sp--) \
+
+#define COMMON_REGS \
+  register cell_t *ip asm("rdi") = memory; \
+  register cell_t *sp asm("rsi") = dstack; \
+  register cell_t *rp asm("r9") = rstack; \
+  register cell_t tos asm("rbx") = *sp--; \
+  register cell_t *w asm("rcx"); \
+  int i = 0; \
+
+#define X(name, code) memory[i++] = (cell_t) && name;
+CORE_WORDS
+#undef X
+
+#define X(name, code) name: code; IDT_NEXT;
+CORE_WORDS
+#undef X
+
+GCC
+
+ 288:   48 89 f0                mov    %rsi,%rax
+ 28b:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
+ 28f:   48 23 18                and    (%rax),%rbx
+ 292:   48 89 f8                mov    %rdi,%rax
+ 295:   48 8d 7f 08             lea    0x8(%rdi),%rdi
+ 299:   48 8b 00                mov    (%rax),%rax
+ 29c:   48 89 c1                mov    %rax,%rcx
+ 29f:   ff e0                   jmpq   *%rax
+ 2a1:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
+
+ 120:   48 89 f0                mov    %rsi,%rax
+ 123:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
+ 127:   48 23 18                and    (%rax),%rbx
+ 12a:   e9 51 ff ff ff          jmpq   80 <indirect_threaded+0x80>
+ 12f:   90                      nop
+
+  80:   48 89 f8                mov    %rdi,%rax
+  83:   48 8d 7f 08             lea    0x8(%rdi),%rdi
+  87:   48 8b 00                mov    (%rax),%rax
+  8a:   48 89 c1                mov    %rax,%rcx
+  8d:   48 8b 00                mov    (%rax),%rax
+  90:   ff e0                   jmpq   *%rax
+  92:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
+
+CLANG
+
+  d0:   48 23 06                and    (%rsi),%rax
+  d3:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
+  d7:   48 8b 0f                mov    (%rdi),%rcx
+  da:   48 83 c7 08             add    $0x8,%rdi
+  de:   ff 21                   jmpq   *(%rcx)
+
+ 240:   48 23 06                and    (%rsi),%rax
+ 243:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
+ 247:   48 8b 0f                mov    (%rdi),%rcx
+ 24a:   48 83 c7 08             add    $0x8,%rdi
+ 24e:   ff e1                   jmpq   *%rcx
+
+  memory[1] = (cell_t) && and;
+
+and:
+  tos &= *sp--;
+  NEXT;
 
 QUESTIONS?
     ⚘
