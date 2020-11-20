@@ -151,6 +151,16 @@ GCC
   90:   ff e0                   jmpq   *%rax
   92:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
 
+ 370:   48 89 f0                mov    %rsi,%rax
+ 373:   48 89 d7                mov    %rdx,%rdi
+ 376:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
+ 37a:   48 23 18                and    (%rax),%rbx
+ 37d:   e9 66 ff ff ff          jmpq   2e8 <cforth_like+0x18>
+ 382:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
+
+ 32a:   4c 23 06                and    (%rsi),%r8
+ 32d:   eb c1                   jmp    2f0 <cforth_like+0x10>
+
 CLANG
 
   d0:   48 23 06                and    (%rsi),%rax
@@ -165,11 +175,45 @@ CLANG
  24a:   48 83 c7 08             add    $0x8,%rdi
  24e:   ff e1                   jmpq   *%rcx
 
+ 2f0:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
+ 2f4:   48 89 cf                mov    %rcx,%rdi
+ 2f7:   48 8d 4f 08             lea    0x8(%rdi),%rcx
+ 2fb:   48 8b 07                mov    (%rdi),%rax
+ 2fe:   48 83 c0 ff             add    $0xffffffffffffffff,%rax
+ 302:   48 83 f8 06             cmp    $0x6,%rax
+ 306:   77 14                   ja     31c <cforth_like+0x3c>
+ 308:   ff 24 c5 00 00 00 00    jmpq   *0x0(,%rax,8)
+ 30f:   4c 89 46 08             mov    %r8,0x8(%rsi)
+ 313:   48 83 c6 08             add    $0x8,%rsi
+ 317:   48 89 cf                mov    %rcx,%rdi
+ 31a:   eb db                   jmp    2f7 <cforth_like+0x17>
+ 31c:   48 89 4a f8             mov    %rcx,-0x8(%rdx)
+ 320:   48 83 c2 f8             add    $0xfffffffffffffff8,%rdx
+ 324:   48 8b 7f c8             mov    -0x38(%rdi),%rdi
+ 328:   eb cd                   jmp    2f7 <cforth_like+0x17>
+
 memory[1] = (cell_t) && and;
 
 and:
   tos &= *sp--;
   NEXT;
+
+MOVING FORTH
+https://www.bradrodriguez.com/papers/moving1.htm
+
+DIRECT THREADED
+   (IP) -> W   fetch memory pointed by IP into "W" register
+   IP+2 -> IP  advance IP (assuming 2-byte addresses)
+   JP (W)      jump to the address in the W register
+
+INDIRECT THREADED
+   (IP) -> W  fetch memory pointed by IP into "W" register
+              ...W now holds address of the Code Field
+   IP+2 -> IP advance IP, just like a program counter
+              (assuming 2-byte addresses in the thread)
+   (W) ->  X  fetch memory pointed by W into "X" register
+              ...X now holds address of the machine code 
+   JP (X)     jump to the address in the X register
 
 QUESTIONS?
     ⚘
