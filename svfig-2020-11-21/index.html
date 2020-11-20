@@ -11,6 +11,7 @@ EForth implemented in C
 UNDER CONSTRUCTION!!!
 by Brad Nelson
 Forth Day - November 21, 2020
+😷
 
 Hello!
 
@@ -36,9 +37,25 @@ Compilation
  Calling
 Convention
 
+LINUX/OSX x64 CONVENTION
+  Arguments: RDI, RSI, RDX, RCX, R8, R9
+  Caller saved: RAX, R10, R11
+  Callee saved: RBx, RBP,
+                RSP, R12, R13, R14, R15
+  16-byte aligned stack, 128 byte red zone
+
+MICROSOFT x64 CONVENTION
+  Arguments: RCX, RDx, R8, R9
+  Caller saved: RAX, R10, R11
+  Callee saved: RBX, RBP, RDI, RSI,
+                RSP, R12, R13, R14, R15
+  16-byte aligned stack, 32-byte shadow space
+
    🏢
 Structure
  Layout
+
+X-Macros
 
  #define PRIMITIVE_LIST \
    X("DROP", DROP, tos = *sp; --sp) \
@@ -214,6 +231,30 @@ INDIRECT THREADED
    (W) ->  X  fetch memory pointed by W into "X" register
               ...X now holds address of the machine code 
    JP (X)     jump to the address in the X register
+
+🙈🙉🙊
+
+💯
+
+🖖
+
+🌲🌲🌲🌲
+
+🍃🍃🍃
+
+🔪
+
+🚀
+
+♠♥♦♣
+
+🎨
+
+💰
+
+🗿
+
+🔴
 
 QUESTIONS?
     ⚘
