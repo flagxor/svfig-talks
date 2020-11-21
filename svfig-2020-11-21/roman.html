@@ -11,7 +11,7 @@ FOREGROUND = '#fc0';
 : 1s    s"  I II III IV V VI VII VIII IX " nth. ;
 : 10s   s"  X XX XXX XL L LX LXX LXXX XC " nth. ;
 : 100s  s"  C CC CCC CD D DC DCC DCCC CM " nth. ;
-: 1000s  0 ?do ." M" loop ;    : /10 10 /mod ;
+: 1000s   0 ?do ." M" loop ;    : /10   10 /mod ;
 : ?-  dup 0< if ." -" negate then ;   : ?0  dup 0= if ." N" then ;
 : roman ( n -- ) ?- ?0 /10 /10 /10 1000s 100s 10s 1s space ;
 : test 4001 -20 do i . i roman cr loop ;  test   bye
@@ -26,11 +26,6 @@ FOREGROUND = '#fc0';
 8 VIII 
 9 IX 
 10 X 
-11 XI 
-12 XII 
-13 XIII 
-14 XIV 
-15 XV 
 
 3990 MMMCMXC 
 3991 MMMCMXCI 
