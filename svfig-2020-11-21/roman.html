@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+BACKGROUND = '#058';
+FOREGROUND = '#fc0';
+</script><pre>
+
+: ^bl ( a -- a ) begin dup c@ bl <> while 1+ repeat ;
+: nth. ( n a n -- a ) drop swap 0 ?do ^bl 1+ loop dup ^bl over - type ;
+: 1s    s"  I II III IV V VI VII VIII IX " nth. ;
+: 10s   s"  X XX XXX XL L LX LXX LXXX XC " nth. ;
+: 100s  s"  C CC CCC CD D DC DCC DCCC CM " nth. ;
+: 1000s  0 ?do ." M" loop ;    : /10 10 /mod ;
+: ?-  dup 0< if ." -" negate then ;   : ?0  dup 0= if ." N" then ;
+: roman ( n -- ) ?- ?0 /10 /10 /10 1000s 100s 10s 1s space ;
+: test 4001 -20 do i . i roman cr loop ;  test   bye
+
+1 I 
+2 II 
+3 III 
+4 IV 
+5 V 
+6 VI 
+7 VII 
+8 VIII 
+9 IX 
+10 X 
+11 XI 
+12 XII 
+13 XIII 
+14 XIV 
+15 XV 
+
+3990 MMMCMXC 
+3991 MMMCMXCI 
+3992 MMMCMXCII 
+3993 MMMCMXCIII 
+3994 MMMCMXCIV 
+3995 MMMCMXCV 
+3996 MMMCMXCVI 
+3997 MMMCMXCVII 
+3998 MMMCMXCVIII 
+3999 MMMCMXCIX 
+4000 MMMM
+
+-10 -X 
+-9 -IX 
+-8 -VIII 
+-7 -VII 
+-6 -VI 
+-5 -V 
+-4 -IV 
+-3 -III 
+-2 -II 
+-1 -I 
+0 N 
