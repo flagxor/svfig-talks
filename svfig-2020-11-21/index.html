@@ -39,12 +39,22 @@ with the OS
 OS COMPLEXITY
      🙜
  • I live in a multi-OS world
+    • OSX and Linux at Work
+    • Windows and Linux at Home
+    • Raspberry Pi
+    • ESP8266/ESP32 RTOS
+
+OS COMPLEXITY
+     🙜
  • OSes do more than file systems
     • Graphics with shaders
     • TCP/IP, Wi-Fi, BLE, Intents
     • Encyption, certificates
     • Image, audio, and video formats
     • Clipboards, icons, compression
+
+OS COMPLEXITY
+     🙜
  • Complex executables
     • Dynamic linking
     • Multi-size icons
@@ -246,10 +256,11 @@ So How?
 
 INTERPRETER APPROACHES
          🙜
- • Words as functions
- • Token threaded
+ • Words as Functions
+ • Token Threaded
  • Computed Goto
- 
+ • Hybrid
+
          MOVING FORTH
               🙜
 https://www.bradrodriguez.com
@@ -271,7 +282,7 @@ INDIRECT THREADED
               ...X now holds address of the machine code 
    JP (X)     jump to the address in the X register
 
-Words as functions
+Words as Functions
 
 void add() {
   tos += *sp;
@@ -284,7 +295,7 @@ for(;;) {
   code();
 }
 
-0000000000000000 <add>:
+ADD:
    0:   48 8b 05 00 00 00 00    mov    0x0(%rip),%rax        # 7 <add+0x7>
    7:   48 8b 00                mov    (%rax),%rax
    a:   48 01 05 00 00 00 00    add    %rax,0x0(%rip)        # 11 <add+0x11>
@@ -293,6 +304,7 @@ for(;;) {
   19:   00 00 00 00
   1d:   0f 1f 00                nopl   (%rax)
 
+MAIN LOOP:
  430:   48 8d 42 08             lea    0x8(%rdx),%rax
  434:   48 8b 12                mov    (%rdx),%rdx
  437:   48 89 05 00 00 00 00    mov    %rax,0x0(%rip)        # 43e <function_threaded+0x3e>
@@ -340,7 +352,7 @@ FROM STENOFORTH
       🎟️
 Token Threaded
 
-GCC (token)
+GCC (token) - AND
     🙜
  3b0:   48 89 f0                mov    %rsi,%rax
  3b3:   48 89 d7                mov    %rdx,%rdi
@@ -348,6 +360,8 @@ GCC (token)
  3ba:   48 23 18                and    (%rax),%rbx
  3bd:   e9 66 ff ff ff          jmpq   328 <cforth_like+0x18>
  3c2:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
+
+GCC (token) - DISPATCH
     🙜
  328:   48 83 3f 07             cmpq   $0x7,(%rdi)
  32c:   48 8d 57 08             lea    0x8(%rdi),%rdx
@@ -365,7 +379,7 @@ GCC (token)
  36f:   eb b7                   jmp    328 <cforth_like+0x18>
  371:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
 
-CLANG (token)
+CLANG (token) - DISPATCH
     🙜
  2f0:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
  2f4:   48 89 cf                mov    %rcx,%rdi
@@ -380,6 +394,8 @@ CLANG (token)
  320:   48 83 c2 f8             add    $0xfffffffffffffff8,%rdx
  324:   48 8b 7f c8             mov    -0x38(%rdi),%rdi
  328:   eb cd                   jmp    2f7 <cforth_like+0x17>
+
+CLANG (token) - AND & OR
     🙜
  32a:   4c 23 06                and    (%rsi),%r8
  32d:   eb c1                   jmp    2f0 <cforth_like+0x10>
@@ -389,11 +405,13 @@ CLANG (token)
     💻↷ 
 Computed Goto
 
-memory[cfa] = (cell_t) && and;
-
 and:
   tos &= *sp--;
   NEXT;
+
+memory[cfa] = (cell_t) && and;
+...
+goto memory[xyz];
 
 Must be in the
 same function!
@@ -513,7 +531,7 @@ BOOSTRAP APPROACHES
   X("INVERSE", INVERSE, top = -top-1) \
   X("NEGATE", NEGATE, top = 0 - top) \
   ...
- 
+
  #define MACRO_LIST \
    X(BEGIN, pushR=P) \
    X(AGAIN, data[P++]=BRANCH; data[P++]=popR*sizeof(cell_t)) \
