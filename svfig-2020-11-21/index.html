@@ -2,13 +2,8 @@
 <script src="../websent/websent.js"></script><script>
 FONT = 'Courier';
 USABLE = 0.9;
-//LINE_SPACING = 1.2;
-//BACKGROUND = '#059';
-//FOREGROUND = '#fc0';
 BACKGROUND = '#222';
 FOREGROUND = '#cfc';
-//BACKGROUND = '#059';
-//FOREGROUND = '#ffc';
 </script><pre>
 
      EFORTH
@@ -19,78 +14,175 @@ FOREGROUND = '#cfc';
     Forth Day
 November 21, 2020
 
-Hello!
-
-SVFIG
-
-@stenoforth.png
-<img src="stenoforth.png">
-
-Presentation Format
-  • Takahashi Method
-    • Minimalistic presentation style
-    • suckless →  sent →  websent
-  • Focus on content
-    • Left justified text
-    • Full page images
-
 Why C?
 
-    🏗️
-Compilation
+MOTIVATION
+    🙜
+ • Interface with the OS
+ • Temptation of Libraries
+ • Tame modern architectures
+ • Suffer the tools we deserve
+ • Fight complexity with its own tools
 
-   📞
- Calling
-Convention
+BUT WHY _C_?
+     🙜
+ • Portable Assembler: x86, ARM, ESP32
+ • Basis for nearly all OS ABIs
+ • Wide range of substantive libraries
+ • Rust: Arch support good, but rides the same stack
+ • Go: Tiny Go does ESP32, but LLVM at bottom
+
+    💱
+ Interface
+with the OS
+
+OS COMPLEXITY
+     🙜
+ • I live in a multi-OS world
+ • OSes do more than file systems
+    • Graphics with shaders
+    • TCP/IP, Wi-Fi, BLE, Intents
+    • Encyption, certificates
+    • Image, audio, and video formats
+    • Clipboards, icons, compression
+ • Complex executables
+    • Dynamic linking
+    • Multi-size icons
+    • Fat binaries
+
+    📞
+  Calling
+Conventions
 
 LINUX/OSX x64 CONVENTION
-             ✾
+           🙜
   Arguments: RDI, RSI, RDX, RCX, R8, R9
   Caller saved: RAX, R10, R11
   Callee saved: RBX, RBP,
                 RSP, R12, R13, R14, R15
-     16-byte aligned stack, 128 byte red zone
+     16-byte aligned stack, 128-byte red zone
 
 MICROSOFT x64 CONVENTION
-             ✾
+           🙜
   Arguments: RCX, RDX, R8, R9
   Caller saved: RAX, R10, R11
   Callee saved: RBX, RBP, RDI, RSI,
                 RSP, R12, R13, R14, R15
   16-byte aligned stack, 32-byte shadow space
 
-   🏢
-Structure
- Layout
+typedef struct {
+  int type;             /* of event */
+  unsigned long serial; /* # of last request processed by server */
+  Bool send_event;      /* true if this came from a SendEvent request */
+  Display *display;     /* Display the event was read from */
+  Window window;        /* "event" window it is reported relative to */
+  Window root;          /* root window that the event occurred on */
+  Window subwindow;     /* child window */
+  Time time;            /* milliseconds */
+  int x, y;             /* pointer x, y coordinates in event window */
+  int x_root, y_root;   /* coordinates relative to root */
+  unsigned int state;   /* key or button mask */
+  unsigned int keycode; /* detail */
+  Bool same_screen;     /* same screen flag */
+} XKeyEvent;
 
-X-Macros
+class WiFiClient : public ESPLwIPClient
+{
+protected:
+    std::shared_ptr<WiFiClientSocketHandle> clientSocketHandle;
+    std::shared_ptr<WiFiClientRxBuffer> _rxBuffer;
+    bool _connected;
+    
+public:
+    WiFiClient *next;
+    WiFiClient();
+    WiFiClient(int fd);
+    ~WiFiClient();
+    int connect(IPAddress ip, uint16_t port);
+    int connect(IPAddress ip, uint16_t port, int32_t timeout);
+    int connect(const char *host, uint16_t port);
+    int connect(const char *host, uint16_t port, int32_t timeout);
+    size_t write(uint8_t data);
+    size_t write(const uint8_t *buf, size_t size);
+    size_t write_P(PGM_P buf, size_t size);
+    size_t write(Stream &stream);
+    int available();
+    int read();
+    int read(uint8_t *buf, size_t size);
+    int peek();
+    void flush();
+    void stop();
+    uint8_t connected();
+...
 
- #define PRIMITIVE_LIST \
-   X("DROP", DROP, tos = *sp; --sp) \
-   X("SWAP", SWAP, w = tos; tos = *sp; *sp = w) \
-   X("AND", AND, tos = tos & *sp; --sp) \
-   X("OR", OR, tos = tos | *sp; --sp) \
+Dynamic
+Linking
 
- enum {
- #define X(sname, name, code) OP_ ## name,
- PRIMITIVE_LIST
- #undef X
- };
+( Xlib functions / macros )
+c-function BlackPixel BlackPixel a n -- n
+c-function DefaultColormap DefaultColormap a n -- n
+c-function DefaultScreen DefaultScreen a -- n
+c-function RootWindow RootWindow a n -- n
+c-function WhitePixel WhitePixel a n -- n
+c-function XCheckMaskEvent XCheckMaskEvent a n a -- n
+c-function XCreateGC XCreateGC a n n a -- a
 
- for (;;) {
-   ir = ip[w];
-   ++ip;
-   switch (ir & 0xff) {
- #define X(sname, name, code) case OP_ ## name: code; break;
-     PRIMITIVE_LIST
- #undef X
-     default:
-       break;
-   }
-   break;
- }
+c-function XCreateImage XCreateImage a a n n n a n n n n -- a
+c-function XCreateSimpleWindow XCreateSimpleWindow a n n n n n n n n -- n
+c-function XDefaultDepth XDefaultDepth a n -- n
+c-function XDefaultVisual XDefaultVisual a n -- a
+c-function XDestroyImage XDestroyImage a -- void
+c-function XFlush XFlush a -- void
+
+c-function XLookupString XLookupString a a n a a -- n
+c-function XMapWindow XMapWindow a n -- void
+c-function XNextEvent XNextEvent a a -- void
+c-function XOpenDisplay XOpenDisplay a -- a
+c-function XPutImage XPutImage a n a a n n n n n n -- void
+c-function XSelectInput XSelectInput a n n -- void
+
+Structures
+
+( Accessors for members of XEvent )
+\c #define XEventSize() sizeof(XEvent)
+c-function XEventSize XEventSize -- n
+\c #define XEventType(e) (((XEvent*)(e))->type)
+c-function XEventType XEventType a -- n
+\c #define XEventConfigureWidth(e) (((XEvent*)(e))->xconfigure.width)
+c-function XEventConfigureWidth XEventConfigureWidth a -- n
+\c #define XEventConfigureHeight(e) (((XEvent*)(e))->xconfigure.height)
+c-function XEventConfigureHeight XEventConfigureHeight a -- n
+
+\c #define XEventKeyEvent(e) (&((XEvent*)(e))->xkey)
+c-function XEventKeyEvent XEventKeyEvent a -- a
+\c #define XEventKeycode(e) (((XEvent*)(e))->xkey.keycode)
+c-function XEventKeycode XEventKeycode a -- n
+
+\c #define XEventButton(e) (((XEvent*)(e))->xbutton.button)
+c-function XEventButton XEventButton a -- n
+\c #define XEventX(e) (((XEvent*)(e))->xmotion.x)
+c-function XEventX XEventX a -- n
+\c #define XEventY(e) (((XEvent*)(e))->xmotion.y)
+c-function XEventY XEventY a -- n
+\c #define XEventExposeCount(e) (((XEvent*)(e))->xexpose.count)
+c-function XEventExposeCount XEventExposeCount a -- n
+
+    🏗️
+   Code
+Generation
+
+CPU COMPLEXITY?
+      🙜
+ • Microarchitecture
+   • 16-byte blocks of code
+ • red-zones, floating point state
+ • SIMD
+ • 👻 Spectre 👻
 
 NOP
+
+  More than one
+way to do nothing!
 
 90
 6690
@@ -112,7 +204,199 @@ NOP DWORD ptr [EAX + 00000000H]
 NOP DWORD ptr [EAX + EAX*1 + 00000000H]
 66 NOP DWORD ptr [EAX + EAX*1 + 00000000H]
 
-Alignment
+  🛠️
+Trapped
+by Tools
+
+INTEL SYNTAX (nasm/yasm)
+     🙜
+instr   foo,segreg:[base+index*scale+disp]
+mov     eax,[ebx+20h]
+add     eax,[ebx+ecx*2h
+lea     eax,[ebx+ecx]
+sub     eax,[ebx+ecx*4h-20h]
+
+AT&T SYNTAX (GNU as)
+     🙜
+instr   %segreg:disp(base,index,scale),foo
+movl    0x20(%ebx),%eax
+addl    (%ebx,%ecx,0x2),%eax
+leal    (%ebx,%ecx),%eax
+subl    -0x20(%ebx,%ecx,0x4),%eax
+
+ESP32
+  🙜
+ • ESP-IDF Toolchain - 727MB
+   • LibC, RTOS, Wi-Fi, BLE
+   • Really needs Linux
+ • Arduino
+   • Easy to Install
+   • Package Manager
+   • Enlarge who can play
+
+WINDOWS RESOURCES
+       🙜
+ • .png x n → .ico
+ • .ico + .rc → .res / .obj
+ • .obj x m → .EXE
+
+S😎LD
+
+So How?
+
+INTERPRETER APPROACHES
+         🙜
+ • Words as functions
+ • Token threaded
+ • Computed Goto
+ 
+         MOVING FORTH
+              🙜
+https://www.bradrodriguez.com
+           /papers/moving1.htm
+
+DIRECT THREADED
+      🙜
+   (IP) -> W   fetch memory pointed by IP into "W" register
+   IP+2 -> IP  advance IP (assuming 2-byte addresses)
+   JP (W)      jump to the address in the W register
+
+INDIRECT THREADED
+       🙜
+   (IP) -> W  fetch memory pointed by IP into "W" register
+              ...W now holds address of the Code Field
+   IP+2 -> IP advance IP, just like a program counter
+              (assuming 2-byte addresses in the thread)
+   (W) ->  X  fetch memory pointed by W into "X" register
+              ...X now holds address of the machine code 
+   JP (X)     jump to the address in the X register
+
+Words as functions
+
+void add() {
+  tos += *sp;
+}
+
+memory[cfa] = &add;
+
+for(;;) {
+  code = (void (*)()) *ip++;
+  code();
+}
+
+0000000000000000 <add>:
+   0:   48 8b 05 00 00 00 00    mov    0x0(%rip),%rax        # 7 <add+0x7>
+   7:   48 8b 00                mov    (%rax),%rax
+   a:   48 01 05 00 00 00 00    add    %rax,0x0(%rip)        # 11 <add+0x11>
+  11:   c3                      retq
+  12:   66 66 2e 0f 1f 84 00    data16 nopw %cs:0x0(%rax,%rax,1)
+  19:   00 00 00 00
+  1d:   0f 1f 00                nopl   (%rax)
+
+ 430:   48 8d 42 08             lea    0x8(%rdx),%rax
+ 434:   48 8b 12                mov    (%rdx),%rdx
+ 437:   48 89 05 00 00 00 00    mov    %rax,0x0(%rip)        # 43e <function_threaded+0x3e>
+ 43e:   31 c0                   xor    %eax,%eax
+ 440:   ff 12                   callq  *(%rdx)
+ 442:   48 8b 15 00 00 00 00    mov    0x0(%rip),%rdx        # 449 <function_threaded+0x49>
+ 449:   eb e5                   jmp    430 <function_threaded+0x30>
+
+   ❌
+X-Macros
+
+X-MACROS
+   🙜
+ • Use the C Preprocessor
+ • Lists of data to build code
+ • Make the caller a parameter
+
+ #define PRIMITIVE_LIST \
+   X("DROP", DROP, tos = *sp; --sp) \
+   X("SWAP", SWAP, w = tos; tos = *sp; *sp = w) \
+   X("AND", AND, tos = tos & *sp; --sp) \
+   X("OR", OR, tos = tos | *sp; --sp) \
+
+ enum {
+ #define X(sname, name, code) OP_ ## name,
+ PRIMITIVE_LIST
+ #undef X
+ };
+
+FROM STENOFORTH
+      🙜
+ for (;;) {
+   ir = ip[w];
+   ++ip;
+   switch (ir & 0xff) {
+ #define X(sname, name, code) case OP_ ## name: code; break;
+     PRIMITIVE_LIST
+ #undef X
+     default:
+       break;
+   }
+   break;
+ }
+
+      🎟️
+Token Threaded
+
+GCC (token)
+    🙜
+ 3b0:   48 89 f0                mov    %rsi,%rax
+ 3b3:   48 89 d7                mov    %rdx,%rdi
+ 3b6:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
+ 3ba:   48 23 18                and    (%rax),%rbx
+ 3bd:   e9 66 ff ff ff          jmpq   328 <cforth_like+0x18>
+ 3c2:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
+    🙜
+ 328:   48 83 3f 07             cmpq   $0x7,(%rdi)
+ 32c:   48 8d 57 08             lea    0x8(%rdi),%rdx
+ 330:   77 2e                   ja     360 <cforth_like+0x50>
+ 332:   48 8b 07                mov    (%rdi),%rax
+ 335:   48 63 04 81             movslq (%rcx,%rax,4),%rax
+ 339:   48 01 c8                add    %rcx,%rax
+ 33c:   ff e0                   jmpq   *%rax
+ 33e:   66 90                   xchg   %ax,%ax
+    🙜
+ 360:   4c 89 c8                mov    %r9,%rax
+ 363:   4d 8d 49 f8             lea    -0x8(%r9),%r9
+ 367:   48 89 50 f8             mov    %rdx,-0x8(%rax)
+ 36b:   48 8b 7a c0             mov    -0x40(%rdx),%rdi
+ 36f:   eb b7                   jmp    328 <cforth_like+0x18>
+ 371:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
+
+CLANG (token)
+    🙜
+ 2f0:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
+ 2f4:   48 89 cf                mov    %rcx,%rdi
+ 2f7:   48 8d 4f 08             lea    0x8(%rdi),%rcx
+ 2fb:   48 8b 07                mov    (%rdi),%rax
+ 2fe:   48 83 c0 ff             add    $0xffffffffffffffff,%rax
+ 302:   48 83 f8 06             cmp    $0x6,%rax
+ 306:   77 14                   ja     31c <cforth_like+0x3c>
+ 308:   ff 24 c5 00 00 00 00    jmpq   *0x0(,%rax,8)
+    🙜
+ 31c:   48 89 4a f8             mov    %rcx,-0x8(%rdx)
+ 320:   48 83 c2 f8             add    $0xfffffffffffffff8,%rdx
+ 324:   48 8b 7f c8             mov    -0x38(%rdi),%rdi
+ 328:   eb cd                   jmp    2f7 <cforth_like+0x17>
+    🙜
+ 32a:   4c 23 06                and    (%rsi),%r8
+ 32d:   eb c1                   jmp    2f0 <cforth_like+0x10>
+ 32f:   4c 0b 06                or     (%rsi),%r8
+ 332:   eb bc                   jmp    2f0 <cforth_like+0x10>
+
+    💻↷ 
+Computed Goto
+
+memory[cfa] = (cell_t) && and;
+
+and:
+  tos &= *sp--;
+  NEXT;
+
+Must be in the
+same function!
 
  #define IDT_NEXT \
    w = (cell_t *) *ip++; \
@@ -150,102 +434,150 @@ Alignment
  CORE_WORDS
  #undef X
 
-GCC
+GCC (direct)
+     🙜
+ 2d0:   48 89 f0                mov    %rsi,%rax
+ 2d3:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
+ 2d7:   48 23 18                and    (%rax),%rbx
+ 2da:   48 89 f8                mov    %rdi,%rax
+ 2dd:   48 8d 7f 08             lea    0x8(%rdi),%rdi
+ 2e1:   48 8b 00                mov    (%rax),%rax
+ 2e4:   48 89 c1                mov    %rax,%rcx
+ 2e7:   ff e0                   jmpq   *%rax
+ 2e9:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
 
- 288:   48 89 f0                mov    %rsi,%rax
- 28b:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
- 28f:   48 23 18                and    (%rax),%rbx
- 292:   48 89 f8                mov    %rdi,%rax
- 295:   48 8d 7f 08             lea    0x8(%rdi),%rdi
- 299:   48 8b 00                mov    (%rax),%rax
- 29c:   48 89 c1                mov    %rax,%rcx
- 29f:   ff e0                   jmpq   *%rax
- 2a1:   0f 1f 80 00 00 00 00    nopl   0x0(%rax)
+GCC (indirect)
+     🙜
+  c0:   48 89 f8                mov    %rdi,%rax
+  c3:   48 8d 7f 08             lea    0x8(%rdi),%rdi
+  c7:   48 8b 00                mov    (%rax),%rax
+  ca:   48 89 c1                mov    %rax,%rcx
+  cd:   48 8b 00                mov    (%rax),%rax
+  d0:   ff e0                   jmpq   *%rax
+  d2:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
+     🙜
+ 160:   48 89 f0                mov    %rsi,%rax
+ 163:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
+ 167:   48 23 18                and    (%rax),%rbx
+ 16a:   e9 51 ff ff ff          jmpq   c0 <indirect_threaded+0x80>
+ 16f:   90                      nop
 
- 120:   48 89 f0                mov    %rsi,%rax
- 123:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
- 127:   48 23 18                and    (%rax),%rbx
- 12a:   e9 51 ff ff ff          jmpq   80 <indirect_threaded+0x80>
- 12f:   90                      nop
-
-  80:   48 89 f8                mov    %rdi,%rax
-  83:   48 8d 7f 08             lea    0x8(%rdi),%rdi
-  87:   48 8b 00                mov    (%rax),%rax
-  8a:   48 89 c1                mov    %rax,%rcx
-  8d:   48 8b 00                mov    (%rax),%rax
-  90:   ff e0                   jmpq   *%rax
-  92:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
-
- 370:   48 89 f0                mov    %rsi,%rax
- 373:   48 89 d7                mov    %rdx,%rdi
- 376:   48 8d 76 f8             lea    -0x8(%rsi),%rsi
- 37a:   48 23 18                and    (%rax),%rbx
- 37d:   e9 66 ff ff ff          jmpq   2e8 <cforth_like+0x18>
- 382:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
-
- 32a:   4c 23 06                and    (%rsi),%r8
- 32d:   eb c1                   jmp    2f0 <cforth_like+0x10>
-
-CLANG
-
+CLANG (indirect)
+      🙜
   d0:   48 23 06                and    (%rsi),%rax
   d3:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
   d7:   48 8b 0f                mov    (%rdi),%rcx
   da:   48 83 c7 08             add    $0x8,%rdi
   de:   ff 21                   jmpq   *(%rcx)
 
+CLANG (direct)
+     🙜
  240:   48 23 06                and    (%rsi),%rax
  243:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
  247:   48 8b 0f                mov    (%rdi),%rcx
  24a:   48 83 c7 08             add    $0x8,%rdi
  24e:   ff e1                   jmpq   *%rcx
 
- 2f0:   48 83 c6 f8             add    $0xfffffffffffffff8,%rsi
- 2f4:   48 89 cf                mov    %rcx,%rdi
- 2f7:   48 8d 4f 08             lea    0x8(%rdi),%rcx
- 2fb:   48 8b 07                mov    (%rdi),%rax
- 2fe:   48 83 c0 ff             add    $0xffffffffffffffff,%rax
- 302:   48 83 f8 06             cmp    $0x6,%rax
- 306:   77 14                   ja     31c <cforth_like+0x3c>
- 308:   ff 24 c5 00 00 00 00    jmpq   *0x0(,%rax,8)
- 30f:   4c 89 46 08             mov    %r8,0x8(%rsi)
- 313:   48 83 c6 08             add    $0x8,%rsi
- 317:   48 89 cf                mov    %rcx,%rdi
- 31a:   eb db                   jmp    2f7 <cforth_like+0x17>
- 31c:   48 89 4a f8             mov    %rcx,-0x8(%rdx)
- 320:   48 83 c2 f8             add    $0xfffffffffffffff8,%rdx
- 324:   48 8b 7f c8             mov    -0x38(%rdi),%rdi
- 328:   eb cd                   jmp    2f7 <cforth_like+0x17>
+  🐏
+Memory
+ Model
 
-memory[1] = (cell_t) && and;
+MEMORY CONSIDERATIONS
+         🙜
+ • OS Memory is big and full of faults
+ • Address Space Layout Randomization
+ • Relocatable Code
 
-and:
-  tos &= *sp--;
-  NEXT;
+MEMORY MODELS
+     🙜
+ • Classic EForth 16-bit
+   • poke / peek outside
+   • 8-bit wrap around stacks
+ • Win32Forth
+   • Base Address in EDI
+ • Direct (Gforth)
+   • Signal handler
 
-         MOVING FORTH
-              ❦
-https://www.bradrodriguez.com
-           /papers/moving1.htm
+    📕
+ Boostrap
+Dictionary
 
-DIRECT THREADED
-   (IP) -> W   fetch memory pointed by IP into "W" register
-   IP+2 -> IP  advance IP (assuming 2-byte addresses)
-   JP (W)      jump to the address in the W register
+BOOSTRAP APPROACHES
+        🙜
+ • Generate in Forth (which one?)
+ • Generate in Python (Dr. Ting's early EForth)
+ • Generate in JavaScript (Stenoforth)
+ • Generate in C (Later EForth)
 
-INDIRECT THREADED
-   (IP) -> W  fetch memory pointed by IP into "W" register
-              ...W now holds address of the Code Field
-   IP+2 -> IP advance IP, just like a program counter
-              (assuming 2-byte addresses in the thread)
-   (W) ->  X  fetch memory pointed by W into "X" register
-              ...X now holds address of the machine code 
-   JP (X)     jump to the address in the X register
+  X("+", PLUS, top += stack[(unsigned char)S--]) \
+  X("INVERSE", INVERSE, top = -top-1) \
+  X("NEGATE", NEGATE, top = 0 - top) \
+  ...
+ 
+ #define MACRO_LIST \
+   X(BEGIN, pushR=P) \
+   X(AGAIN, data[P++]=BRANCH; data[P++]=popR*sizeof(cell_t)) \
+   X(UNTIL, data[P++]=QBRANCH; data[P++]=popR*sizeof(cell_t)) \
+   X(WHILE, data[P++]=QBRANCH; data[P++]=0; k=popR; pushR=(P-1); pushR=k) \
+   X(REPEAT, data[P++]=BRANCH; data[P++]=popR*sizeof(cell_t); \
+     data[popR]=P*sizeof(cell_t)) \
+   X(IF, data[P++]=QBRANCH; pushR=P; data[P++]=0) \
+   X(ELSE, data[P++]=BRANCH; data[P++]=0; \
+     data[popR]=P*sizeof(cell_t); pushR=P-1) \
+   ...
 
- trees
+int LBRAC=COLON_IMMEDIATE("[", DOLIT,INTER,TEVAL,STORE,EXIT);
+int DOTOK=COLON(".OK", CR,DOLIT,INTER,TEVAL,AT,EQUAL,IF,
+                  TOR,TOR,TOR,DUP,DOT,RFROM,DUP,DOT,RFROM,DUP,DOT,
+                  RFROM,DUP,DOT,DOTQ," ok> ",THEN,EXIT);
+int EVAL=COLON("EVAL", LBRAC,BEGIN,TOKEN,DUP,AT,WHILE,TEVAL,ATEXE,
+               REPEAT,DROP,NOP,EXIT);
+int QUIT=COLON("QUIT", LBRAC,BEGIN,DOTOK,QUERY,EVAL,AGAIN,EXIT);
+
+ #define COLON_WITH_FLAGS(intOLON(...) COLON_WITH_FLAGS(0, __VA_ARGS__)
+ #define COLON_IMMEDIATE(...) COLON_WITH_FLAGS(IMEDD, __VA_ARGS__)
+
+int COLON_WITH_FLAGS(int flags, const char *name, ...) {
+  HEADER(flags, name);
+  int addr=IP;
+  P=IP/sizeof(cell_t);
+  data[P++] = as_DOLIST;
+  va_list argList;
+  va_start(argList, name);
+  ...
+
+IMPLEMENTATIONS
+      🙜
+ • Stenoforth
+   • github.com/flagxor/stenoforth
+ • ESPForth (EForth for ESP32)
+   • github.com/flagxor/espforth
+     • may_54 - with forth boot words in a data file
+     • eforth63 - web support, with forth words built in C, macros
+     • bg - web support, 2 core support, boot words in a data file
+     • master - builds with the esp-idf toolchain (not arduino),
+                or native linux
+
+@stenoforth.png
+<img src="stenoforth.png">
+
+   What's up
+with the slides?
+
+PRESENTATION FORMAT
+         🙤
+ • Takahashi Method
+   • Minimalistic presentation style
+   • suckless →  sent →  websent
+ • Focus on content
+   • Unicode text file as input
+   • Show each paragraph fullscreen
+   • @image.png for full page images
+
+trees
 🌲🌲🌲🌲
  
- evil
+evil
 🙈🙉🙊
  
 ♤ spades
@@ -253,10 +585,10 @@ INDIRECT THREADED
 ♧ clubs
 ♦ diamonds
 
- trees
+trees
 🌲🌲🌲🌲
 
- evil
+evil
 🙈🙉🙊
 
 ♤ spades

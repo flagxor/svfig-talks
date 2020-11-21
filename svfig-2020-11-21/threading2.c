@@ -88,3 +88,29 @@ CORE_WORDS
     }
   }
 }
+
+static cell_t TOS = 0;
+static cell_t *SP;
+static cell_t *IP;
+
+static void add() {
+  TOS += *SP;
+}
+
+static void load() {
+  TOS = * (cell_t *) TOS;
+}
+
+void function_threaded(cell_t *memory, cell_t *dstack, cell_t *start) {
+  memory[0] = (cell_t) &add;
+  memory[1] = (cell_t) &load;
+
+  SP = dstack;
+  TOS = *SP--;
+  IP = start;
+
+  for (;;) {
+    cell_t *w = (cell_t *) *IP++;
+    ((void (*)()) *w)();
+  }
+}
