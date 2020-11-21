@@ -12,6 +12,7 @@ var WebSent;
 var slides = [];
 var activeSlide = -1;
 var activeElement = null;
+var holder = null;
 var touchStartX = 0;
 var touchLastX = 0;
 var refresh = false;
@@ -31,9 +32,20 @@ function Load(data) {
   if (page.length) {
     pages.push(page);
   }
-  // Process into slides.
+  // Setup overall document.
   document.title = pages[0][0];
   document.body.style.backgroundColor = BACKGROUND;
+  holder = document.createElement('div');
+  holder.style.backgroundColor = BACKGROUND;
+  holder.style.color = FOREGROUND;
+  holder.style.fontFamily = FONT;
+  holder.style.margin = '0';
+  holder.style.border = '0';
+  holder.style.padding = '0';
+  holder.width = '100%';
+  holder.height = '100%';
+  document.body.appendChild(holder);
+  // Process into slides.
   for (var i = 0; i < pages.length; ++i) {
     if (pages[i].length && pages[i][0][0] == '@') {
       var element = document.createElement('img');
@@ -42,8 +54,6 @@ function Load(data) {
     } else {
       var element = document.createElement('pre');
       element.innerHTML = pages[i].join('\n');
-      element.style.color = FOREGROUND;
-      element.style.fontFamily = FONT;
       element.style.lineHeight = LINE_SPACING * 100 + '%';
     }
     element.style.position = 'absolute';
@@ -79,10 +89,10 @@ function Goto(n) {
   var width = window.innerWidth * USABLE;
   var height = window.innerHeight * USABLE;
 
-  if (activeElement) {
-    document.body.replaceChild(slides[n], activeElement);
+  if (activeElement === null) {
+    holder.appendChild(slides[0]);
   } else {
-    document.body.appendChild(slides[n]);
+    holder.replaceChild(slides[n], activeElement);
   }
   activeElement = slides[n];
   var e = activeElement;
@@ -142,7 +152,7 @@ window.addEventListener('keydown', function(e) {
   } else if ([39, 13, 40, 74, 76, 34, 78, 32].indexOf(e.keyCode) >= 0) {
     Goto(activeSlide + 1);
   } else if ([70].indexOf(e.keyCode) >= 0) {  // fullscreen
-    document.body.requestFullscreen();
+    holder.requestFullscreen();
   }
   e.preventDefault();
 });
