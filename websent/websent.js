@@ -157,11 +157,10 @@ window.addEventListener('keydown', function(e) {
   e.preventDefault();
 });
 
-window.addEventListener('dblclick', function(e) {
-  holder.requestFullscreen();
-});
-
 window.addEventListener('touchstart', function(e) {
+  if (e.targetTouches.length > 1) {
+    holder.requestFullscreen();
+  }
   touchStartX = e.targetTouches[0].screenX;
   touchLastX = touchStartX;
   e.preventDefault();
