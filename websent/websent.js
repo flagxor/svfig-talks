@@ -90,7 +90,7 @@ function Goto(n) {
   var height = window.innerHeight * USABLE;
 
   if (activeElement === null) {
-    holder.appendChild(slides[0]);
+    holder.appendChild(slides[n]);
   } else {
     holder.replaceChild(slides[n], activeElement);
   }
