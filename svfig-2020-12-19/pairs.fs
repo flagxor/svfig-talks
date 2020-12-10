@@ -12,13 +12,13 @@ variable pair-brk   variable pair-base   pair-heap pair-base !
 : car ( p -- n ) @ ;    : cdr ( p -- n ) cell+ @ ;
 : car! ( n p -- ) ! ;   : cdr! ( n p -- ) cell+ ! ;
 
-defer gc
+defer gc   create nil
 : full? ( -- f ) pair-brk @ pair-count >= ;
 : reserve   full? if gc then ;
 : pair-rel ( n -- p ) pairs pair-base @ + ;
 : pair-allot ( -- p ) pair-brk @ pair-rel 1 pair-brk +! ;
 : pair ( x y -- p ) reserve pair-allot dup dup >r >r cdr! r> car! r> ;
-: unpair ( p -- x y ) dup car swap cdr ;
+: unpair ( p -- x y ) dup car swap cdr ;   : cons pair ;
 
 : bind ( a xt -- p ) pair ;
 : bind' ( a -- p ) ' bind ;
@@ -27,7 +27,7 @@ defer gc
 
 : foreach' ( l op -- last )
   begin over pair? while dup >r >r unpair r> swap >r invoke r> r> repeat drop ;
-: foreach ( l op -- ) foreach' throw ;
+: foreach ( l op -- ) foreach' nil <> throw ;
 
 : ^pair swap pair ;
 : reverse-append ( a b -- l ) swap ['] ^pair foreach ;
@@ -44,9 +44,9 @@ defer gc
   nilpair dup >r ['] filter1 bind bind foreach r> car reverse ;
 : range ( a b -- p ) 1- nil -rot ?do i ^pair -1 +loop ;
 
-variable roots
+variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
-: root create here 0 , +root ;
+: root create here nil , +root ;
 
 variable broken-heart
 : relocate ( a -- )
@@ -62,7 +62,7 @@ variable broken-heart
 : rootwalk roots preserve roots @ ['] preserve foreach ;
 : newspace   0 pair-brk !   pair-base @ pair-heap =
   if pair-heap pair-count pairs + else pair-heap then pair-base ! ;
-: collect   newspace rpwalk spwalk rootwalk newfixup 
+: collect   newspace rpwalk spwalk rootwalk newfixup
             full? if abort" heap full" then ;
 ' collect is gc   : used pair-brk @ ;
 
@@ -74,7 +74,7 @@ variable list-depth   variable is-dotted
 : ))   depth list-depth @ - ?dot list' >r is-dotted ! list-depth ! r> ;
 : ..   -1 is-dotted ! ;
 : l. recursive dup pair? if
-  ." ( " ['] l. foreach' dup if ." . " l. else drop then ." ) " else . then ;
+  ." ( " ['] l. foreach' dup nil = if drop else ." . " l. then ." ) " else . then ;
 
 ( --------------------- )
 
@@ -84,5 +84,11 @@ variable list-depth   variable is-dotted
 : prime?
   dup 2 < if drop 0 exit then
   dup 2 ?do dup i mod 0= if unloop drop 0 exit then loop ;
+: digits ( n -- l ) nil swap begin base @ /mod >r ^pair r> dup 0= until drop ;
+: l= ( a b -- f ) recursive dup pair? if 2dup car swap car l= >r cdr swap cdr l= r> and else = then ;
+
+: palindrome? ( n -- f ) digits dup reverse l= ;
+: palindromes 0 100000 range ['] palindrome? filter l. ;
 
 : test sample sample append dup append dup ['] square map append dup l. sum . ;
+
