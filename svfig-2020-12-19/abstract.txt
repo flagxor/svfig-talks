@@ -1,0 +1,8 @@
+Lisp-y Data Abstraction in Forth (now without leaks!)
+-----------------------------------------------------
+Back in Feb 2019, I explored how Forth can tackle SICP style data
+abstraction over rational numbers, complex numbers, and polynomials.
+However, in the interest of time, I left out the implementation of
+a garbage collector (instead leaking like a sieve). I'll now correct
+that omission, demonstrating a Cheney collector in Forth and how to
+make closures that don't leak memory.
