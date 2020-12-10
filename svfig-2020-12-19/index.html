@@ -16,9 +16,13 @@ December 19, 2020
 
 Introduction
      🙜
- • Lisp's pair data structure is composable
- • When combined with lambda expressions
+ • Lisp pairs as a data abstraction
+   • Closed means of combination
+ • Building a GC in Forth
+ • Mapping, Filtering, Aggregating
+ • Binding and closures
 
+Everything is a pair
 
 (car (cons x y)) = x
 (cdr (cons x y)) = y
@@ -30,8 +34,6 @@ Introduction
 (cons 1 (cons 2 (cons 3 nil)))
              =
           ( 1 2 3 )
-
-((1 1) (2 4) (3 9) (4 16))
 
 +---+---+
 | 1 | o |
@@ -45,12 +47,20 @@ Introduction
         | 3 |NIL|
         +---+---+
 
+(cons 1 (cons 2 3))
+             =
+          ( 1 2 . 3 )
+
+((1 1) (2 4) (3 9) (4 16))
+
 ( x y )  pair  ( p )
   ( p ) unpair ( x y )
 
-1000000 constant pair-count   : pairs ( n -- n ) 2* cells ;
+1000000 constant pair-count
+: pairs ( n -- n ) 2* cells ;
 pair-count pairs 2* allocate throw constant pair-heap
-variable pair-brk   variable pair-base   pair-heap pair-base !
+variable pair-brk   variable pair-base
+pair-heap pair-base !
 
 : pair+? ( p -- f ) pair-heap - dup 0>= swap pair-count pairs 2* < and ;
 : pair? ( p -- f ) pair-base @ - dup 0>= swap pair-count pairs < and ;
@@ -121,22 +131,11 @@ variable list-depth   variable is-dotted
 : ..   -1 is-dotted ! ;
 : l. recursive dup pair? if
   ." ( " ['] l. foreach' dup nil = if drop else ." . " l. then ." ) " else . then ;
-
-( --------------------- )
-
-: sample (( 1 2 3 4 5 6 7 8 9 )) ;
-: square dup * ;
-: sum 0 swap ['] + foreach ;
-: prime?
-  dup 2 < if drop 0 exit then
-  dup 2 ?do dup i mod 0= if unloop drop 0 exit then loop ;
-: digits ( n -- l ) nil swap begin base @ /mod >r ^pair r> dup 0= until drop ;
 : l= ( a b -- f ) recursive dup pair? if 2dup car swap car l= >r cdr swap cdr l= r> and else = then ;
 
+: digits ( n -- l ) nil swap begin base @ /mod >r ^pair r> dup 0= until drop ;
 : palindrome? ( n -- f ) digits dup reverse l= ;
-: palindromes 0 100000 range ['] palindrome? filter l. ;
-
-: test sample sample append dup append dup ['] square map append dup l. sum . ;
+: palindromes   0 100000 range ['] palindrome? filter l. ;
 
    What's up
 with the slides?

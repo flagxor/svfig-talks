@@ -75,20 +75,26 @@ variable list-depth   variable is-dotted
 : ..   -1 is-dotted ! ;
 : l. recursive dup pair? if
   ." ( " ['] l. foreach' dup nil = if drop else ." . " l. then ." ) " else . then ;
+: l= ( a b -- f ) recursive dup pair? if 2dup car swap car l= >r cdr swap cdr l= r> and else = then ;
+
+( --------------------- )
+
+: sum ( l -- n ) 0 swap ['] + foreach ;
+: length' drop 1+ ;
+: length ( l -- n ) 0 swap ['] length' foreach ;
+: average ( l -- n ) dup sum swap length / ;
 
 ( --------------------- )
 
 : sample (( 1 2 3 4 5 6 7 8 9 )) ;
 : square dup * ;
-: sum 0 swap ['] + foreach ;
 : prime?
   dup 2 < if drop 0 exit then
   dup 2 ?do dup i mod 0= if unloop drop 0 exit then loop ;
-: digits ( n -- l ) nil swap begin base @ /mod >r ^pair r> dup 0= until drop ;
-: l= ( a b -- f ) recursive dup pair? if 2dup car swap car l= >r cdr swap cdr l= r> and else = then ;
 
+: digits ( n -- l ) nil swap begin base @ /mod >r ^pair r> dup 0= until drop ;
 : palindrome? ( n -- f ) digits dup reverse l= ;
-: palindromes 0 100000 range ['] palindrome? filter l. ;
+: palindromes  0 100000 range ['] palindrome? filter ;
 
 : test sample sample append dup append dup ['] square map append dup l. sum . ;
 
