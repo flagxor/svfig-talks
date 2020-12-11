@@ -171,6 +171,7 @@ variable roots   nil roots !
 : root value lastxt +root ;
 
 nil root foo
+my-list to foo
 
 variable broken-heart
 : relocate ( a -- )
@@ -459,6 +460,16 @@ a b c ' foo bind bind bind
 96169 96269 96369 96469 96569 96669 96769 96869 96969 97079 97179 97279 97379
 97479 97579 97679 97779 97879 97979 98089 98189 98289 98389 98489 98589 98689
 98789 98889 98989 99099 99199 99299 99399 99499 99599 99699 99799 99899 99999 ) 
+
+palindromes length l.
+  🙤
+1099
+
+CAVEATS
+   🙤
+ • Numbers in range of heap _unstable_
+ • Non-pairs, not freed
+ • Concurrency & Performance
 
    What's up
 with the slides?
