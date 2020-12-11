@@ -21,32 +21,15 @@ defer gc   create nil
 : unpair ( p -- x y ) dup car swap cdr ;   : cons pair ;
 
 : bind ( a xt -- p ) pair ;
-: bind' ( a -- p ) ' bind ;
-: bind['] ( a -- p ) ' postpone bind ; immediate
 : invoke ( p/a -- ) begin dup pair? while unpair repeat execute ;
 
 : foreach' ( l op -- last )
   begin over pair? while dup >r >r unpair r> swap >r invoke r> r> repeat drop ;
 : foreach ( l op -- ) foreach' nil <> throw ;
 
-: ^pair swap pair ;
-: reverse-append ( a b -- l ) swap ['] ^pair foreach ;
-: reverse ( l -- l' ) nil reverse-append ;
-: append ( a b -- l ) >r reverse r> reverse-append ;
-
-: nilpair nil nil pair ;
-: prepend! ( a p -- ) dup >r car pair r> car! ;
-: map1 ( a op p -- ) >r invoke r> prepend! ;
-: map ( l op -- l' ) nilpair dup >r ['] map1 bind bind foreach r> car reverse ;
-: filter1 ( a op p -- )
-  >r over >r invoke r> r> rot if prepend! else 2drop then ;
-: filter ( l op -- l' )
-  nilpair dup >r ['] filter1 bind bind foreach r> car reverse ;
-: range ( a b -- p ) 1- nil -rot ?do i ^pair -1 +loop ;
-
 variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
-: root create here nil , +root ;
+: root value lastxt +root ;
 
 variable broken-heart
 : relocate ( a -- )
@@ -66,22 +49,43 @@ variable broken-heart
             full? if abort" heap full" then ;
 ' collect is gc   : used pair-brk @ ;
 
-: list' ( .. b n -- p ) 0 ?do pair loop ;
-: list ( .. n -- p ) nil swap list' ;
+: ^pair swap pair ;
+: reverse-append ( a b -- l ) swap ['] ^pair foreach ;
+: reverse ( l -- l' ) nil reverse-append ;
+: append ( a b -- l ) >r reverse r> reverse-append ;
+
+: chain1 ( a b -- ) >r invoke r> invoke ;
+: chain ( a b -- p ) ['] chain1 bind bind ;
+
+: nilpair nil nil pair ;
+: prepend! ( a p -- ) dup >r car pair r> car! ;
+: map1 ( a op p -- ) >r invoke r> prepend! ;
+: map ( l op -- l' ) nilpair dup >r ['] map1 bind bind foreach r> car reverse ;
+: filter1 ( a op p -- )
+  >r over >r invoke r> r> rot if prepend! else 2drop then ;
+: filter ( l op -- l' )
+  nilpair dup >r ['] filter1 bind bind foreach r> car reverse ;
+: range ( a b -- p ) 1- nil -rot ?do i ^pair -1 +loop ;
+
+: list1 ( .. b n -- p ) 0 ?do pair loop ;
+: list ( .. n -- p ) nil swap list1 ;
 variable list-depth   variable is-dotted
 : ?dot ( pxn n ) is-dotted @ 0= if nil swap else 1- then ;
 : ((   list-depth @ is-dotted @ 0 is-dotted ! depth list-depth ! ;
-: ))   depth list-depth @ - ?dot list' >r is-dotted ! list-depth ! r> ;
+: ))   depth list-depth @ - ?dot list1 >r is-dotted ! list-depth ! r> ;
 : ..   -1 is-dotted ! ;
 : l. recursive dup pair? if
-  ." ( " ['] l. foreach' dup nil = if drop else ." . " l. then ." ) " else . then ;
+  ." ( " ['] l. foreach' dup nil = if
+    drop else ." . " l. then ." ) "
+  else
+    dup nil = if ." nil " else . then
+  then ;
 : l= ( a b -- f ) recursive dup pair? if 2dup car swap car l= >r cdr swap cdr l= r> and else = then ;
 
 ( --------------------- )
 
 : sum ( l -- n ) 0 swap ['] + foreach ;
-: length' drop 1+ ;
-: length ( l -- n ) 0 swap ['] length' foreach ;
+: length ( l -- n ) 0 swap ['] drop ['] 1+ chain foreach ;
 : average ( l -- n ) dup sum swap length / ;
 
 ( --------------------- )
@@ -97,4 +101,3 @@ variable list-depth   variable is-dotted
 : palindromes  0 100000 range ['] palindrome? filter ;
 
 : test sample sample append dup append dup ['] square map append dup l. sum . ;
-
