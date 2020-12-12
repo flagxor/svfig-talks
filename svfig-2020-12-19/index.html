@@ -109,7 +109,7 @@ defer gc   create nil
  🙜
 variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
-: root value lastxt +root ;
+: root value lastxt >body +root ;
 variable broken-heart
 : relocate ( a -- )
   dup @ unpair pair over @ broken-heart over car! over swap cdr! swap ! ;
@@ -168,7 +168,7 @@ defer gc   create nil
 
 variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
-: root value lastxt +root ;
+: root value lastxt >body +root ;
 
 nil root foo
 my-list to foo

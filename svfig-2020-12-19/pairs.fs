@@ -29,7 +29,7 @@ defer gc   create nil
 
 variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
-: root value lastxt +root ;
+: root value lastxt >body +root ;
 
 variable broken-heart
 : relocate ( a -- )
