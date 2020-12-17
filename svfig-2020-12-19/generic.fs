@@ -1,9 +1,8 @@
 #! /usr/bin/env gforth
 
+needs pairs.fs
+
 ( Symbols and Pairs )
-: cons ( a b -- c ) noname create , , latestxt ;
-: car ( c -- a ) execute cell+ @ ;
-: cdr ( c -- b ) execute @ ;
 : atom   create latest , ;
 : atom>string ( x -- a n ) @ name>string ;
 : atom. ( x -- ) atom>string type space ;
@@ -118,6 +117,8 @@ atom 'rational   atom 'polynomial
 : make-number 'make 'number get execute ;
 : make-float 'make 'float get execute ;
 : make-complex 'make 'complex get execute ;
+: make-rect-complex rect>z make-complex ;
+: make-polar-complex polar>z make-complex ;
 : make-rational 'make 'rational get execute ;
 : make-poly 'make 'polynomial get execute ;
 
@@ -214,8 +215,8 @@ private[[
 : coeff car ;
 : order cdr ;
 : +terms ( L1 L2 -- L )
-   dup 0= if drop exit then
-   over 0= if nip exit then
+   dup null? if drop exit then
+   over null? if nip exit then
    2dup car swap car swap
    2dup order swap order swap
    2dup > if 2drop drop -rot swap cdr recurse cons exit then
@@ -225,30 +226,30 @@ private[[
 ;
 : add-poly   dup variable -rot term-list swap term-list +terms make-poly ;
 : t*terms ( t L -- L )
-   dup 0= if nip exit then
+   dup null? if nip exit then
    over swap ( t t L )
    dup >r car 2dup order swap order +
    -rot coeff swap coeff g* swap make-term
    swap r> cdr recurse cons
 ;
 : *terms ( L1 L2 -- L )
-   dup 0= if nip exit then
+   dup null? if nip exit then
    2dup car swap t*terms
    -rot cdr recurse +terms
 ;
 : mul-poly   dup variable -rot term-list swap term-list *terms make-poly ;
 : print ." [ "
   dup variable swap term-list
-  begin dup while
+  begin dup null? 0= while
     dup car coeff g. ." " over atom. ." ^" dup car order .
-    cdr dup if ." + " then
+    cdr dup null? 0= if ." + " then
   repeat
   2drop ." ] "
 ;
 : tag 'polynomial attach-tag ;
 : add add-poly tag ;
 : mul mul-poly tag ;
-: make cons 0 cons make-poly tag ;
+: make make-poly tag ;
 
 ' add '+ 'polynomial put
 ' mul '* 'polynomial put

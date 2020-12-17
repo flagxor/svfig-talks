@@ -89,7 +89,7 @@ pair-heap pair-base !
   pair-base @ - dup 0>= swap pair-count pairs < and ;
 : old? ( p -- f) dup pair+? swap pair? 0= and ;
  🙜
-defer gc   create nil
+defer gc   create nil   : null? nil = ;
 : full? ( -- f ) pair-brk @ pair-count >= ;
 : reserve   full? if gc then ;
 : pair-rel ( n -- p ) pairs pair-base @ + ;
@@ -105,7 +105,7 @@ defer gc   create nil
 : foreach' ( l op -- last )
   begin over pair? while dup >r >r unpair
     r> swap >r invoke r> r> repeat drop ;
-: foreach ( l op -- ) foreach' nil <> throw ;
+: foreach ( l op -- ) foreach' null? 0= throw ;
  🙜
 variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
@@ -151,7 +151,7 @@ pair-heap pair-base !
 
 Collection
 
-defer gc   create nil
+defer gc   create nil   : null? nil = ;
 : full? ( -- f ) pair-brk @ pair-count >= ;
 : reserve   full? if gc then ;
 
@@ -215,10 +215,10 @@ Printing
 
 : l. recursive dup pair? if
     ." ( " ['] l. foreach'
-    dup nil = if drop else ." . " l. then
+    dup null? if drop else ." . " l. then
     ." ) "
   else
-    dup nil = if ." nil " else . then
+    dup null? if ." nil " else . then
   then ;
 
 : list1 ( .. b n -- p )
@@ -277,7 +277,7 @@ a b c ' foo bind bind bind
     dup >r >r unpair r> swap >r
     invoke r> r> repeat drop ;
 : foreach ( l op -- )
-  foreach' nil <> throw ;
+  foreach' null? 0= throw ;
 
 : sum ( l -- n )
   0 swap ['] + foreach ;

@@ -12,7 +12,7 @@ variable pair-brk   variable pair-base   pair-heap pair-base !
 : car ( p -- n ) @ ;    : cdr ( p -- n ) cell+ @ ;
 : car! ( n p -- ) ! ;   : cdr! ( n p -- ) cell+ ! ;
 
-defer gc   create nil
+defer gc   create nil   : null? nil = ;
 : full? ( -- f ) pair-brk @ pair-count >= ;
 : reserve   full? if gc then ;
 : pair-rel ( n -- p ) pairs pair-base @ + ;
@@ -25,7 +25,7 @@ defer gc   create nil
 
 : foreach' ( l op -- last )
   begin over pair? while dup >r >r unpair r> swap >r invoke r> r> repeat drop ;
-: foreach ( l op -- ) foreach' nil <> throw ;
+: foreach ( l op -- ) foreach' null? 0= throw ;
 
 variable roots   nil roots !
 : +root ( a -- ) roots @ pair roots ! ;
@@ -75,10 +75,10 @@ variable list-depth   variable is-dotted
 : ))   depth list-depth @ - ?dot list1 >r is-dotted ! list-depth ! r> ;
 : ..   -1 is-dotted ! ;
 : l. recursive dup pair? if
-  ." ( " ['] l. foreach' dup nil = if
+  ." ( " ['] l. foreach' dup null? if
     drop else ." . " l. then ." ) "
   else
-    dup nil = if ." nil " else . then
+    dup null? if ." nil " else . then
   then ;
 : l= ( a b -- f ) recursive dup pair? if 2dup car swap car l= >r cdr swap cdr l= r> and else = then ;
 
