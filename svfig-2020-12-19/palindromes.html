@@ -105,3 +105,15 @@ palindromes length l.
 palindromes average l.
   🙤
 45536
+
+: hdpalindrome? dup hex palindrome? 
+                swap decimal palindrome? and ;
+0 100000 range ' hdpalindrome? filter l.
+  🙤
+( 0 1 2 3 4 5 6 7 8 9 11 353 626 787 979
+  1991 3003 39593 41514 90209 94049 96369 98689 )
+
+0 100000 range ' hdpalindrome? filter hex l.
+  🙤
+( 0 1 2 3 4 5 6 7 8 9 B 161 272 313 3D3 7C7
+  BBB 9AA9 A22A 16061 16F61 17871 18181 )
