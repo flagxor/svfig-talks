@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+BACKGROUND = '#ffc';
+FOREGROUND = '#000';
+</script><pre>
+
+  Arduino ESP-32
+        &
+  EForth Install
+        🙜
+December 19, 2020
+
+Arduino Download
+     🙜
+https://www.arduino.cc/en/software
+
+ • Linux
+   • zip file
+ • Windows
+   • Early Windows - zip file
+   • Most - .exe Installer
+   • Win8/10 - Store (or above)
+ • OSX
+   • .dmg
+
+File > Preferences > Additional Boards URL
+       🙜
+https://dl.espressif.com/dl/package_esp32_index.json
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+Install esp32
+by Espressif Systems
+
+EForth Download
+     🙜
+https://eforth.appspot.com/
+
+Board Config
+     🙜
+ • Select Port - COM3 etc.
+ • Select Board - ESP32 Dev Board
+ • Partition Scheme - Default 4MB with spiffs
+                     (1.2MB APP/1.5MB SPIFFS)
+
+Web UI
+     🙜
+ • z" NETWORK-NAME" z" PASSWORD" wifi
+ • serve
+ • z" NETWORK-NAME" z" PASSWORD" webui
+
+Autoexec
+     🙜
+ • r| z" NETWORK-NAME" z" PASSWORD" webui| z>s s" /spiffs/autoexec.fs" dump-file
+ • s" /spiffs/autoexec.fs" delete-file
+
+ QUESTIONS?
+    ⚘
+thank you!
