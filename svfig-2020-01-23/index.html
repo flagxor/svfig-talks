@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+BACKGROUND = '#ccc';
+FOREGROUND = '#f40';
+</script><pre>
+
+    µEforth
+       🙜
+  Brad Nelson
+       🙜
+January 23, 2021
+
+Introduction
+    🙜
+ • TODO
+
+PARSE ( ch -- a n )
+S>NUMBER? ( a n -- n f | 0 )
+CREATE ( "name" -- )
+FIND ( a n -- xt | 0 )
+EVALUATE1 ( -- )
+QUIT ( -- )
+
+PARSE ( ch -- a n )
+    🙜
+'TIB ---> [...............]
+              |           |
+            >IN        #TIB
+
+S>NUMBER? ( a n -- n f | 0 )
+    🙜
+   BASE
+
+CREATE ( "name" -- )
+    🙜
+   LAST
+
+FIND ( a n -- xt | 0 )
+   🙜
+'NOTFOUND
+
+EVALUATE1 ( -- )
+    🙜
+  STATE
+
+0= 0< + U/MOD */MOD   AND OR XOR
+DUP SWAP OVER DROP    @ L@ C@ ! L! C!
+SP@ SP! RP@ RP!       >R R> R@   : ; EXIT
+EXECUTE BRANCH 0BRANCH DONEXT DOLIT
+ALITERAL CELL DOES> IMMEDIATE 'SYS
+
+QUESTIONS?
+    ⚘
+thank you!
