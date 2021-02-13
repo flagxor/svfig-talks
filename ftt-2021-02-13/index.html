@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.1;
+BACKGROUND = '#ffc';
+FOREGROUND = '#000';
+</script><pre>
+
+   ESP32forth
+    February
+     Update
+       🙜
+February 13, 2021
+
+ESP32forth
+    v7
+
+New Website:
+     🙜
+esp32forth.appspot.com
+
+Topics
+   🙜
+ • Vocabularies
+ • Block Editor
+ • Adding Words to ESP32Forth
+
+🗣️ Vocabularies
+
+🧱 Block
+ Editor
+
+SCR ( -- a ) Pointer to last listed block
+USE ( "name" -- ) e.g. USE /spiffs/foo
+FLUSH ( -- ) Save and empty all buffers
+LIST ( n -- ) List a block
+LOAD ( n -- ) Evaluate a block
+EDITOR ( -- ) Enter editor vocabulary
+
+WIPE ( -- ) Blank out current block
+L ( -- ) List the current block
+D ( n -- ) Delete a line
+E ( n -- ) Erase a line
+R ( n "text" -- ) Replace a line
+A ( n "text" -- ) Add (insert) a line
+P ( -- ) Move to the previous block
+N ( -- ) Move to the next block
+
+Live  💥
+ Demo...
+
+Adding
+💬Words
+
+Y(MY_WORD123, c_function_to_call()) \
+
+X("myword!", MY_WORD_BANG, c_function_to_call()) \
+
+Y(MY_WORD, PUSH calculate_magic_value()) \
+
+n10 n9 n8 n7 n6 n5 n4 n3 n2 n1 n0 - Access stack as cell_t integer values
+                   c4 c3 c2 c1 c0 - Access stack as char* values
+                   b4 b3 b2 b1 b0 - Access stack as uint8_t* byte values
+                   a4 a3 a2 a1 a0 - Access stack as void* values
+
+void send_message(const char *message, int code);
+   🙜
+X("send-message", SEND_MESSAGE, send_message(c1, n0)) \
+
+Y(DECODE, SET decode_func(n0)) \
+
+Y(MY_WORD, cell_t foo = n0; DROP; char *x = c0; DROP; \
+           PUSH my_func(foo, x)) \
+
+QUESTIONS?
+    ⚘
+Thank you!
