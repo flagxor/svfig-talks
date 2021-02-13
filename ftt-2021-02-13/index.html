@@ -24,9 +24,30 @@ Topics
    🙜
  • Vocabularies
  • Block Editor
- • Adding Words to ESP32Forth
+ • Adding Words
 
-🗣️ Vocabularies
+     🗣️
+Vocabularies
+
+Hybrid Vocabularies
+   🙜
+ • Forth-79 Style Chaining
+ • Forth-83+ Style Vocabulary Stack
+
+VOCABULARY ( "name" ) Create a vocabulary
+FORTH ( -- ) The FORTH vocabulary
+DEFINITIONS ( -- ) Make the context, current
+VLIST ( -- ) List the vocabulary
+WORDS ( -- ) List the reachable words
+
+TRANSFER ( "name" ) Move a word
+
+ALSO ( -- ) Add vocabulary
+ONLY ( -- ) Reset back to Forth only
+            ( Non-standard )
+ORDER ( -- ) Print search order
+
+SEALED ( -- ) Make it Forth-83+
 
 🧱 Block
  Editor
@@ -53,6 +74,11 @@ Live  💥
 Adding
 💬Words
 
+#define OPCODE_LIST \
+  X("0=", ZEQUAL, tos = !tos ? -1 : 0) \
+  X("0<", ZLESS, tos = (tos|0) < 0 ? -1 : 0) \
+  X("+", PLUS, tos += *sp--) \
+
 Y(MY_WORD123, c_function_to_call()) \
 
 X("myword!", MY_WORD_BANG, c_function_to_call()) \
@@ -72,6 +98,29 @@ Y(DECODE, SET decode_func(n0)) \
 
 Y(MY_WORD, cell_t foo = n0; DROP; char *x = c0; DROP; \
            PUSH my_func(foo, x)) \
+
+# define ws0 ((WebServer *) a0)
+# define OPTIONAL_WEBSERVER_SUPPORT \
+  /* WebServer */ \
+  X("WebServer.new", WEBSERVER_NEW, PUSH new WebServer(tos)) \
+  X("WebServer.delete", WEBSERVER_DELETE, delete ws0; DROP) \
+  X("WebServer.begin", WEBSERVER_BEGIN, ws0->begin(n1); DROPn(2)) \
+  X("WebServer.stop", WEBSERVER_STOP, ws0->stop(); DROP) \
+  X("WebServer.on", WEBSERVER_ON, InvokeWebServerOn(ws0, c2, n1); DROPn(3)) \
+  X("WebServer.hasArg", WEBSERVER_HAS_ARG, n0 = ws0->hasArg(c1); DROP) \
+
+static void InvokeWebServerOn(WebServer *ws, const char *url, cell_t xt) {
+  ws->on(url, [xt]() {
+    cell_t code[2];
+    code[0] = xt;
+    code[1] = g_sys.YIELD_XT;
+    cell_t stack[16];
+    cell_t rstack[16];
+    cell_t *rp = rstack;
+    *++rp = (cell_t) (stack + 1);
+    *++rp = (cell_t) code;
+    forth_run(rp);
+  });
 
 QUESTIONS?
     ⚘
