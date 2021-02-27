@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#222';
+FOREGROUND = '#fc2';
+</script><pre>
+
+    WebSent &
+  ESP32forth v7
+       🙜
+February 27, 2021
+
+   What's up
+with the slides?
+
+PRESENTATION FORMAT
+         🙤
+ • Takahashi Method
+   • Minimalistic presentation style
+   • suckless →  sent →  websent
+   • 200 LOC
+
+HOW TO USE
+    🙤
+ • Small 2-6 line header on html
+ • Limited customization (color, font)
+ • Unicode text as input
+ • Show each paragraph fullscreen
+ • @image.png for full page images
+
+BUT WHY?
+   🙤
+ • Focus on content
+ • Cut and paste source code
+ • Things fit easily
+ • ASCII Art & Emojis = easy
+
+trees
+🌲🌲🌲🌲
+ 
+evil
+🙈🙉🙊
+ 
+♤ spades
+♥ hearts
+♧ clubs
+♦ diamonds
+
+trees
+🌲🌲🌲🌲
+
+evil
+🙈🙉🙊
+
+♤ spades
+♥ hearts
+♧ clubs
+♦ diamonds
+
+ @eforth.png
+
+ @eforth.png
+ &lt;img src="eforth.png">
+
+@eforth.png
+<img src="eforth.png">
+
+Code 🚢
+ Tour
+
+ESP32forth
+    v7
+
+ Thanks
+Dr. Ting!
+
+New Website:
+     🙜
+esp32forth.appspot.com
+
+Topics
+   🙜
+ • Vocabularies
+ • Block Editor
+ • Adding Words
+ • Dictionary Pickling
+
+     🗣️
+Vocabularies
+
+Hybrid Vocabularies
+   🙜
+ • Forth-79 Style Chaining
+ • Forth-83+ Style Vocabulary Stack
+
+VOCABULARY ( "name" ) Create a vocabulary
+FORTH ( -- ) The FORTH vocabulary
+DEFINITIONS ( -- ) Make the context, current
+VLIST ( -- ) List the vocabulary
+WORDS ( -- ) List the reachable words
+
+TRANSFER ( "name" ) Move a word
+
+ALSO ( -- ) Add vocabulary
+ONLY ( -- ) Reset back to Forth only
+            ( Non-standard )
+ORDER ( -- ) Print search order
+
+SEALED ( -- ) Make it Forth-83+
+
+🧱 Block
+ Editor
+
+SCR ( -- a ) Pointer to last listed block
+USE ( "name" -- ) e.g. USE /spiffs/foo
+FLUSH ( -- ) Save and empty all buffers
+LIST ( n -- ) List a block
+LOAD ( n -- ) Evaluate a block
+EDITOR ( -- ) Enter editor vocabulary
+
+WIPE ( -- ) Blank out current block
+L ( -- ) List the current block
+D ( n -- ) Delete a line
+E ( n -- ) Erase a line
+R ( n "text" -- ) Replace a line
+A ( n "text" -- ) Add (insert) a line
+P ( -- ) Move to the previous block
+N ( -- ) Move to the next block
+
+Live  💥
+ Demo...
+
+Adding
+💬Words
+
+#define OPCODE_LIST \
+  X("0=", ZEQUAL, tos = !tos ? -1 : 0) \
+  X("0<", ZLESS, tos = (tos|0) < 0 ? -1 : 0) \
+  X("+", PLUS, tos += *sp--) \
+
+Y(MY_WORD123, c_function_to_call()) \
+
+X("myword!", MY_WORD_BANG, c_function_to_call()) \
+
+Y(MY_WORD, PUSH calculate_magic_value()) \
+
+n10 n9 n8 n7 n6 n5 n4 n3 n2 n1 n0 - Access stack as cell_t integer values
+             c6 c5 c4 c3 c2 c1 c0 - Access stack as char* values
+             b6 b5 b4 b3 b2 b1 b0 - Access stack as uint8_t* byte values
+             a6 a5 a4 a3 a2 a1 a0 - Access stack as void* values
+
+void send_message(const char *message, int code);
+   🙜
+X("send-message", SEND_MESSAGE, \
+   send_message(c1, n0); DROPn(2)) \
+
+Y(DECODE, SET decode_func(n0)) \
+
+Y(MY_WORD, cell_t foo = n0; DROP; \
+           char *x = c0; DROP; \
+           PUSH my_func(foo, x)) \
+
+# define ws0 ((WebServer *) a0)
+# define OPTIONAL_WEBSERVER_SUPPORT \
+  /* WebServer */ \
+  X("WebServer.new", WEBSERVER_NEW, PUSH new WebServer(tos)) \
+  X("WebServer.delete", WEBSERVER_DELETE, delete ws0; DROP) \
+  X("WebServer.begin", WEBSERVER_BEGIN, ws0->begin(n1); DROPn(2)) \
+  X("WebServer.stop", WEBSERVER_STOP, ws0->stop(); DROP) \
+  X("WebServer.on", WEBSERVER_ON, InvokeWebServerOn(ws0, c2, n1); DROPn(3)) \
+  X("WebServer.hasArg", WEBSERVER_HAS_ARG, n0 = ws0->hasArg(c1); DROP) \
+
+static void InvokeWebServerOn(WebServer *ws, const char *url, cell_t xt) {
+  ws->on(url, [xt]() {
+    cell_t code[2];
+    code[0] = xt;
+    code[1] = g_sys.YIELD_XT;
+    cell_t stack[16];
+    cell_t rstack[16];
+    cell_t *rp = rstack;
+    *++rp = (cell_t) (stack + 1);
+    *++rp = (cell_t) code;
+    forth_run(rp);
+  });
+
+Dictionary
+Picking 🥒
+
+SAVE {filename}
+RESTORE {filename}
+
+SAVE-NAME ( a n -- )
+RESTORE-NAME ( a n -- )
+
+'COLD ( -- a )
+   address of boot word
+
+REMEMBER
+STARTUP: {word}
+
+QUESTIONS?
+    ⚘
+Thank you!
