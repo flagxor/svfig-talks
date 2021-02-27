@@ -53,6 +53,7 @@ function Load(data) {
       element.style.imageRendering = 'crisp-edges';
     } else {
       var element = document.createElement('pre');
+      element.style.fontFamily = FONT;
       element.innerHTML = pages[i].join('\n');
       element.style.lineHeight = LINE_SPACING * 100 + '%';
     }
