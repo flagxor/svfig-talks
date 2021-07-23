@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Consolas, monospace';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#224';
+FOREGROUND = '#ffd';
+</script><pre>
+
+Forth Synergy
+   🧍🧍🧍🧍
+     🙜
+July 24, 2021
+
+FORTH 🐺
+the LONE WOLF
+
+FORTH IS POWERFUL
+  🗲
+• Compile Time Metaprogramming
+• Domain Specific Languages
+
+FORTH IS SUCCINCT
+  🐞
+: WASHER
+   WASH SPIN RINSE SPIN ;
+
+But FORTH can be CRYPTIC!
+      🔮
+: ch>stream ( ch st -- )
+   dup wait-write
+   >r r@ >write @ r@ >offset c!
+   r@ >write @ 1+ r@ @ mod r> >write ! ;
+
+How can we program
+ Forth together?
+
+Do we want to?
+
+More Hands aren't
+   Always Good!
+🖮🐒 🖮🐒 🖮🐒 🖮🐒
+🖮🐒 🖮🐒 🖮🐒 🖮🐒
+🖮🐒 🖮🐒 🖮🐒 🖮🐒
+🖮🐒 🖮🐒 🖮🐒 🖮🐒
+
+WHY THEN?
+            🐑🐑🐑🐑
+• Sometimes you're programming
+  with YOURSELF from years ago
+• We use words because
+  we hope to connect!
+• Help Forth play in a complex world
+
+FOCUS ON TWO GAPS
+   🙤
+• Modularity
+• Data Abstraction
+
+MODULARITY
+    🙤
+• Be explicit about interfaces
+• Limit how much has to be
+  understood at once
+• Limit the effects of change
+
+THINKING FORTH:
+      🙤
+"But Forth extends the concepts of modularity
+ and information-hiding further than any other
+ contemporary language. Forth even hides
+ the manner in which words are invoked and
+ the way local arguments are passed."
+
+How make a Module?
+
+FORML - Dewey Val Schorre
+      🙤
+: INTERNAL ( --> ADDR) CURRENT @ @ ;
+: EXTERNAL ( --> ADDR) HERE ;
+: MODULE( ADDRl ADDR2 --> )PFA LFA ! ;
+———————————————————————————————————
+https://www.complang.tuwien.ac.at
+  /forth/forth-dimensions/FD-V2.pdf
+
+INTERNAL
+  100 constant stack-depth
+  create elements stack-depth cells allot
+  variable tos  elements tos !
+EXTERNAL
+  : >p ( n -- ) cell tos +! tos @ ! ;
+  : p@ ( -- n ) tos @ @ ;
+  : p> ( -- n ) p@ -1 cells tos +! ;
+MODULE
+
+GET-CURRENT VOCABULARY Stack ALSO Stack DEFINITIONS
+  100 constant stack-depth
+  create elements stack-depth cells allot
+  variable tos  elements tos !
+SET-CURRENT
+  : >p ( n -- ) cell tos +! tos @ ! ;
+  : p@ ( -- n ) tos @ @ ;
+  : p> ( -- n ) p@ -1 cells tos +! ;
+PREVIOUS
+—————————————————————————————————————————————————————
+https://www.complang.tuwien.ac.at/forth/gforth
+  /Docs-html/Word-list-example.html#Word-list-example
+
+PROBLEMS
+   🙤
+• Internals can't call externals
+• Externals are shared with everyone
+
++----------+
+| stack.fs |<----+
++----------+     |
+  ^              |
+  |              |
++-+------+   +---+----+
+| foo.fs |-->| bar.fs |
++--------+   +--------+
+       ^      ^
+       |      |
+     +-+------++
+     | main.fs |
+     +---------+
+
+N+1th MODULE SYSTEM
+   🙤
+• Python like import syntax
+• Explicit out of order exports
+• Two wordlists per module
+• Share instances of an import
+
+modules.fs
+——————————
+wordlist constant modules
+variable exporting
+: >wordlist ( xt wid -- )
+   get-current >r set-current execute r> set-current ;
+: import-name ( a n -- )
+   2dup included? 0= if
+     2>r exporting @ wordlist exporting ! ( new exports )
+     2r> 2dup 2>r nextname exporting @ ['] constant modules >wordlist
+     get-current get-order ( save search order )
+     only forth wordlist >order definitions ( new wordlist )
+     2r> 2dup 2>r included
+     set-order set-current ( restore search order )
+     exporting ! ( restore exports ) 2r>
+   then
+   modules search-wordlist 0= throw execute >order ;
+: import ( "module" ) bl parse import-name ;
+: alias-last   latest name>string nextname lastxt alias ;
+: export   ['] alias-last exporting @ >wordlist ;
+
+collections/stack.fs
+————————————————————
+100 constant stack-depth
+create elements stack-depth cells allot
+variable tos  elements tos !
+: >p ( n -- ) cell tos +! tos @ ! ; EXPORT
+: p@ ( -- n ) tos @ @ ; EXPORT
+: p> ( -- n ) p@ -1 cells tos +! ; EXPORT
+
+foo.fs
+——————
+import collections/stack.fs
+import bar.fs
+: run   1 >p 2 >p 3 >p 3p. ; EXPORT
+
+bar.fs
+——————
+import collections/stack.fs
+: 3p.   p> p> p> . . . cr ; EXPORT
+
+main.fs
+———————
+needs modules.fs
+import foo.fs
+run bye
+
+DATA GENERALIZATION
+   🙤
+• Singleton - UPDATE, PAD
+• Explicit Stack - Graphics Context
+• Named - VOCABULARY, USE
+• References - OPEN-FILE, ALLOCATE
+
+IMPLICIT STACK
+   🙤
+$" foo" $" bar" $+ $.
+
+EXPLICIT STACK
+
+: BOX ( n -- )
+   4 0 DO
+     DUP FD 90 RT
+   LOOP ;
+
+SAVE-PEN
+  100 100 MOVETO
+  10 BOX
+  200 200 MOVETO
+  10 BOX
+RESTORE-PEN
+
+NAMED
+  🙤
+SCREEN 10 BOX
+PRINTER 10 BOX
+
+REFERENCES
+  🙤
+• Passed around on stack
+• Remeber to release it!
+
+EASY TRANSITIONS
+   🙤
+Singleton → Stack
+Singleton → Named
+
+HARD TRANSITIONS
+   🙤
+Singleton → References
+  • Update all callers
+  • Manage lifetime
+
+How to avoid References?
+
+s" source.txt" R/O OPEN-FILE
+READ-FILE-INT TO x
+READ-FILE-INT TO y 
+READ-FILE-INT TO z
+CLOSE-FILE
+
+s" source.txt" R/O OPEN-FILE infile
+s" dest.txt" W/O OPEN-FILE outfile
+infile PAD 20 READ-FILE
+outfile PAD SWAP WRITE-FILE
+CLOSE-FILE infile CLOSE-FILE
+
+s" source.txt" R/O OPEN-FILE
+  s" dest.txt" W/O OPEN-FILE outfile
+    PAD 20 READ-FILE FILE-SWAP
+    PAD SWAP WRITE-FILE FILE-SWAP
+  CLOSE-FILE
+CLOSE-FILE
+
+OTHER LANGUAGES
+   🙤
+• Classes - AbstractSproketFactory
+• Generics - Map<String, Widget>
+• Dependency Injection
+  • Guice
+  • Dagger
+
+QUESTIONS?
+    ⚘
+Thank you!
