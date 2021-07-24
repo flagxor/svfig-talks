@@ -184,6 +184,9 @@ needs modules.fs
 import foo.fs
 run bye
 
+   ~ WARNING ~
+Uncertain Findings
+
 ELEMENTS OF PROGRAMMING
    🙤
 • Primitive Expressions
@@ -327,17 +330,80 @@ s" source.txt" R/O OPEN-FILE
   CLOSE-FILE
 CLOSE-FILE
 
-TODO
-* Generics
+What about Generics?
 
-OTHER LANGUAGES
-   🙤
-• Classes - AbstractSproketFactory
-• Generics - Map<String, Widget>
-• Dependency Injection
-  • Guice
-  • Dagger
+variable @part
+: part ( "name" ) create here @part ! 0 , 0 , ;
+: var ( sz "name" ) create @part @ , @part @ cell+ @ ,
+                    @part @ cell+ +!  
+                    does> dup @ @ swap cell+ @ + ;
+: tuple ( n sz "name" ) swap 1- for dup var next drop ;
+: part@ ( pt -- pt ) @ ;   : part! ( a pt -- ) ! ;
+: part+! ( n a -- ) dup part@ rot + swap part! ;
+: size ( a -- ) cell+ @ ;
 
-QUESTIONS?
-    ⚘
-Thank you!
+: singleton ( pt -- ) here over size allot swap part! ;
+
+part point
+  3 cell tuple x y z
+: p! ( x y z ) z ! y ! x ! ;
+: p? x @ . y @ . z @ . ;
+point singleton
+
+: named ( pt "name" -- ) create dup , size allot
+                         does> dup cell+ swap @ part! ;
+
+point named bob
+point named joe
+bob 1 2 3 p!
+joe 2 3 4 p!
+bob p? joe p?
+  🙤
+1 2 3
+2 3 4
+
+: stack ( n t "name" )
+   create 2dup , , 0 , here over part! size * allot ;
+: pop ( st -- ) dup @ size negate swap @ part+! ;
+: push ( st -- ) @ dup part@ over size dup >r over + r> cmove
+                 dup size swap part+! ;
+
+30 point stack pstack
+: pdup   pstack push ;
+: pdrop   pstack pop ;
+: p.   p? pdrop ;
+: p+   x @ y @ z @ pdrop z +! y +! x +! ;
+
+1 2 3 p! pdup
+2 3 4 p! pdup
+5 6 7 p! p+
+p. cr
+p. cr
+  🙤
+ 7 9 11
+ 1 2 3
+
+But I'm unsatified...
+
+Make STACK a part?
+
+part stack-part
+  cell var kind
+  cell var start
+  cell var items
+: stack ( n t "name" )
+   stack-part named lastxt execute
+   kind ! items !  here start !
+   kind @ size items @ * allot
+   start @ kind @ part! ;
+: stack+! ( n -- ) kind @ size * kind @ part+! ;
+: stack-s ( -- a n ) kind @ part@ kind @ size ;
+: pop ( st -- ) -1 stack+! ;
+: push ( st -- ) stack-s 2dup + swap cmove   1 stack+! ;
+
+But still I'm unsatified...
+
+DISCUSSION
+  & QUESTIONS?
+      ⚘
+  Thank you!
