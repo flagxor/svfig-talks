@@ -116,6 +116,19 @@ PROBLEMS
 ( But this is EXTERNAL )
 : 2pdup   pover pover ;
 
+GET-CURRENT VOCABULARY Stack ALSO Stack DEFINITIONS
+  100 constant stack-depth
+  create elements stack-depth cells allot
+  variable tos  elements tos !
+  : >p ( n -- ) cell tos +! tos @ ! ;
+  : pover   p> p> dup >r >p >p r> ;
+SET-CURRENT
+  : 2pdup   pover pover ;
+  : >p   >p ;
+  : p@ ( -- n ) tos @ @ ;
+  : p> ( -- n ) p@ -1 cells tos +! ;
+PREVIOUS
+
 +----------+
 | stack.fs |<----+
 +----------+     |
