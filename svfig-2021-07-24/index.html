@@ -206,8 +206,8 @@ MEANS OF DATA COMBINATION
   - Arrays in Forth are untyped
 • This is a weak spot in Forth's typical usage
   - You can easily define strings,
-    but not so easily them fuse into
-    a First-Last name "thing".
+    but not so easily fuse 2 of them into
+    a First+Last name "thing".
   - You can make a stack and a string,
     but this doesn't naturally create a stack of strings.
 
@@ -225,6 +225,31 @@ OBJECT ORIENTED LEXICONS
   that data. Forth wants data hidden/implicit:
   : WASHER
      WASH SPIN RINSE SPIN ;
+
+CLASS POINT
+  VARIABLE X
+  VARIABLE Y
+  : SHOW ( -- )   X @ . Y @ . ;
+  : DOT ( -- )   ." Point at " SHOW ;
+END-CLASS
+———————————————————————————————————————————————
+http://soton.mpeforth.com/flag/swoop/index.html
+
+POINT BUILDS ORIGIN
+5 ORIGIN X !
+8 ORIGIN Y !
+ORIGIN DOT
+———————————————————————————————————————————————
+http://soton.mpeforth.com/flag/swoop/index.html
+
+0 VALUE FOO            \ Contains pointer to instance
+POINT NEW TO FOO       \ Construct instance of class POINT
+8 FOO USING POINT X !  \ Store data in X
+99 FOO USING POINT Y ! \ Store data in Y
+FOO USING POINT DOT    \ Display X and Y
+FOO DESTROY  0 TO FOO  \ Release space
+———————————————————————————————————————————————
+http://soton.mpeforth.com/flag/swoop/index.html
 
 DATA GENERALIZATION
    🙤
