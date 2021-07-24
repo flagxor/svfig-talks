@@ -280,7 +280,7 @@ EXPLICIT STACK
 : box ( n -- )
    4 0 do
      dup fd 90 rt
-   loop ;
+   loop drop ;
 
 save-pen
   100 100 moveto
@@ -332,6 +332,12 @@ CLOSE-FILE
 
 What about Generics?
 
+"PARTS"
+   🙤
+• Create a scope/context bearing thing
+• Use variables defined relative to a context
+• Capture enough info to allocate multiple instances
+
 variable @part
 : part ( "name" ) create here @part ! 0 , 0 , ;
 : var ( sz "name" ) create @part @ , @part @ cell+ @ ,
@@ -350,8 +356,9 @@ part point
 : p? x @ . y @ . z @ . ;
 point singleton
 
-: named ( pt "name" -- ) create dup , size allot
-                         does> dup cell+ swap @ part! ;
+: named ( pt "name" -- )
+   create dup , size allot
+   does> dup cell+ swap @ part! ;
 
 point named bob
 point named joe
