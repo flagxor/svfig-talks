@@ -33,9 +33,11 @@ But FORTH can be CRYPTIC!
    r@ >write @ 1+ r@ @ mod r> >write ! ;
 
 How can we program
+        👪
  Forth together?
 
-Do we want to?
+Do we 👹
+ want to?
 
 More Hands aren't
    Always Good!
@@ -44,8 +46,8 @@ More Hands aren't
 🖮🐒 🖮🐒 🖮🐒 🖮🐒
 🖮🐒 🖮🐒 🖮🐒 🖮🐒
 
-WHY THEN?
-            🐑🐑🐑🐑
+WHY THEN?      🐑🐑🐑🐑
+   🙤
 • Sometimes you're programming
   with YOURSELF from years ago
 • We use words because
@@ -103,7 +105,7 @@ SET-CURRENT
   : >p ( n -- ) cell tos +! tos @ ! ;
   : p@ ( -- n ) tos @ @ ;
   : p> ( -- n ) p@ -1 cells tos +! ;
-PREVIOUS   🗫
+PREVIOUS                                          🗫
 —————————————————————————————————————————————————————
 https://www.complang.tuwien.ac.at/forth/gforth
   /Docs-html/Word-list-example.html#Word-list-example
@@ -331,29 +333,34 @@ How to avoid
 
 s" source.txt" R/O OPEN-FILE
 READ-COMPLEX-DATA
-CLOSE-FILE  🗄️
+CLOSE-FILE              🗄️
 
 s" source.txt" R/O OPEN-FILE infile
 s" dest.txt" W/O OPEN-FILE outfile
 infile READ-COMPLEX-DATA
 outfile WRITE-COMPLEX-DATA
 infile CLOSE-FILE
-outfile CLOSE-FILE  📂
+outfile CLOSE-FILE             📂
 
 s" source.txt" R/O OPEN-FILE
   s" dest.txt" W/O OPEN-FILE
     READ-COMPLEX-DATA FILE-SWAP
     WRITE-COMPLEX-DATA
   CLOSE-FILE
-CLOSE-FILE   🗃️
+CLOSE-FILE                🗃️
 
-What about Generics?
+What about
+    🍦
+ Generics?
 
 "PARTS"  ⚙️
    🙤
-• Create a scope/context bearing thing
-• Use variables defined relative to a context
-• Capture enough info to allocate multiple instances
+• Create a scope/context
+  bearing thing
+• Use variables defined
+  relative to a context
+• Capture enough info to
+  allocate multiple instances
 
 variable @part  ⚙️
 : part ( "name" ) create here @part ! 0 , 0 , ;
@@ -385,19 +392,22 @@ joe 2 3 4 p!
 bob p? joe p?
   🙤
 1 2 3
-2 3 4   💯
+2 3 4      💯
 
 : stack ( n t "name" )  📚
    create 2dup , , 0 , here over part! size * allot ;
-: pop ( st -- ) dup @ size negate swap @ part+! ;
-: push ( st -- ) @ dup part@ over size dup >r over + r> cmove
-                 dup size swap part+! ;
+: pop ( st -- )
+   dup @ size negate swap @ part+! ;
+: push ( st -- )
+   @ dup part@ over size dup >r over + r> cmove
+   dup size swap part+! ;
 
 30 point stack pstack   📚
 : pdup   pstack push ;
 : pdrop   pstack pop ;
 : p.   p? pdrop ;
-: p+   x @ y @ z @ pdrop z +! y +! x +! ;
+: p+   x @ y @ z @ pdrop
+       z +! y +! x +! ;
 
 1 2 3 p! pdup
 2 3 4 p! pdup
@@ -427,7 +437,8 @@ part stack-part   📚
 : stack+! ( n -- ) kind @ size * kind @ part+! ;
 : stack-s ( -- a n ) kind @ part@ kind @ size ;
 : pop ( st -- ) -1 stack+! ;
-: push ( st -- ) stack-s 2dup + swap cmove   1 stack+! ;
+: push ( st -- ) stack-s 2dup + swap cmove
+                 1 stack+! ;
 
 But still I'm
      😟
