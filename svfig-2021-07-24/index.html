@@ -72,7 +72,7 @@ THINKING FORTH:
  the manner in which words are invoked and
  the way local arguments are passed."
 
-How make a Module?
+How to make a Module?
 
 FORML - Dewey Val Schorre
       🙤
@@ -110,6 +110,11 @@ PROBLEMS
    🙤
 • Internals can't call externals
 • Externals are shared with everyone
+
+( What if this is INTERNAL )
+: pover   p> p> dup >r >p >p r> ;
+( But this is EXTERNAL )
+: 2pdup   pover pover ;
 
 +----------+
 | stack.fs |<----+
@@ -179,10 +184,62 @@ needs modules.fs
 import foo.fs
 run bye
 
+ELEMENTS OF PROGRAMMING
+   🙤
+• Primitive Expressions
+  - the simplest entities
+    the language is concerned with
+• Means of Combination
+  - how compound elements are built
+    from simpler ones
+• Means of Abstraction
+  - how compound elements can be
+    named and manipulated as units
+————————————————————————————————————————————
+https://mitpress.mit.edu/sites/default
+  /files/sicp/full-text/sicp/book/node5.html
+
+MEANS OF DATA COMBINATION
+   🙤
+• In conventions languages structures and arrays
+  - Structures are feasible in Forth, but unidiomatic
+  - Arrays in Forth are untyped
+• This is a weak spot in Forth's typical usage
+  - You can easily define strings,
+    but not so easily them fuse into
+    a First-Last name "thing".
+  - You can make a stack and a string,
+    but this doesn't naturally create a stack of strings.
+
+MEANS OF DATA ABSTRACTION
+   🙤
+• CREATE DOES> is the closest mechanism in Forth
+  - But it dispatches only a single operation.
+
+OBJECT ORIENTED LEXICONS
+   🙤
+• SWOOP or other OO lexicons "solve" Forth's weak
+  data combination and abstraction,
+  but at the cost of a "C++/Java in Forth" style.
+• OO puts data first, which usually requires naming
+  that data. Forth wants data hidden/implicit:
+  : WASHER
+     WASH SPIN RINSE SPIN ;
+
 DATA GENERALIZATION
    🙤
+• Naturalistic Forth relies on
+  implict scope/context
+• When data needs to generalize,
+  this best happens by introducing
+  abstraction of that context
+
+APPROACHES TO GENERALIZATION
+   🙤
 • Singleton - UPDATE, PAD
-• Explicit Stack - Graphics Context
+• Additional Stacks - Graphics Context
+  • Implicit Stack - String stack
+  • Explicit Stack - Graphics Context
 • Named - VOCABULARY, USE
 • References - OPEN-FILE, ALLOCATE
 
@@ -192,22 +249,22 @@ $" foo" $" bar" $+ $.
 
 EXPLICIT STACK
 
-: BOX ( n -- )
-   4 0 DO
-     DUP FD 90 RT
-   LOOP ;
+: box ( n -- )
+   4 0 do
+     dup fd 90 rt
+   loop ;
 
-SAVE-PEN
-  100 100 MOVETO
-  10 BOX
-  200 200 MOVETO
-  10 BOX
-RESTORE-PEN
+save-pen
+  100 100 moveto
+  10 box
+  200 200 moveto
+  10 box
+restore-pen
 
 NAMED
   🙤
-SCREEN 10 BOX
-PRINTER 10 BOX
+screen 10 box
+printer 10 box
 
 REFERENCES
   🙤
@@ -228,23 +285,25 @@ Singleton → References
 How to avoid References?
 
 s" source.txt" R/O OPEN-FILE
-READ-FILE-INT TO x
-READ-FILE-INT TO y 
-READ-FILE-INT TO z
+READ-COMPLEX-DATA
 CLOSE-FILE
 
 s" source.txt" R/O OPEN-FILE infile
 s" dest.txt" W/O OPEN-FILE outfile
-infile PAD 20 READ-FILE
-outfile PAD SWAP WRITE-FILE
-CLOSE-FILE infile CLOSE-FILE
+infile READ-COMPLEX-DATA
+outfile WRITE-COMPLEX-DATA
+infile CLOSE-FILE
+outfile CLOSE-FILE
 
 s" source.txt" R/O OPEN-FILE
-  s" dest.txt" W/O OPEN-FILE outfile
-    PAD 20 READ-FILE FILE-SWAP
-    PAD SWAP WRITE-FILE FILE-SWAP
+  s" dest.txt" W/O OPEN-FILE
+    READ-COMPLEX-DATA FILE-SWAP
+    WRITE-COMPLEX-DATA
   CLOSE-FILE
 CLOSE-FILE
+
+TODO
+* Generics
 
 OTHER LANGUAGES
    🙤
