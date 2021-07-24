@@ -54,17 +54,17 @@ WHY THEN?
 
 FOCUS ON TWO GAPS
    🙤
-• Modularity
+• Modularity 🔌
 • Data Abstraction
 
-MODULARITY
+MODULARITY 🔌
     🙤
 • Be explicit about interfaces
 • Limit how much has to be
   understood at once
 • Limit the effects of change
 
-THINKING FORTH:
+THINKING FORTH 📘:
       🙤
 "But Forth extends the concepts of modularity
  and information-hiding further than any other
@@ -72,10 +72,12 @@ THINKING FORTH:
  the manner in which words are invoked and
  the way local arguments are passed."
 
-How to make a Module?
+How to make
+     🔌
+ a Module?
 
-FORML - Dewey Val Schorre
-      🙤
+FORML 👨‍⚖️ - Dewey Val Schorre
+             🙤
 : INTERNAL ( --> ADDR) CURRENT @ @ ;
 : EXTERNAL ( --> ADDR) HERE ;
 : MODULE( ADDRl ADDR2 --> )PFA LFA ! ;
@@ -83,7 +85,7 @@ FORML - Dewey Val Schorre
 https://www.complang.tuwien.ac.at
   /forth/forth-dimensions/FD-V2.pdf
 
-INTERNAL
+INTERNAL                       👨‍⚖️
   100 constant stack-depth
   create elements stack-depth cells allot
   variable tos  elements tos !
@@ -101,30 +103,30 @@ SET-CURRENT
   : >p ( n -- ) cell tos +! tos @ ! ;
   : p@ ( -- n ) tos @ @ ;
   : p> ( -- n ) p@ -1 cells tos +! ;
-PREVIOUS
+PREVIOUS   🗫
 —————————————————————————————————————————————————————
 https://www.complang.tuwien.ac.at/forth/gforth
   /Docs-html/Word-list-example.html#Word-list-example
 
-PROBLEMS
+PROBLEMS 👎 🤢
    🙤
 • Internals can't call externals
 • Externals are shared with everyone
 
-( What if this is INTERNAL )
+( What if this is INTERNAL? 🤢 )
 : pover   p> p> dup >r >p >p r> ;
-( But this is EXTERNAL )
+( But this is EXTERNAL 😲)
 : 2pdup   pover pover ;
 
 GET-CURRENT VOCABULARY Stack ALSO Stack DEFINITIONS
   100 constant stack-depth
   create elements stack-depth cells allot
   variable tos  elements tos !
-  : >p ( n -- ) cell tos +! tos @ ! ;
-  : pover   p> p> dup >r >p >p r> ;
+  : >p ( n -- ) cell tos +! tos @ ! ; 😕
+  : pover   p> p> dup >r >p >p r> ; 😕
 SET-CURRENT
-  : 2pdup   pover pover ;
-  : >p   >p ;
+  : 2pdup   pover pover ;  😕
+  : >p   >p ;  😕
   : p@ ( -- n ) tos @ @ ;
   : p> ( -- n ) p@ -1 cells tos +! ;
 PREVIOUS
@@ -143,14 +145,14 @@ PREVIOUS
      | main.fs |
      +---------+
 
-N+1th MODULE SYSTEM
+N+1th MODULE SYSTEM ➕➕
    🙤
 • Python like import syntax
 • Explicit out of order exports
 • Two wordlists per module
 • Share instances of an import
 
-modules.fs
+modules.fs  🔌
 ——————————
 wordlist constant modules
 variable exporting
@@ -171,7 +173,7 @@ variable exporting
 : alias-last   latest name>string nextname lastxt alias ;
 : export   ['] alias-last exporting @ >wordlist ;
 
-collections/stack.fs
+collections/stack.fs  📚
 ————————————————————
 100 constant stack-depth
 create elements stack-depth cells allot
@@ -180,27 +182,27 @@ variable tos  elements tos !
 : p@ ( -- n ) tos @ @ ; EXPORT
 : p> ( -- n ) p@ -1 cells tos +! ; EXPORT
 
-foo.fs
+foo.fs  ✨
 ——————
 import collections/stack.fs
 import bar.fs
 : run   1 >p 2 >p 3 >p 3p. ; EXPORT
 
-bar.fs
+bar.fs  🔥
 ——————
 import collections/stack.fs
 : 3p.   p> p> p> . . . cr ; EXPORT
 
-main.fs
+main.fs  🦞
 ———————
 needs modules.fs
 import foo.fs
 run bye
 
-   ~ WARNING ~
+⚠️ ~ WARNING ~ ⚠️
 Uncertain Findings
 
-ELEMENTS OF PROGRAMMING
+ELEMENTS OF PROGRAMMING 🧪
    🙤
 • Primitive Expressions
   - the simplest entities
@@ -215,7 +217,7 @@ ELEMENTS OF PROGRAMMING
 https://mitpress.mit.edu/sites/default
   /files/sicp/full-text/sicp/book/node5.html
 
-MEANS OF DATA COMBINATION
+MEANS OF DATA COMBINATION 🧪
    🙤
 • In conventions languages structures and arrays
   - Structures are feasible in Forth, but unidiomatic
@@ -227,12 +229,12 @@ MEANS OF DATA COMBINATION
   - You can make a stack and a string,
     but this doesn't naturally create a stack of strings.
 
-MEANS OF DATA ABSTRACTION
+MEANS OF DATA ABSTRACTION 🧪
    🙤
 • CREATE DOES> is the closest mechanism in Forth
   - But it dispatches only a single operation.
 
-OBJECT ORIENTED LEXICONS
+OBJECT ORIENTED LEXICONS 🧱
    🙤
 • SWOOP or other OO lexicons "solve" Forth's weak
   data combination and abstraction,
@@ -242,7 +244,7 @@ OBJECT ORIENTED LEXICONS
   : WASHER
      WASH SPIN RINSE SPIN ;
 
-CLASS POINT
+CLASS POINT        ✴️
   VARIABLE X
   VARIABLE Y
   : SHOW ( -- )   X @ . Y @ . ;
@@ -251,7 +253,7 @@ END-CLASS
 ———————————————————————————————————————————————
 http://soton.mpeforth.com/flag/swoop/index.html
 
-POINT BUILDS ORIGIN
+POINT BUILDS ORIGIN    ✴️
 5 ORIGIN X !
 8 ORIGIN Y !
 ORIGIN DOT
@@ -263,11 +265,11 @@ POINT NEW TO FOO       \ Construct instance of class POINT
 8 FOO USING POINT X !  \ Store data in X
 99 FOO USING POINT Y ! \ Store data in Y
 FOO USING POINT DOT    \ Display X and Y
-FOO DESTROY  0 TO FOO  \ Release space
+FOO DESTROY  0 TO FOO  \ Release space     ✴️
 ———————————————————————————————————————————————
 http://soton.mpeforth.com/flag/swoop/index.html
 
-DATA GENERALIZATION
+DATA GENERALIZATION 🎖️
    🙤
 • Naturalistic Forth relies on
   implict scope/context
@@ -275,7 +277,7 @@ DATA GENERALIZATION
   this best happens by introducing
   abstraction of that context
 
-APPROACHES TO GENERALIZATION
+APPROACHES TO GENERALIZATION 🎖️
    🙤
 • Singleton - UPDATE, PAD
 • Additional Stacks
@@ -284,74 +286,76 @@ APPROACHES TO GENERALIZATION
 • Named - VOCABULARY, USE
 • References - OPEN-FILE, ALLOCATE
 
-IMPLICIT STACK
+IMPLICIT STACK 📚
    🙤
 $" foo" $" bar" $+ $.
 
-EXPLICIT STACK
+EXPLICIT STACK 📚
 
-: box ( n -- )
+: box ( n -- ) 🥡
    4 0 do
      dup fd 90 rt
    loop drop ;
 
-save-pen
+save-pen    🖊️
   100 100 moveto
   10 box
   200 200 moveto
   10 box
 restore-pen
 
-NAMED
+NAMED 📛
   🙤
 screen 10 box
 printer 10 box
 
-REFERENCES
+REFERENCES 📙
   🙤
 • Passed around on stack
 • Remeber to release it!
 
-EASY TRANSITIONS
+EASY TRANSITIONS 💺
    🙤
 Singleton → Stack
 Singleton → Named
 
-HARD TRANSITIONS
+HARD TRANSITIONS 😵
    🙤
 Singleton → References
   • Update all callers
   • Manage lifetime
 
-How to avoid References?
+How to avoid
+     📙
+ References?
 
 s" source.txt" R/O OPEN-FILE
 READ-COMPLEX-DATA
-CLOSE-FILE
+CLOSE-FILE  🗄️
 
 s" source.txt" R/O OPEN-FILE infile
 s" dest.txt" W/O OPEN-FILE outfile
 infile READ-COMPLEX-DATA
 outfile WRITE-COMPLEX-DATA
 infile CLOSE-FILE
-outfile CLOSE-FILE
+outfile CLOSE-FILE  📂
 
 s" source.txt" R/O OPEN-FILE
   s" dest.txt" W/O OPEN-FILE
     READ-COMPLEX-DATA FILE-SWAP
     WRITE-COMPLEX-DATA
   CLOSE-FILE
-CLOSE-FILE
+CLOSE-FILE   🗃️
 
 What about Generics?
 
-"PARTS"
+"PARTS"  ⚙️
    🙤
 • Create a scope/context bearing thing
 • Use variables defined relative to a context
 • Capture enough info to allocate multiple instances
 
-variable @part
+variable @part  ⚙️
 : part ( "name" ) create here @part ! 0 , 0 , ;
 : var ( sz "name" ) create @part @ , @part @ cell+ @ ,
                     @part @ cell+ +!  
@@ -361,15 +365,16 @@ variable @part
 : part+! ( n a -- ) dup part@ rot + swap part! ;
 : size ( a -- ) cell+ @ ;
 
-: singleton ( pt -- ) here over size allot swap part! ;
+: singleton ( pt -- )  🐺
+   here over size allot swap part! ;
 
-part point
+part point  ✴️
   3 cell tuple x y z
 : p! ( x y z ) z ! y ! x ! ;
 : p? x @ . y @ . z @ . ;
 point singleton
 
-: named ( pt "name" -- )
+: named ( pt "name" -- )  📛
    create dup , size allot
    does> dup cell+ swap @ part! ;
 
@@ -380,15 +385,15 @@ joe 2 3 4 p!
 bob p? joe p?
   🙤
 1 2 3
-2 3 4
+2 3 4   💯
 
-: stack ( n t "name" )
+: stack ( n t "name" )  📚
    create 2dup , , 0 , here over part! size * allot ;
 : pop ( st -- ) dup @ size negate swap @ part+! ;
 : push ( st -- ) @ dup part@ over size dup >r over + r> cmove
                  dup size swap part+! ;
 
-30 point stack pstack
+30 point stack pstack   📚
 : pdup   pstack push ;
 : pdrop   pstack pop ;
 : p.   p? pdrop ;
@@ -401,13 +406,16 @@ p. cr
 p. cr
   🙤
  7 9 11
- 1 2 3
+ 1 2 3    🥞
 
-But I'm unsatified...
+But I'm
+    😞
+ unsatified...
 
-Make STACK a part?
+Make STACK 📚
+  a part?
 
-part stack-part
+part stack-part   📚
   cell var kind
   cell var start
   cell var items
@@ -421,7 +429,9 @@ part stack-part
 : pop ( st -- ) -1 stack+! ;
 : push ( st -- ) stack-s 2dup + swap cmove   1 stack+! ;
 
-But still I'm unsatified...
+But still I'm
+     😟
+ unsatified...
 
 DISCUSSION
   & QUESTIONS?
