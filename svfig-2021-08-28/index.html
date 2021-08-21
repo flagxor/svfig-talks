@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Deep Learning in Forth - Part I</title>
+    <meta name="description"
+          content="Deep Learning in Forth - Part I - August 28, 2021">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/league.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../common/forth.css">
+    <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!--
+
+Deep Learning in Forth - Part I
+
+In recent years, multilayer artificial neural networks have made tremendous
+strides solving a wide range of machine learning problems from image
+recognition to the generation of random cats. While typical ML libraries
+have hundreds of thousands of lines of code, Forth can be used to explore
+this domain with far less complexity.
+
+This talk will kick off a multi-part series erecting a lexicon for ML programs in Forth.
+
+In Part I, we'll introduce key deep learning ideas including: convolutional
+neural networks, automatic differentiation, and gradient descent.
+We'll then build and benchmark low level building blocks for linear algebra
+and format conversion that later parts in the series will use as a foundation.
+-->
+
+    <style>
+pre {
+  background-color: #dff;
+}
+.reveal-viewport {
+  background: #1c0020;
+  background: -moz-radial-gradient(center, circle cover, #55005f 0%, #1c0020 100%);
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #55005f), color-stop(100%, #1c0020));
+  background: -webkit-radial-gradient(center, circle cover, #55005f 0%, #1c0020 100%);
+  background: -o-radial-gradient(center, circle cover, #55005f 0%, #1c0020 100%);
+  background: -ms-radial-gradient(center, circle cover, #55005f 0%, #1c0020 100%);
+  background: radial-gradient(center, circle cover, #55005f 0%, #1c0020 100%);
+  background-color: #2b002b;
+}
+.reveal h2 {
+  color: #ff4;
+}
+.reveal h3 {
+  color: #ffc;
+}
+.hljs-comment {
+  color: #ff0;
+}
+.reveal a:link {
+  color: #f0f;
+}
+.reveal a:visited {
+  color: #f0f;
+}
+.reveal a:hover {
+  color: #fff;
+}
+.reveal a:active {
+  color: #fff;
+}
+  </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>Deep Learning in Forth<br/>Part I</h2>
+          <h3>August 28, 2021</h3>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Topics</h2>
+          <ul>
+            <li>Artificial Neural Networks</li>
+            <li>Convolutional Neural Networks</li>
+            <li>Automatic Differentiation</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>TODO</h2>
+          <div>\[ relu(x) = max(0, x) \]</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Chain Rule</h2>
+          <div>
+          \[ \frac{\partial f}{\partial x} = \frac{\partial f}{\partial u} \frac{\partial u}{\partial x} \]
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>StyleGAN (2019)</h2>
+          <img height="500" src="https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png">
+          <div class="tiny">
+          https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>MNIST (1998)</h2>
+          <ul>
+            <li>Handwritten digit dataset</li>
+            <li>28x28 grayscale</li>
+            <li>60,000 training images</li>
+            <li>10,000 test images</li>
+            <li>Remixed of NIST high school student and census bureau datasets</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>MNIST (1998)</h2>
+          <img height="500" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/MnistExamples.png/480px-MnistExamples.png">
+          <div class="tiny">
+          https://en.wikipedia.org/wiki/MNIST_database#/media/File:MnistExamples.png</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Utilities</h3>
+          <pre data-id="code-animation"><code data-trim>
+TODO: code sample
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <br/>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks/blob/gh-pages/svfig-2020-10-24/pi.fs">code</a><br/>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/forth.js"></script>
+
+  </body>
+</html>
