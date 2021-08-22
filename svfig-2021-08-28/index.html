@@ -38,7 +38,8 @@ and format conversion that later parts in the series will use as a foundation.
 
     <style>
 pre {
-  background-color: #dff;
+  background-color: #202;
+  padding: 10px;
 }
 .reveal-viewport {
   background: #1c0020;
@@ -214,9 +215,135 @@ pre {
         </section>
 
         <section data-transition="fade-out">
-          <h3>Utilities</h3>
+          <h2>IDX File Format</h2>
+          <pre>
+Big Endian
+
+$00    - Magic #                            (byte)
+$00    - Magic #                            (byte)
+type   - $08=uint8 $09=int8 $0B=int16       (byte)
+         $0C=int32 $0D=float32 $0E=float64
+rank   - Number of dimensions               (byte)
+dim 1  - Size in dimension 1                (int32)
+....                                        ....
+dim N  - Size in dimension N                (int32)
+data   - Raw data
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Utilities</h2>
           <pre data-id="code-animation"><code data-trim>
-TODO: code sample
+1 sfloats constant sfloat
+1 dfloats constant dfloat
+variable incx   sfloat incx !
+variable incy   sfloat incy !
+
+: sf, ( r -- ) here sf! sfloat allot ;
+: df, ( r -- ) here df! dfloat allot ;
+
+: sxsy+ ( sx sy -- sx' sy' ) incy @ + swap incx @ + swap ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Basic Ops</h2>
+          <pre data-id="code-animation"><code data-trim>
+: sswap ( sx sy n -- )
+   0 ?do dup sf@ over sf@ dup sf! over sf! sxsy+ loop 2drop ;
+
+: sscal ( sx n f: sa -- )
+  0 ?do dup sf@ fover f* dup sf! incx @ + loop drop fdrop ;
+
+: scopy ( sx sy n -- )
+  0 ?do over sf@ dup sf! sxsy+ loop 2drop ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SAXPY and SDOT</h2>
+          <pre data-id="code-animation"><code data-trim>
+: sdsdot ( sx sy n f: sb -- f: prod )
+  0 ?do over sf@ dup sf@ f* f+ sxsy+ loop 2drop ;
+: sdot ( sx sy n -- f: prod ) 0e sdsdot ;
+: dsdot ( sx sy n -- f: prod ) 0e sdsdot ;
+
+: saxpy ( sx sy n f: sa -- )
+  0 ?do over sf@ fover f* dup sf@ f+ dup sf! sxsy+ loop
+  2drop fdrop ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Summing and Searching</h2>
+          <pre data-id="code-animation"><code data-trim>
+: snrm2 ( sx n -- f: norm )
+  0e 0 ?do dup sf@ fdup f* f+ incx @ + loop drop fsqrt ;
+
+: sasum ( sx n -- f: abssum )
+  0e 0 ?do dup sf@ fabs f+ incx @ + loop drop ;
+
+: isamax ( sx n -- index )
+  over sf@ fabs 0 -rot 0 ?do
+    dup sf@ fabs fover f> if fdrop dup sf@ fabs nip i swap then
+    incx @ +
+  loop drop fdrop ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Givens Rotation</h2>
+          \[
+             \left[\begin{matrix}
+               c & -s \\
+               s & c \\
+             \end{matrix}\right]
+             \left[\begin{matrix}
+               a \\
+               b \\
+             \end{matrix}\right]
+             = 
+             \left[\begin{matrix}
+               r \\
+               0 \\
+             \end{matrix}\right]
+          \]
+        <img style="background-color: white"
+             src="https://wikimedia.org/api/rest_v1/media/math/render/svg/5e2c4e785a596b703c50d8a1fd3ff2f2990eb01c"><br/>
+        <small>https://en.wikipedia.org/wiki/Givens_rotation</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Givens Rotation</h2>
+          <pre data-id="code-animation"><code data-trim>
+fvariable cos
+fvariable sin
+
+: srotg ( f: a b -- f: c s )
+  fdup f0= if fdrop fdrop 1e 0e exit then
+  fover fover fdup f* fswap fdup f* f+ fsqrt 1/f ( a b 1/h )
+  frot fdup f0<= if fswap fnegate fswap then ( b ~1/h a )
+  fover f* frot frot f* ;
+
+: srot ( sx sy n -- )
+  0 ?do over sf@ cos sf@ f* dup sf@ sin sf@ f* f+
+        dup sf@ cos sf@ f* over sf@ sin sf@ f* f-
+        dup sf! over sf! incy @ + swap incx @ + swap loop 2drop ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Cblas</h2>
+          <pre data-id="code-animation"><code data-trim>
+: sfcell/ ( n -- n ) 2/ 2/ ;
+
+c-function cblas_dsdot cblas_dsdot n a n a n -- r
+: dsdot ( sx sy n -- f: prod )
+  -rot >r incx @ sfcell/ r> incy @ sfcell/ cblas_dsdot ;
+
+c-function cblas_saxpy cblas_saxpy n r a n a n -- void
+: saxpy ( sx sy n f: sa -- )
+  -rot >r incx @ sfcell/ r> incy @ sfcell/ cblas_saxpy ;
 					</code></pre>
         </section>
 
