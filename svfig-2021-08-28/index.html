@@ -103,6 +103,72 @@ pre {
         </section>
 
         <section data-transition="fade-out">
+          <h2>BLAS</h2>
+          <h3>Basic Linear Algebra Subprograms</h3>
+          <ul>
+            <li>FORTRAN Library</li>
+            <li>Terse ≤6 character names</li>
+            <li>Standard "Kernels"</li>
+            <li>Strided Data</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Type Convensions</h2>
+          <code>
+            <b style="color: #ff0">S</b>GEMM
+            <b style="color: #ff0">D</b>GEMM
+            <b style="color: #ff0">C</b>GEMM
+            <b style="color: #ff0">Z</b>GEMM
+          </code>
+          <ul style="list-style-type: none">
+            <li>S = Single precision (32-bit) floats</li>
+            <li>D = Double precision (64-bit) floats</li>
+            <li>C = Single precision (32-bit) complex floats</li>
+            <li>Z = Double precision (32-bit) complex floats</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>BLAS - Level 1 (1979)</h2>
+          <ul style="list-style-type: none">
+            <li>*ROTG + SROT - Givens rotation</li>
+            <li>*SWAP - Swap two vectors</li>
+            <li>*SCAL - Vector scaling x = a*x</li>
+            <li>*COPY - Vector copy</li>
+            <li><b style="color: #ffc">*AXPY - Vector scale and add y = a*x + y</b></li>
+            <li><b style="color: #ffc">*DOT - Dot product</b></li>
+            <li>*NRM2 - Euclidean norm / vector length</li>
+            <li>*ASUM - Vector sum of absolute values</li>
+            <li>I*AMAX - Index of max absolute value</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>BLAS - Level 2 (1984-88)</h2>
+          <ul style="list-style-type: none">
+            <li>*GEMV - Matrix Vector Multiply
+                \[ y := \alpha A x + \beta y \]</li>
+            <li>*GER - Row-column Vector multiply
+                \[ A := \alpha x y^T + A \]</li>
+            <li>Matrix-vector operations on symmetric/triangular matrices
+                stored in banded or packed format.</li>
+            <li>Transpose generously supported.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>BLAS - Level 3 (1990)</h2>
+          <ul style="list-style-type: none">
+            <li>*GEMM - Matrix Matrix Multiply
+                \[ C := \alpha A B + \beta C \]</li>
+            <li>Matrix-matrix operations on symmetric/triangular matrices
+                stored in banded or packed format.</li>
+            <li>Transpose generously supported.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
           <h2>TODO</h2>
           <div>\[ relu(x) = max(0, x) \]</div>
         </section>
@@ -110,7 +176,15 @@ pre {
         <section data-transition="fade-out">
           <h2>Chain Rule</h2>
           <div>
-          \[ \frac{\partial f}{\partial x} = \frac{\partial f}{\partial u} \frac{\partial u}{\partial x} \]
+          \[ \frac{df}{dx} = \frac{df}{du} \frac{du}{dx} \]
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Multivariable Chain Rule</h2>
+          <div>
+          \[ \frac{d}{dx} f(g_1(x), ..., g_k(x)) =
+                 \sum_{i=1}^{k} \frac{df}{dg_i} \frac{dg_i}{dx} \]
           </div>
         </section>
 
