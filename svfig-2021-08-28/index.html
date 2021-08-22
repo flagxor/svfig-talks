@@ -549,11 +549,113 @@ c-function cblas_saxpy cblas_saxpy n r a n a n -- void
         </section>
 
         <section data-transition="fade-out">
+          <h2>SAXPY / DAXPY - Level 1 Benchmark</h2>
+          <ul>
+            <li>1000x - Multiply and Adds of two 1M element vectors</li>
+            <li>Try both single and double precision</li>
+            <li>Compare Forth and BLAS</li>
+            <li>Multiplies: 1 Billion</li>
+            <li>Adds: 1 Billion</li>
+            <li>BLAS Baseline: 0.454s</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SAXPY / DAXPY - Level 1 Benchmark</h2>
+          <pre data-id="code-animation"><code data-trim>
+1000000 constant test-size
+1 sfloats incx ! 1 sfloats incy !
+
+test-size sfloats allocate throw constant foo
+foo test-size sfloats 33 fill
+test-size sfloats allocate throw constant bar
+bar test-size sfloats 33 fill
+: benchmark
+  1000 0 do
+    123e foo bar test-size saxpy
+  loop
+;
+benchmark
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
           <img src="SAXPY_DAXPY.svg" height="700">
         </section>
 
         <section data-transition="fade-out">
+          <h2>SGEMV - Level 2 Benchmark</h2>
+          <ul>
+            <li>10x - Vector-Matrix Multiply of size 10K x 10K</li>
+            <li>Compare Forth and BLAS</li>
+            <li>Compare Forth at Level 1+ vs Level 2 only</li>
+            <li>Multiplies: 1.0002 Billion</li>
+            <li>Adds: 1.0002 Billion</li>
+            <li>BLAS Baseline: 1.200s</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SGEMV - Level 2 Benchmark</h2>
+          <pre data-id="code-animation"><code data-trim>
+10000 constant test-size
+1 sfloats incx ! 1 sfloats incy !
+
+test-size test-size * sfloats allocate throw constant mat
+mat test-size test-size * sfloats 33 fill
+test-size sfloats allocate throw constant vec
+vec test-size sfloats 33 fill
+test-size sfloats allocate throw constant vec2
+vec2 test-size sfloats 33 fill
+test-size sfloats lda !
+: benchmark
+  10 0 do
+    9e 1e mat vec vec2 test-size test-size sgemv
+  loop
+;
+benchmark
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
           <img src="SGEMV.svg" height="700">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SGEMM - Level 3 Benchmark</h2>
+          <ul>
+            <li>One 1000 x 1000 Multiply and Add</li>
+            <li>Compare Forth and BLAS</li>
+            <li>Compare Forth at Level 1+, Level 2+, and Level 3 only</li>
+            <li>Multiplies: 1.002 Billion</li>
+            <li>Adds: 1.002 Billion</li>
+            <li>BLAS Baseline: 0.462s</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SGEMM - Level 3 Benchmark</h2>
+          <pre data-id="code-animation"><code data-trim>
+1000 constant test-size
+1 sfloats incx ! 1 sfloats incy !
+#NoTrans transa !
+#NoTrans transb !
+
+test-size test-size * sfloats allocate throw constant mat1
+mat1 test-size test-size * sfloats 33 fill
+test-size sfloats lda !
+test-size test-size * sfloats allocate throw constant mat2
+mat2 test-size test-size * sfloats 33 fill
+test-size sfloats ldb !
+test-size test-size * sfloats allocate throw constant mat3
+mat3 test-size test-size * sfloats 33 fill
+test-size sfloats ldc !
+
+: benchmark
+  9e 1e mat1 mat2 mat3 test-size test-size test-size sgemm
+;
+benchmark
+					</code></pre>
         </section>
 
         <section data-transition="fade-out">
