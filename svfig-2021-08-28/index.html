@@ -203,6 +203,12 @@ pre {
         <section data-transition="fade-out">
           <h2>im2col</h2>
           \[
+             F * I = im2col(F, F_s) \cdot im2col(I, F_s)
+          \]
+        </section>
+
+        <section data-transition="fade-out">
+          \[
              I = \left[\begin{matrix}
                1^* & 2^* & 3 & 4 \\
                5^* & 6^* & 7 & 8 \\
@@ -211,20 +217,13 @@ pre {
              \end{matrix}\right]
           \]
           \[
-             im2col(I, [2, 2]) =
+             im2col(I, [2, 2]) = \\
              \left[\begin{matrix}
                1^* & 2 & 3 & 5 & 6 & 7 & 9 & 10 & 11 \\
                2^* & 3 & 4 & 6 & 7 & 8 & 10 & 11 & 12 \\
                5^* & 6 & 7 & 9 & 10 & 11 & 13 & 14 & 15 \\
                6^* & 7 & 8 & 10 & 11 & 12 & 14 & 15 & 16 \\
              \end{matrix}\right]
-          \]
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>im2col</h2>
-          \[
-             F * I = im2col(F, F_s) \cdot im2col(I, F_s)
           \]
         </section>
 
