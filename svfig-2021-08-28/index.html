@@ -110,6 +110,60 @@ pre {
         </section>
 
         <section data-transition="fade-out">
+          <h2>Neurons</h2>
+          <ul>
+            <li>Firing frequency varies by stimulus</li>
+            <li>Learning mechanism poorly understood</li>
+          </ul>
+          <img style="background-color: white; padding: 10px"
+               src="https://upload.wikimedia.org/wikipedia/commons/4/44/Neuron3.png"><br/>
+          <small>https://en.wikipedia.org/wiki/Artificial_neural_network#/media/File:Neuron3.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Artificial Neurons</h2>
+          <ul>
+            <li>Mathematical / Engineering construct, inspired by biology</li>
+            <li>Variations in layering and activation function</li>
+          </ul>
+          \[ y_j = A\left(\sum_{i=1}^n w_{i,j} x_i + b_j\right) \]
+          A = activation function<br/>
+          w<sub>i,j</sub> = synapse weight<br/>
+          b<sub>j</sub> = bias
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Activation Functions</h2>
+          <table>
+          <tr>
+            <td>\[ logistic(x) = \frac{1}{1 + e^{-x}} \]</td>
+            <td><img style="background-color: white"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Activation_logistic.svg/180px-Activation_logistic.svg.png"></td>
+          </tr>
+          <tr>
+            <td>\[ tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}} \]</td>
+            <td><img style="background-color: white"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Activation_tanh.svg/180px-Activation_tanh.svg.png"></td>
+          </tr>
+          <tr>
+            <td>\[ relu(x) = max(0, x) \]</td>
+            <td><img style="background-color: white"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Activation_rectified_linear.svg/180px-Activation_rectified_linear.svg.png"></td>
+          </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Perceptron - 1958</h2>
+          <ul>
+            <li>Hardware Artificial Neural Network</li>
+            <li>Single Layer (Linear Planes)</li>
+          </ul>
+          <img src="https://upload.wikimedia.org/wikipedia/en/5/52/Mark_I_perceptron.jpeg"><br/>
+          <small>https://en.wikipedia.org/wiki/Perceptron</small>
+        </section>
+
+        <section data-transition="fade-out">
           <h2>Discrete Convolution</h2>
           \[
             (f * g)[n] = \sum_{m=-\infty}^{\infty} f[n - m] g[m]
@@ -147,6 +201,34 @@ pre {
         </section>
 
         <section data-transition="fade-out">
+          <h2>im2col</h2>
+          \[
+             I = \left[\begin{matrix}
+               1^* & 2^* & 3 & 4 \\
+               5^* & 6^* & 7 & 8 \\
+               9 & 10 & 11 & 12 \\
+               13 & 14 & 15 & 16 \\
+             \end{matrix}\right]
+          \]
+          \[
+             im2col(I, [2, 2]) =
+             \left[\begin{matrix}
+               1^* & 2 & 3 & 5 & 6 & 7 & 9 & 10 & 11 \\
+               2^* & 3 & 4 & 6 & 7 & 8 & 10 & 11 & 12 \\
+               5^* & 6 & 7 & 9 & 10 & 11 & 13 & 14 & 15 \\
+               6^* & 7 & 8 & 10 & 11 & 12 & 14 & 15 & 16 \\
+             \end{matrix}\right]
+          \]
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>im2col</h2>
+          \[
+             F * I = im2col(F, F_s) \cdot im2col(I, F_s)
+          \]
+        </section>
+
+        <section data-transition="fade-out">
           <h2>BLAS</h2>
           <h3>Basic Linear Algebra Subprograms</h3>
           <ul>
@@ -168,8 +250,8 @@ pre {
           <ul style="list-style-type: none">
             <li>S = Single precision (32-bit) floats</li>
             <li>D = Double precision (64-bit) floats</li>
-            <li>C = Single precision (32-bit) complex floats</li>
-            <li>Z = Double precision (32-bit) complex floats</li>
+            <li>C = Single precision complex (2 x 32-bit) floats</li>
+            <li>Z = Double precision complex (2 x 64-bit) floats</li>
           </ul>
         </section>
 
@@ -213,11 +295,6 @@ pre {
         </section>
 
         <section data-transition="fade-out">
-          <h2>TODO</h2>
-          <div>\[ relu(x) = max(0, x) \]</div>
-        </section>
-
-        <section data-transition="fade-out">
           <h2>Chain Rule</h2>
           <div>
           \[ \frac{df}{dx} = \frac{df}{du} \frac{du}{dx} \]
@@ -237,6 +314,13 @@ pre {
           <img height="500" src="https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png">
           <div class="tiny">
           https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Convolutional Filters</h2>
+          <img height="500" src="https://developer-blogs.nvidia.com/wp-content/uploads/2014/10/caffenet_learned_filters.png">
+          <div class="tiny">
+          https://developer.nvidia.com/blog/deep-learning-computer-vision-caffe-cudnn/</div>
         </section>
 
         <section data-transition="fade-out">
@@ -463,6 +547,15 @@ c-function cblas_saxpy cblas_saxpy n r a n a n -- void
 : saxpy ( sx sy n f: sa -- )
   -rot >r incx @ sfcell/ r> incy @ sfcell/ cblas_saxpy ;
 					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Logit</h2>
+          \[ logit(x) = ln\left(\frac{x}{1 - x}\right) \space\space\space
+             logit^{-1}(x) = \frac{1}{1 + e^{-x}} \]
+          <img style="background-color: white" height="300"
+               src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Logit.svg/525px-Logit.svg.png"><br/>
+          <small>https://en.wikipedia.org/wiki/Logit</small>
         </section>
 
         <section data-transition="fade-out">
