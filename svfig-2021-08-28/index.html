@@ -72,6 +72,12 @@ pre {
 .reveal a:active {
   color: #fff;
 }
+.reveal .controls {
+  color: #a0a;
+}
+.reveal .progress {
+  color: #707;
+}
   </style>
   </head>
 
@@ -101,6 +107,43 @@ pre {
             <li>Convolutional Neural Networks</li>
             <li>Automatic Differentiation</li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Discrete Convolution</h2>
+          \[
+            (f * g)[n] = \sum_{m=-\infty}^{\infty} f[n - m] g[m]
+          \]
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>2D Discrete Convolution</h2>
+          \[
+            (f * g)[x, y] = \sum_{i=-\infty}^{\infty}
+                            \sum_{j=-\infty}^{\infty} f[x - i, y - j] g[i, j]
+          \]
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>2D Discrete Convolution</h2>
+          <table style="background-color: white; color: black; filter: grayscale(1)">
+          <tr>
+            <td>Identity</td>
+            <td><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/1fbc763a0af339e3a3ff20af60a8a993c53086a7"></td>
+            <td><img src="https://upload.wikimedia.org/wikipedia/commons/5/50/Vd-Orig.png"></td>
+          </tr>
+          <tr>
+            <td>Edge Detection</td>
+            <td><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/f800ad5f76b6c26c729ff0c1fef44284d7cade7a"></td>
+            <td><img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Vd-Edge3.png"></td>
+          </tr>
+          <tr>
+            <td>Gaussian Blur</td>
+            <td><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/ca9c0da52fe7818783942b06aac9cf396ae628bf"></td>
+            <td><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Vd-Blur1.png"></td>
+          </tr>
+          </table>
+          <small>https://en.wikipedia.org/wiki/Kernel_(image_processing)</small>
         </section>
 
         <section data-transition="fade-out">
@@ -232,6 +275,50 @@ data   - Raw data
         </section>
 
         <section data-transition="fade-out">
+          <h2>SAXPY</h2>
+          <pre data-id="code-animation"><code data-trim>
+       SUBROUTINE saxpy(N,SA,SX,INCX,SY,INCY)
+       REAL SA
+       INTEGER INCX,INCY,N
+       REAL SX(*),SY(*)
+       INTEGER I,IX,IY,M,MP1
+       INTRINSIC mod
+ 
+       IF (n.LE.0) RETURN
+       IF (sa.EQ.0.0) RETURN
+       IF (incx.EQ.1 .AND. incy.EQ.1) THEN
+          m = mod(n,4)
+          IF (m.NE.0) THEN
+             DO i = 1,m
+                sy(i) = sy(i) + sa*sx(i)
+             END DO
+          END IF
+          IF (n.LT.4) RETURN
+          mp1 = m + 1
+          DO i = mp1,n,4
+             sy(i) = sy(i) + sa*sx(i)
+             sy(i+1) = sy(i+1) + sa*sx(i+1)
+             sy(i+2) = sy(i+2) + sa*sx(i+2)
+             sy(i+3) = sy(i+3) + sa*sx(i+3)
+          END DO
+       ELSE
+          ix = 1
+          iy = 1
+          IF (incx.LT.0) ix = (-n+1)*incx + 1
+          IF (incy.LT.0) iy = (-n+1)*incy + 1
+          DO i = 1,n
+           sy(iy) = sy(iy) + sa*sx(ix)
+           ix = ix + incx
+           iy = iy + incy
+          END DO
+       END IF
+       RETURN
+       END
+					</code></pre>
+          <small>http://www.netlib.org/lapack/explore-html/d8/daf/saxpy_8f_source.html</small>
+        </section>
+
+        <section data-transition="fade-out">
           <h2>Utilities</h2>
           <pre data-id="code-animation"><code data-trim>
 1 sfloats constant sfloat
@@ -243,6 +330,16 @@ variable incy   sfloat incy !
 : df, ( r -- ) here df! dfloat allot ;
 
 : sxsy+ ( sx sy -- sx' sy' ) incy @ + swap incx @ + swap ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SAXPY</h2>
+          <pre data-id="code-animation"><code data-trim>
+: saxpy ( sx sy n f: sa -- )
+  0 ?do over
+    sf@ fover f* dup sf@ f+ dup sf! sxsy+
+  loop 2drop fdrop ;
 					</code></pre>
         </section>
 
@@ -261,16 +358,12 @@ variable incy   sfloat incy !
         </section>
 
         <section data-transition="fade-out">
-          <h2>SAXPY and SDOT</h2>
+          <h2>SDOT</h2>
           <pre data-id="code-animation"><code data-trim>
 : sdsdot ( sx sy n f: sb -- f: prod )
   0 ?do over sf@ dup sf@ f* f+ sxsy+ loop 2drop ;
 : sdot ( sx sy n -- f: prod ) 0e sdsdot ;
 : dsdot ( sx sy n -- f: prod ) 0e sdsdot ;
-
-: saxpy ( sx sy n f: sa -- )
-  0 ?do over sf@ fover f* dup sf@ f+ dup sf! sxsy+ loop
-  2drop fdrop ;
 					</code></pre>
         </section>
 
@@ -308,7 +401,7 @@ variable incy   sfloat incy !
                0 \\
              \end{matrix}\right]
           \]
-        <img style="background-color: white"
+        <img style="background-color: white; padding: 10px"
              src="https://wikimedia.org/api/rest_v1/media/math/render/svg/5e2c4e785a596b703c50d8a1fd3ff2f2990eb01c"><br/>
         <small>https://en.wikipedia.org/wiki/Givens_rotation</small>
         </section>
@@ -330,6 +423,31 @@ fvariable sin
         dup sf@ cos sf@ f* over sf@ sin sf@ f* f-
         dup sf! over sf! incy @ + swap incx @ + swap loop 2drop ;
 					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Cblas</h2>
+          <ul>
+            <li>C wrapper around F77 BLAS</li>
+            <li>Cleverly works around Row vs Column major order</li>
+          </ul>
+          <pre data-id="code-animation"><code data-trim>
+ void cblas_saxpy(const int N, const float alpha,
+                  const float *X, const int incX,
+                  float *Y, const int incY);
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Row-Major vs Column-Major Order</h2>
+          <ul>
+            <li>FORTRAN = Column-Major Order</li>
+            <li>C = Row-Major Order</li>
+            <li>Forth = \o/ No arrays,<br/>I do what I want!</li>
+            <li>Transpose parameters<br/>allow conversion</li>
+          </ul>
+          <img style="float: left"
+               src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Row_and_column_major_order.svg/255px-Row_and_column_major_order.svg.png">
         </section>
 
         <section data-transition="fade-out">
