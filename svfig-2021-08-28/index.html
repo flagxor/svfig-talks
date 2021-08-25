@@ -36,6 +36,19 @@ We'll then build and benchmark low level building blocks for linear algebra
 and format conversion that later parts in the series will use as a foundation.
 -->
 
+<!--
+Structure:
+
+Where does Forth fit in?
+   - DNN are a powerful simple idea, Forth is great at that.
+   - Raw performance isn't a barrier, Python is popular in this domain!
+Introduce ANN
+   - How does an ANN work?
+      - History
+      - Structure
+      - Representation as a Matrix
+-->
+
     <style>
 pre {
   background-color: #202;
@@ -101,12 +114,127 @@ pre {
         </section>
 
         <section data-transition="fade-out">
-          <h2>Topics</h2>
+          <h2>Overview</h2>
           <ul>
-            <li>Artificial Neural Networks</li>
-            <li>Convolutional Neural Networks</li>
-            <li>Automatic Differentiation</li>
+            <li>Machine Learning is EXCITING!</li>
+            <li>Why are neural networks "suddenly" working?</li>
+            <li>Forth has a role to play!!!</li>
+            <li>Introduce core Deep Learning</li>
+            <li>Build a performant foundation in Forth</li>
+            <li>More Next Time!</li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Caveat</h2>
+          <b>I am not an ML expert!</b>
+        </section>
+
+        <section data-transition="fade-out">
+          <div>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Alphago_logo_Reversed.svg"
+           style="background-color: white; padding: 5px" height="100"><br/>
+          <small style="font-size: 10px">https://commons.wikimedia.org/wiki/File:Alphago_logo_Reversed.svg</small>
+          </div> 
+          <ul>
+            <li>Monte-Carlo tree search guided by policy and value networks</li>
+            <li>Bootstrapped from studying human games</li>
+            <li>Quickly defeats human players
+              <ul style="font-size: 26px">
+                <li>Oct 2015 - 5:0 against Fan Hui (professional player)</li>
+                <li>Mar 2016 - 4:1 against Lee Sedol</li>
+                <li>May 2017 - 60:0 against professional including Ke Jie (#1 player)</li>
+              </ul></li>
+            <li>2017 - AlphaGo Zero, bootstraped from scratch, single computer with 4 TPUs</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>StyleGAN (2019)</h2>
+          <img height="500" src="https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png">
+          <div class="tiny">
+          https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>DALE-E (2021)</h2>
+          <div style="layout: inline-block">
+          <small>"an armchair in the shape of an avocado." -----
+                 "a snail made of a harp."</small>
+          <img height="400" src="https://daleonai.com/images/screen-shot-2021-01-06-at-1.37.37-pm.png">
+          <span>-----</span>
+          <img height="400" src="https://daleonai.com/images/screen-shot-2021-01-06-at-1.39.12-pm.png">
+          <div class="tiny">https://daleonai.com/dalle-5-mins</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Deep Nostalgia (2021)</h2>
+          <iframe width="900" height="500" src="https://www.youtube-nocookie.com/embed/N12g3oDzOPo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>AI Dungeon - GPT-3 (2021)</h2>
+<div style="text-align: left; font-size: 20px">
+<p>
+You are Gus the Destroyer, a knight living in the kingdom of Larion. You have a steel longsword and a wooden shield. You are on a quest to defeat the evil dragon of Larion. You've heard he lives up at the north of the kingdom. You set on the path to defeat him and walk into a dark forest. As you enter the forest you see a pale man. He is dressed in a white sleeveless shirt, brown pants, and boots. His head is completely hair and his face is expressionless. You draw your sword as the man stares at you.
+</p>
+<p>
+&gt; You ask where the dragon is.<br/>
+"Where is the dragon?" you ask.<br/>
+"What?" the man asks as he begins to look a little more alert.<br/>
+"I asked where the dragon is, I want to kill him."<br/>
+</p>
+<p>
+&gt; You search the man.<br/>
+You check the man for weapons but he is completely unarmed.<br/>
+"Bah, you are new. Dragons are hard to kill, easier if you aren't a moron like you." The man sputters at you.
+</p>
+<p>
+&gt; You head into the forest.<br/>
+You set off towards the north of the forest. You walk slowly to the point where you are a good hour away from the pale man. A flock of small birds fly through the air and land on a nearby branch.
+</p>
+<p>
+&gt; You look at birds.<br/>
+You look down at the flock of birds. They are small birds and are chirping merrily away. They are in pretty bad shape.
+</p>
+</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Github Copilot - GPT-3 (2021)</h2>
+          <img height="500" src="copilot.png">
+          <div class="tiny">https://copilot.github.com/</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why is this suddenly working?</h2>
+          <ul>
+            <li>Core idea from 1986 (Backpropagation), why now?</li>
+            <li>LOTS more compute
+               <ul>
+                  <li>Moore's Law</li>
+                  <li>Cloud Computing</li>
+                  <li>GPUs &amp; TPUs</li>
+               </ul></li>
+            <li>LOTS more data
+               <ul>
+                  <li>Digital Cameras</li>
+                  <li>The Internet</li>
+                  <li>Solid State Storage</li>
+               </ul></li>
+            <li>Better techniques &amp; fixed early mistakes</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Where does Forth fit in?</h2>
+          <ul>
+            <li>Deep Learning involves powerful,<br/>but SIMPLE ideas</li>
+            <li>Interactivity is important, not high-level performance (Python is the dominant language)</li>
+            <li>Small ML models fit in embedded devices</li>
+            <li>Big new things shift what's important</li>
+          </ul>
+          <img src="http://www.forth.org/svfig/svfig.jpg" height="200">
         </section>
 
         <section data-transition="fade-out">
@@ -162,6 +290,30 @@ pre {
                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Activation_rectified_linear.svg/180px-Activation_rectified_linear.svg.png"></td>
           </tr>
           </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SLIDE ON INITIALIZATION</h2>
+          <ul>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SLIDE ON CNN & RNN</h2>
+          <ul>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SLIDE ON GAN</h2>
+          <ul>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>SLIDE ON Autodiff</h2>
+          <ul>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
@@ -317,13 +469,6 @@ pre {
           \[ \frac{d}{dx} f(g_1(x), ..., g_k(x)) =
                  \sum_{i=1}^{k} \frac{df}{dg_i} \frac{dg_i}{dx} \]
           </div>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>StyleGAN (2019)</h2>
-          <img height="500" src="https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png">
-          <div class="tiny">
-          https://github.com/NVlabs/stylegan/raw/master/stylegan-teaser.png</div>
         </section>
 
         <section data-transition="fade-out">
