@@ -36,19 +36,6 @@ We'll then build and benchmark low level building blocks for linear algebra
 and format conversion that later parts in the series will use as a foundation.
 -->
 
-<!--
-Structure:
-
-Where does Forth fit in?
-   - DNN are a powerful simple idea, Forth is great at that.
-   - Raw performance isn't a barrier, Python is popular in this domain!
-Introduce ANN
-   - How does an ANN work?
-      - History
-      - Structure
-      - Representation as a Matrix
--->
-
     <style>
 pre {
   background-color: #202;
@@ -176,6 +163,7 @@ pre {
           <h2>AI Dungeon - GPT-3 (2021)</h2>
 <div style="text-align: left; font-size: 20px">
 <p>
+<small style="font-size: 10px">Generative Pre-trained Transformer 3</small><br/>
 You are Gus the Destroyer, a knight living in the kingdom of Larion. You have a steel longsword and a wooden shield. You are on a quest to defeat the evil dragon of Larion. You've heard he lives up at the north of the kingdom. You set on the path to defeat him and walk into a dark forest. As you enter the forest you see a pale man. He is dressed in a white sleeveless shirt, brown pants, and boots. His head is completely hair and his face is expressionless. You draw your sword as the man stares at you.
 </p>
 <p>
@@ -213,8 +201,8 @@ You look down at the flock of birds. They are small birds and are chirping merri
             <li>LOTS more compute
                <ul>
                   <li>Moore's Law</li>
-                  <li>Cloud Computing</li>
                   <li>GPUs &amp; TPUs</li>
+                  <li>Cloud Computing</li>
                </ul></li>
             <li>LOTS more data
                <ul>
@@ -238,6 +226,35 @@ You look down at the flock of birds. They are small birds and are chirping merri
         </section>
 
         <section data-transition="fade-out">
+          <h2>Deep Learning in a Nutshell</h2>
+          <ul>
+            <li>AI, Neurons, Aritificial Neurons, and Perceptrons</li>
+            <li>Layers as Matrices (and Tensors)</li>
+            <li>How "Deep" Learning Works</li>
+            <li>Crucial details for making it work well</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Approaches to AI</h2>
+          <ul>
+            <li>Symbolic
+              <ul style="font-size: 0.8em">
+                <li>Popular initially</li>
+                <li>Appealing because of Platonic ideal of knowledge</li>
+                <li>Tractable because of limitations of early computers</li>
+              </ul></li>
+            <li>Connectionist
+              <ul style="font-size: 0.8em">
+                <li>Now very hot</li>
+                <li>Appealing because it appears to mirror the brain</li>
+                <li>Also appealing because it offers a model for "learning"</li>
+                <li>Downside: "unexplainable" systems</li>
+              </ul></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
           <h2>Neurons</h2>
           <ul>
             <li>Firing frequency varies by stimulus</li>
@@ -255,9 +272,17 @@ You look down at the flock of birds. They are small birds and are chirping merri
             <li>Variations in layering and activation function</li>
           </ul>
           \[ y_j = A\left(\sum_{i=1}^n w_{i,j} x_i + b_j\right) \]
+          x<sub>i</sub> = inputs<br/>
+          w<sub>i,j</sub> = synapse weight, b<sub>j</sub> = bias<br/>
           A = activation function<br/>
-          w<sub>i,j</sub> = synapse weight<br/>
-          b<sub>j</sub> = bias
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Matrix Representation</h2>
+          <ul>
+            <li>Each layer is a matrix multiply with activation applied to each element</li>
+          </ul>
+          <img src="matrix.png"><br/>
         </section>
 
         <section data-transition="fade-out">
@@ -266,54 +291,7 @@ You look down at the flock of birds. They are small birds and are chirping merri
             <li>Input/Ouput + zero or more "hidden" layers</li>
             <li>Multiple layers required for complex functions</li>
           </ul>
-          <img style="background-color: white; padding: 10px" height="300"
-               src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Colored_neural_network.svg/420px-Colored_neural_network.svg.png"><br/>
-          <small>https://en.wikipedia.org/wiki/Artificial_neural_network#/media/File:Colored_neural_network.svg</small>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>Activation Functions</h2>
-          <table>
-          <tr>
-            <td>\[ logistic(x) = \frac{1}{1 + e^{-x}} \]</td>
-            <td><img style="background-color: white"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Activation_logistic.svg/180px-Activation_logistic.svg.png"></td>
-          </tr>
-          <tr>
-            <td>\[ tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}} \]</td>
-            <td><img style="background-color: white"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Activation_tanh.svg/180px-Activation_tanh.svg.png"></td>
-          </tr>
-          <tr>
-            <td>\[ relu(x) = max(0, x) \]</td>
-            <td><img style="background-color: white"
-                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Activation_rectified_linear.svg/180px-Activation_rectified_linear.svg.png"></td>
-          </tr>
-          </table>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>SLIDE ON INITIALIZATION</h2>
-          <ul>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>SLIDE ON CNN & RNN</h2>
-          <ul>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>SLIDE ON GAN</h2>
-          <ul>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>SLIDE ON Autodiff</h2>
-          <ul>
-          </ul>
+          <img src="layers.png"><br/>
         </section>
 
         <section data-transition="fade-out">
@@ -324,6 +302,134 @@ You look down at the flock of birds. They are small birds and are chirping merri
           </ul>
           <img src="https://upload.wikimedia.org/wikipedia/en/5/52/Mark_I_perceptron.jpeg"><br/>
           <small>https://en.wikipedia.org/wiki/Perceptron</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Improvements + Advances</h2>
+          <ul>
+            <li>Better Initialization</li>
+            <li>Automatic Differentiation</li>
+            <li>Better Activation Functions</li>
+            <li>Better Layers</li>
+            <li>Better Overall Structure</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Initialization</h2>
+          <ul>
+            <li>Biases - zero</li>
+            <li>Random weights to balance variance between layers.</li>
+          </ul>
+<br/>
+<br/>
+\[
+Glorot Uniform: Random(-limit, limit) \\
+limit = \sqrt{\frac{6}{fan_{in} + fan_{out}}}
+\]
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>How to Learn</h2>
+          <ul>
+            <li>Tune the network so that training input &rarr; output values produce the expected results</li>
+            <li>Treat the whole network as a function <code>F</code>,
+                and minimize <code>Loss(F(input), expected)</code></li>
+            <li>Use a "loss function", like sum of squares or distance sum</li>
+          </ul>
+          <img src="hills.png" height="200">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>How to Learn</h2>
+          <ul>
+            <li>Gradient Descent on weights and biases</li>
+            <li>Move "downhill" in n-dimensions</li>
+            <li>Need to be able to differentiate whole neural network + loss function</li>
+          </ul>
+          <img src="hills.png" height="200">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Ways to find a Derivative</h2>
+          <ul>
+            <li>Symbolic Differentiation</li>
+            <li>Numeric Differentiation</li>
+            <li>Automatic Differentiation</li>
+          </ul>
+          \[ \frac{\delta}{\delta x} ? \]
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Automatic Differentiation</h2>
+          <ul>
+            <li>Compute the function for particular input</li>
+            <li>Use intermediate results with chain rule to find derivative at that same input point</li>
+            <li>Two approaches (for function for &#8477;<sup>n</sup> &rarr; &#8477;<sup>m</sup>)
+              <ul>
+                <li>Forward Accumulation (better if n &lt;&lt; m)</li>
+                <li>Reverse Accumulation (better if n &gt;&gt; m)</li>
+              </ul></li>
+              <li>Minimizes round-off error</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Chain Rule</h2>
+          <div>
+          \[ \frac{\delta}{\delta x} f(g(x)) = \frac{\delta f}{\delta g} \frac{\delta g}{\delta x} \]
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Multivariable Chain Rule</h2>
+          <div>
+          \[ \frac{\delta}{\delta x} f(g_1(x), ..., g_k(x)) =
+                 \sum_{i=1}^{k} \frac{\delta f}{\delta g_i} \frac{\delta g_i}{\delta x} \]
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Forward Accumulation</h2>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/ForwardAccumulationAutomaticDifferentiation.png" height="500"><br/>
+          <small>https://en.wikipedia.org/wiki/Automatic_differentiation#/media/File:ForwardAccumulationAutomaticDifferentiation.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Reverse Accumulation</h2>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/ReverseaccumulationAD.png" height="500"><br/>
+          <small>https://en.wikipedia.org/wiki/Automatic_differentiation#/media/File:ReverseaccumulationAD.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Activation Functions</h2>
+          <table>
+          <tr>
+            <td>\[ tanh(x) = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}} \]</td>
+            <td><img style="background-color: white"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Activation_tanh.svg/180px-Activation_tanh.svg.png"></td>
+          </tr>
+          <tr>
+            <td>\[ logistic(x) = \frac{1}{1 + e^{-x}} \]</td>
+            <td><img style="background-color: white"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Activation_logistic.svg/180px-Activation_logistic.svg.png"></td>
+          </tr>
+          <tr>
+            <td>\[ relu(x) = max(0, x) \]</td>
+            <td><img style="background-color: white"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Activation_rectified_linear.svg/180px-Activation_rectified_linear.svg.png"></td>
+          </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Convolutional Neural Networks</h2>
+          <ul>
+            <li>Image recognition of low level features should be the same throughout the visual field</li>
+            <li>Why relearn it over and over?</li>
+            <li>Apply the same windowed network throughout the image!</li>
+          </ul>
+          <img src="smiles.png" height="250">
         </section>
 
         <section data-transition="fade-out">
@@ -364,30 +470,30 @@ You look down at the flock of birds. They are small birds and are chirping merri
         </section>
 
         <section data-transition="fade-out">
-          <h2>im2col</h2>
-          \[
-             F * I = im2col(F, F_s) \cdot im2col(I, F_s)
-          \]
+          <h2>Convolutional Filters</h2>
+          <img height="500" src="https://developer-blogs.nvidia.com/wp-content/uploads/2014/10/caffenet_learned_filters.png">
+          <div class="tiny">
+          https://developer.nvidia.com/blog/deep-learning-computer-vision-caffe-cudnn/</div>
         </section>
 
         <section data-transition="fade-out">
-          \[
-             I = \left[\begin{matrix}
-               1^* & 2^* & 3 & 4 \\
-               5^* & 6^* & 7 & 8 \\
-               9 & 10 & 11 & 12 \\
-               13 & 14 & 15 & 16 \\
-             \end{matrix}\right]
-          \]
-          \[
-             im2col(I, [2, 2]) = \\
-             \left[\begin{matrix}
-               1^* & 2 & 3 & 5 & 6 & 7 & 9 & 10 & 11 \\
-               2^* & 3 & 4 & 6 & 7 & 8 & 10 & 11 & 12 \\
-               5^* & 6 & 7 & 9 & 10 & 11 & 13 & 14 & 15 \\
-               6^* & 7 & 8 & 10 & 11 & 12 & 14 & 15 & 16 \\
-             \end{matrix}\right]
-          \]
+          <h2>Other Structures</h2>
+          <ul>
+            <li>Generative Adversarial Networks</li>
+            <li>Recurrent Neural Networks</li>
+            <li>Transformer Recurrent Neural Networks</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Pivot to Performance</h2>
+          <ul>
+            <li>We are doing LOTS of matrix operations!</li>
+            <li>Matrix multiply will dominate, it's O(n<sup>3</sup>) when done naively</li>
+            <li>Strassen's algorithm is O(n<sup>log<sub>2</sub>7</sup>) &#8776; O(n<sup>2.807</sup>)</li>
+            <li>Best theoretical as of 2020 is O(n<sup>2.3728596</sup>), but has "galactic" constants</li>
+            <li>How to best use the hardware?</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
@@ -454,63 +560,6 @@ You look down at the flock of birds. They are small birds and are chirping merri
                 stored in banded or packed format.</li>
             <li>Transpose generously supported.</li>
           </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>Chain Rule</h2>
-          <div>
-          \[ \frac{df}{dx} = \frac{df}{du} \frac{du}{dx} \]
-          </div>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>Multivariable Chain Rule</h2>
-          <div>
-          \[ \frac{d}{dx} f(g_1(x), ..., g_k(x)) =
-                 \sum_{i=1}^{k} \frac{df}{dg_i} \frac{dg_i}{dx} \]
-          </div>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>Convolutional Filters</h2>
-          <img height="500" src="https://developer-blogs.nvidia.com/wp-content/uploads/2014/10/caffenet_learned_filters.png">
-          <div class="tiny">
-          https://developer.nvidia.com/blog/deep-learning-computer-vision-caffe-cudnn/</div>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>MNIST (1998)</h2>
-          <ul>
-            <li>Handwritten digit dataset</li>
-            <li>28x28 grayscale</li>
-            <li>60,000 training images</li>
-            <li>10,000 test images</li>
-            <li>Remixed of NIST high school student and census bureau datasets</li>
-          </ul>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>MNIST (1998)</h2>
-          <img height="500" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/MnistExamples.png/480px-MnistExamples.png">
-          <div class="tiny">
-          https://en.wikipedia.org/wiki/MNIST_database#/media/File:MnistExamples.png</div>
-        </section>
-
-        <section data-transition="fade-out">
-          <h2>IDX File Format</h2>
-          <pre>
-Big Endian
-
-$00    - Magic #                            (byte)
-$00    - Magic #                            (byte)
-type   - $08=uint8 $09=int8 $0B=int16       (byte)
-         $0C=int32 $0D=float32 $0E=float64
-rank   - Number of dimensions               (byte)
-dim 1  - Size in dimension 1                (int32)
-....                                        ....
-dim N  - Size in dimension N                (int32)
-data   - Raw data
-          </pre>
         </section>
 
         <section data-transition="fade-out">
@@ -819,6 +868,17 @@ benchmark
         </section>
 
         <section data-transition="fade-out">
+          <h2>Intel MKL</h2>
+          <ul>
+            <li>Intel oneAPI Math Kernel Library</li>
+            <li>Linux, Windows, and OSX Intel Optimized Math Kernels</li>
+            <li>Structured to heavily focus on Intel over AMD</li>
+            <li>Implements BLAS and other kernels like FFT</li>
+            <li>Takes advantage of: threads, memory layout, SIMD, the works</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
           <h3>Wall Clock - System BLAS vs MKL BLAS</h3>
           <img src="speedup.svg" height="550">
         </section>
@@ -839,12 +899,201 @@ benchmark
         </section>
 
         <section data-transition="fade-out">
-          <h2>Logit</h2>
-          \[ logit(x) = ln\left(\frac{x}{1 - x}\right) \space\space\space
-             logit^{-1}(x) = \frac{1}{1 + e^{-x}} \]
-          <img style="background-color: white" height="300"
-               src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Logit.svg/525px-Logit.svg.png"><br/>
-          <small>https://en.wikipedia.org/wiki/Logit</small>
+          <h2>How to do fast convolution?</h2>
+          <ul>
+            <li>Using a custom kernel could work, but would require optimizing another core operation</li>
+            <li>Can we transform our input so that matrix multiplication becomes convolution?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>im2col</h2>
+          \[
+             F * I = im2col(F, F_s) \cdot im2col(I, F_s)
+          \]
+        </section>
+
+        <section data-transition="fade-out">
+          \[
+             I = \left[\begin{matrix}
+               1^* & 2^* & 3 & 4 \\
+               5^* & 6^* & 7 & 8 \\
+               9 & 10 & 11 & 12 \\
+               13 & 14 & 15 & 16 \\
+             \end{matrix}\right]
+          \]
+          \[
+             im2col(I, [2, 2]) = \\
+             \left[\begin{matrix}
+               1^* & 2 & 3 & 5 & 6 & 7 & 9 & 10 & 11 \\
+               2^* & 3 & 4 & 6 & 7 & 8 & 10 & 11 & 12 \\
+               5^* & 6 & 7 & 9 & 10 & 11 & 13 & 14 & 15 \\
+               6^* & 7 & 8 & 10 & 11 & 12 & 14 & 15 & 16 \\
+             \end{matrix}\right]
+          \]
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>im2col</h2>
+          <pre data-id="code-animation"><code data-trim>
+: im2col { src b w h c dst fw fh }
+  w h * c * sfloats { sb }
+  h c * sfloats { sw }
+  c sfloats { sh }
+  c fh * sfloats { shc }
+  src dst
+  b 0 do
+    over swap
+    w fw - 1+ 0 do
+      over swap
+      h fh - 1+ 0 do
+        over swap
+        fw 0 do
+          2dup shc cmove
+          shc + swap sw + swap
+        loop
+        nip
+        swap sh + swap
+      loop
+      nip
+      swap sw + swap
+    loop
+    nip
+    swap sb + swap
+  loop
+  2drop
+;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>im2col'</h2>
+          <pre data-id="code-animation"><code data-trim>
+: im2col-size { b w h c fw fh } b  w fw - 1+ *  h fh - 1+ *  c * ;
+: im2col' { src b w h c dst fw fh }
+  dst b w h c fw fh im2col-size 0 fill
+  sfloat incx ! sfloat incy !
+  w h * c * sfloats { sb }
+  h c * sfloats { sw }
+  c sfloats { sh }
+  c fh * { shc# }
+  shc# sfloats { shc }
+  dst src
+  b 0 do
+    over swap
+    w fw - 1+ 0 do
+      over swap
+      h fh - 1+ 0 do
+        over swap
+        fw 0 do
+          2dup swap shc# 1e saxpy
+          shc + swap sw + swap
+        loop
+        nip
+        swap sh + swap
+      loop
+      nip
+      swap sw + swap
+    loop
+    nip
+    swap sb + swap
+  loop
+  2drop
+;
+				</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>im2col Performance</h2>
+          <ul>
+            <li>~1.8 sec for 1024 128x128x3 images</li>
+            <li>~7.6 sec for multiply</li>
+            <li>NOTE: The resulting matrix can be reshaped into expected output in place</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Tensors (Next Time)</h2>
+          <ul>
+            <li>Many multidimensional tensors can be flattened to big matrices and correctly multiplied after adjusting shape</li>
+            <li>This will let us batch many items together</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>First Deep Learning Target Project</h2>
+          <ul>
+            <li>Recognize handwritten digits</li>
+            <li>Use a series of 3x3 convolution layers, followed by some dense layers</li>
+            <li>Classify into 0-9</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>MNIST (1998)</h2>
+          <ul>
+            <li>Handwritten digit dataset</li>
+            <li>28x28 grayscale</li>
+            <li>60,000 training images</li>
+            <li>10,000 test images</li>
+            <li>Remixed of NIST high school student and census bureau datasets</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>IDX File Format</h2>
+          <pre>
+Big Endian
+
+$00    - Magic #                            (byte)
+$00    - Magic #                            (byte)
+type   - $08=uint8 $09=int8 $0B=int16       (byte)
+         $0C=int32 $0D=float32 $0E=float64
+rank   - Number of dimensions               (byte)
+dim 1  - Size in dimension 1                (int32)
+....                                        ....
+dim N  - Size in dimension N                (int32)
+data   - Raw data
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Convert to Float</h2>
+          <pre data-id="code-animation"><code data-trim>
+: u8tof32 ( a a n -- )
+  0 do
+    over c@ s>f dup sf!
+    1 sfloats + swap 1+ swap
+  loop 2drop ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Convert to Float</h2>
+          <pre data-id="code-animation"><code data-trim>
+\c void u8tof32(const uint8_t *src, float *dst, size_t n) {
+\c   for (;n;--n) {
+\c     *dst++ = *src++;
+\c   }
+\c }
+c-function u8tof32 u8tof32 a a n -- void
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>MNIST (1998)</h2>
+          <img height="500" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/MnistExamples.png/480px-MnistExamples.png">
+          <div class="tiny">
+          https://en.wikipedia.org/wiki/MNIST_database#/media/File:MnistExamples.png</div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Next Time</h2>
+          <ul>
+            <li>Build Neural Network Layer Words</li>
+            <li>Implicitly build a reverse pass to calculate the gradient</li>
+            <li>Current Code tally: ~1,292 lines</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
