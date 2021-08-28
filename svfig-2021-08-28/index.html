@@ -420,6 +420,7 @@ limit = \sqrt{\frac{6}{fan_{in} + fan_{out}}}
                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Activation_rectified_linear.svg/180px-Activation_rectified_linear.svg.png"></td>
           </tr>
           </table>
+          <small>https://en.wikipedia.org/wiki/Activation_function</small>
         </section>
 
         <section data-transition="fade-out">
@@ -505,6 +506,11 @@ limit = \sqrt{\frac{6}{fan_{in} + fan_{out}}}
             <li>Standard "Kernels"</li>
             <li>Strided Data</li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Strided Data</h2>
+          <img src="strides.png" height="550">
         </section>
 
         <section data-transition="fade-out">
@@ -899,6 +905,19 @@ benchmark
         </section>
 
         <section data-transition="fade-out">
+          <h2>Speed!</h2>
+          <ul>
+            <li>MKL SGEMM is 1,512x faster than high level Forth!</li>
+            <li>But the layers were Matrix x Vector?</li>
+          </ul>
+        </section>
+
+         <section data-transition="fade-out">
+          <h2>Batches</h2>
+          <img src="batches.png" height="450">
+        </section>
+
+        <section data-transition="fade-out">
           <h2>How to do fast convolution?</h2>
           <ul>
             <li>Using a custom kernel could work, but would require optimizing another core operation</li>
@@ -1013,11 +1032,16 @@ benchmark
         </section>
 
         <section data-transition="fade-out">
-          <h2>Tensors (Next Time)</h2>
+          <h2>Tensors</h2>
           <ul>
             <li>Many multidimensional tensors can be flattened to big matrices and correctly multiplied after adjusting shape</li>
             <li>This will let us batch many items together</li>
           </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Multiple Filters and Images</h2>
+          <img src="convolve.png" height="550">
         </section>
 
         <section data-transition="fade-out">
