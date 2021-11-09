@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>3D Printing with Forth</title>
+    <meta name="description"
+          content="3D Printing with Forth - November 20, 2021">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/sky.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../common/forth.css">
+    <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!--
+
+3D Printing with Forth
+----------------------------
+3D printing is fun, and occasionally handy.
+A couple hundred lines of Forth code can be used to create useful 3D printed objects.
+Learn about Signed Distance Fields, Constructive Solid Geometry,
+and the joys and frustrations of making things out of plastic.
+
+-->
+
+    <style>
+pre {
+  background-color: #020;
+  padding: 10px;
+}
+.reveal-viewport {
+  background: #002200;
+  background: -moz-radial-gradient(center, circle cover, #005500 0%, #002200 100%);
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #005500), color-stop(100%, #002200));
+  background: -webkit-radial-gradient(center, circle cover, #005500 0%, #002200 100%);
+  background: -o-radial-gradient(center, circle cover, #005500 0%, #002200 100%);
+  background: -ms-radial-gradient(center, circle cover, #005500 0%, #002200 100%);
+  background: radial-gradient(center, circle cover, #005500 0%, #002200 100%);
+  background-color: #003300;
+}
+.reveal h1 {
+  color: #fff;
+}
+.reveal h2 {
+  color: #4f4;
+}
+.reveal h3 {
+  color: #cfc;
+}
+.reveal h4 {
+  color: #cfc;
+}
+.hljs-comment {
+  color: #0f0;
+}
+.reveal a:link {
+  color: #0f0;
+}
+.reveal a:visited {
+  color: #0f0;
+}
+.reveal a:hover {
+  color: #fff;
+}
+.reveal a:active {
+  color: #fff;
+}
+.reveal .controls {
+  color: #0a0;
+}
+.reveal .progress {
+  color: #070;
+}
+div {
+  color: #fff;
+}
+  </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>3D Printing with Forth<br/>Part I</h2>
+          <h3>November 20, 2021</h3>
+          <h4>FORTH DAY!</h4>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Overview</h2>
+          <ul>
+            <li>3D Printing!</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Formulas</h2>
+          <div>
+          \[ \frac{\delta}{\delta x} f(g(x)) = \frac{\delta f}{\delta g} \frac{\delta g}{\delta x} \]
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Code</h2>
+          <pre data-id="code-animation"><code data-trim>
+: TODO ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <br/>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/forth.js"></script>
+
+  </body>
+</html>
