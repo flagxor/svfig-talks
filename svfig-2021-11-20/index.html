@@ -106,16 +106,28 @@ div {
         <section data-transition="fade-out">
           <h2>Overview</h2>
           <ul>
-            <li>3D Printing!</li>
+            <li>Intro to 3D Printing</li>
+            <li>Controlling 3D Printing with Forth</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
-          <img src="spool.jpg" height="600">
+          <h2>Reprap</h2>
+          <ul>
+            <li>Darwin (2005) <img src="https://reprap.org/mediawiki/images/thumb/d/d8/All_3_axes_fdmd_sml.jpg/1200px-All_3_axes_fdmd_sml.jpg" height="200"></li>
+            <li>Prussa i3 (2012, kit 2015) <img src="https://reprap.org/mediawiki/images/thumb/5/55/Prusai3-metalframe.jpg/797px-Prusai3-metalframe.jpg" height="200"></li>
+            <li>Kossel (2012) <img src="https://reprap.org/mediawiki/images/thumb/d/dd/Kossel.jpg/505px-Kossel.jpg" height="200"></li>
+          </ul>
+          <small>https://reprap.org/wiki/RepRap</small>
         </section>
 
         <section data-transition="fade-out">
-          <img src="spool_loaded.jpg" height="600">
+          <h2>Materials</h2>
+          <ul>
+            <li>PLA - Polylatic Acid - Polyester made from corn, cassava, sugarcane, or sugar beet pulp. Melts at ~155&deg;C.</li>
+            <li>ABS - Acrylonitrile butadiene styrene - Mixed terpolymer made from natural gas and petroleum. Melts at - Polyester made from corn, cassava, sugarcane, or sugar beet pulp. Melts at ~200&deg;C.</li>
+            <li>Controlling 3D Printing with Forth</li>
+          </ul>
         </section>
 
         <section data-transition="fade-out">
@@ -132,6 +144,94 @@ div {
 
         <section data-transition="fade-out">
           <img src="gears1.jpg" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>G-code</h2>
+          <ul>
+            <li>Computer Numerical Control (CNC) Language</li>
+            <li>Appeared 1950! Standardized in 1980 - RS-274</li>
+            <li>Single letter codes to control:
+               <ul>
+                  <li>X, Y, Z position/movement</li>
+                  <li>Filament extrusion</li>
+                  <li>Extruder and bed temperature</li>
+                  <li>Rebasing / speed</li>
+               </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>G-code Example</h2>
+          <pre data-id="code-animation"><code data-trim>
+M107 ; fan off
+M190 S60 ; set bed temperature to 60
+M104 S200 ; set temperature to 200
+G28 ; home all axes
+G1 F5000 ; set speed 5000mm/min
+G1 X0.000 Y0.000 Z5.000
+
+M109 S200 ; wait for temperature 200
+M21 ; set units to millimeters
+G90 ; use absolute coordinates
+M82 ; use absolute distances for extrusion
+
+G92 E0 ; set zero position (E=extruder)
+G1 F9000 ; set speed 9000mm/min
+G1 X0.000 Y0.000 Z0.300
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Movement & Extrusion</h2>
+          <pre data-id="code-animation"><code data-trim>
+G1        ; Linearly interpolate (E.g. G0 goes straight there)
+  X0.000  ; X coordinate
+  Y0.000  ; Y coordinate
+  Z5.000  ; Z coordinate
+  E0.3    ; Extrusion position
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="spool.jpg" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="spool_loaded.jpg" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="circle.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="box.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="union.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="intersection.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="inverse.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="difference.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="smiley1.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="smiley2.png" height="600">
         </section>
 
         <section data-transition="fade-out">
@@ -174,6 +274,34 @@ div {
         </section>
 
         <section data-transition="fade-out">
+          <img src="microwave_model1.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="microwave_model2.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="microwave_model3.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="microwave_model4_layer1.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="microwave_model4_layer5.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="microwave_model4_layer10.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="microwave_model4.png" height="600">
+        </section>
+
+        <section data-transition="fade-out">
           <img src="microwave1.jpg" height="600">
         </section>
 
@@ -197,9 +325,176 @@ div {
         </section>
 
         <section data-transition="fade-out">
-          <h2>Code</h2>
+          <h2>Preminaries</h2>
           <pre data-id="code-animation"><code data-trim>
-: TODO ;
+: square ( n -- n^2 ) dup * ;
+: sqrt ( n -- n^1/2 ) 1 30 0 do 2dup / + 2/ loop nip ;
+: -! ( n a -- ) swap negate swap +! ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Units</h2>
+          <pre data-id="code-animation"><code data-trim>
+: um ;
+: mm 1000 * ;
+: cm 10 mm * ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Printing Units</h2>
+          <pre data-id="code-animation"><code data-trim>
+: signoformat ( n -- n d ) s>d swap over dabs ;
+: n. ( n -- ) signoformat <# #s rot sign #> type ;
+: mm. ( n -- ) signoformat
+               <# # # # [char] . hold #s rot sign #> type ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Control</h2>
+          <pre data-id="code-animation"><code data-trim>
+: nonfan ." M107 ; fan off" cr ;
+: fan ." M106 S255 ; fan on" cr ;
+: temperature
+   ( temp -- )  ." M104 S" dup n. ."  ; set temperature to " n. cr ;
+: temperatured
+   ( temp -- ) ." M109 S" dup n. ."  ; wait for temperature " n. cr ;
+: bed ( temp -- ) ." M190 S" dup n.
+                  ."  ; set bed temperature to " n. cr ;
+: millimeters ." M21 ; set units to millimeters" cr ;
+: absocoordinate ." G90 ; use absolute coordinates" cr ;
+: absodistinate ." M82 ; use absolute distances or extrusion" cr ;
+: home ." G28 ; home all axes" cr ;
+: nonmotor ." M84 ; disable motors" cr ;
+: speed ( s -- ) ." G1 F" dup n. ."  ; set speed " n. ." mm/min" cr ;
+
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Printer Head</h2>
+          <pre data-id="code-animation"><code data-trim>
+variable x   variable y   variable z   variable e
+variable flow  30 flow !
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: dist ( x y -- n ) y @ - square swap x @ - square + sqrt ;
+: absolute ( x y z -- )
+   z ! y ! x ! ." G1 X" x @ mm. ."  Y" y @ mm. ."  Z" z @ mm. cr ;
+: reextrude ." G92 E0 ; set zero position (E=extruder)" cr  0 e ! ;
+: extrude ( e -- ) e +! ." G1 E" e @ mm. cr ;
+: penup ." G1 Z" z @ 1 mm + mm. ."  E" e @ 1200 - mm. cr ;
+: pendown ." G1 Z" z @ mm. ."  E" e @ mm. cr ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: moveto ( x y -- )
+    2dup dist 600 um > dup >r if penup then
+    y ! x ! ." G1 X" x @ mm. ."  Y" y @ mm. cr
+    r> if pendown then ;
+: lineto ( x y -- )
+    2dup dist flow @ 1000 */ e +!
+    y ! x ! ." G1 X" x @ mm. ."  Y" y @ mm. ."  E" e @ mm. cr ;
+: lineby ( x y -- ) y @ + swap x @ + swap lineto ;
+: syncup ." G1 Z" z @ mm. cr reextrude ;
+: up z +! syncup ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: boilerplate
+   nonfan 60 bed 200 temperature home
+   5000 speed 0 0 5000 absolute cr
+   200 temperatured
+   millimeters absocoordinate absodistinate cr
+   reextrude 9000 speed 0 0 300 absolute
+   2400 speed reextrude
+   600 speed ;
+: terminus 9000 speed nonfan 0 temperature home nonmotor cr ;
+: box dup 0 lineby dup 0 swap lineby negate
+      dup 0 lineby 0 swap lineby ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CSG</h2>
+          <pre data-id="code-animation"><code data-trim>
+: inverse ( n -- n ) negate ;
+: union ( a b -- n ) min ;
+: intersection ( a b -- n ) max ;
+: difference ( a b -- n ) inverse intersection ;
+: sphere ( r -- n ) x @ square y @ square + z @ square + sqrt swap - ;
+: prism ( x y z -- n )
+   z @ abs swap - swap y @ abs swap - max swap x @ abs swap - max ;
+: cylinder ( h r -- n )
+   x @ square y @ square + sqrt swap - swap z @ abs swap - max ;
+
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Transforms</h2>
+          <pre data-id="code-animation"><code data-trim>
+: translate ( x y z -- ) z -! y -! x -! ;
+: scale ( x y z -- )
+   z @ swap 1000 */ z !
+   y @ swap 1000 */ y !
+   x @ swap 1000 */ x ! ;
+: uscale ( s -- ) dup dup scale ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Geometry Stack</h2>
+          <pre data-id="code-animation"><code data-trim>
+create geostack 300 cells allot
+variable geosp  geostack geosp !
+: gunipush geosp @ !   cell geosp +! ;
+: gunipop cell geosp -!   geosp @ @ ;
+: gpush x @ gunipush y @ gunipush z @ gunipush ;
+: gpop gunipop z ! gunipop y ! gunipop x ! ;
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Printing Units</h2>
+          <pre data-id="code-animation"><code data-trim>
+					</code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre data-id="code-animation"><code data-trim>
+: model
+   gpush
+       6 mm -7500 um 1500 um - 1 mm translate
+       4 mm 3 mm 1 mm prism
+   gpop
+   gpush
+       -6 mm -7500 um 1500 um - 1 mm translate
+       4 mm 3 mm 1 mm prism
+   gpop
+   union
+   gpush
+       0 1500 um 4 mm translate
+       6500 um 9 mm 4 mm prism
+   gpop
+   union
+   gpush
+       0 7500 um 10 mm - 5 mm translate
+       5 mm 3500 um cylinder
+   gpop
+   difference
+;
+' model sweepmodel !
+generate
 					</code></pre>
         </section>
 
