@@ -107,31 +107,76 @@ div {
           <h2>Overview</h2>
           <ul>
             <li>Intro to 3D Printing</li>
-            <li>Controlling 3D Printing with Forth</li>
+            <li>G-code and printer control</li>
+            <li>Constructive Solid Geometry</li>
+            <li>Signed Distance Fields</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
           <h2>Reprap</h2>
           <ul>
-            <li>Darwin (2005) <img src="https://reprap.org/mediawiki/images/thumb/d/d8/All_3_axes_fdmd_sml.jpg/1200px-All_3_axes_fdmd_sml.jpg" height="200"></li>
-            <li>Prussa i3 (2012, kit 2015) <img src="https://reprap.org/mediawiki/images/thumb/5/55/Prusai3-metalframe.jpg/797px-Prusai3-metalframe.jpg" height="200"></li>
-            <li>Kossel (2012) <img src="https://reprap.org/mediawiki/images/thumb/d/dd/Kossel.jpg/505px-Kossel.jpg" height="200"></li>
+            <li>Adrian Bowyer, University of Bath 2005</li>
+            <li>Open-source 3D Printer that can print itself</li>
           </ul>
+          <img src="https://reprap.org/mediawiki/images/thumb/d/d8/All_3_axes_fdmd_sml.jpg/1200px-All_3_axes_fdmd_sml.jpg"
+               height="300"></li>
+          <br/>
           <small>https://reprap.org/wiki/RepRap</small>
         </section>
 
         <section data-transition="fade-out">
-          <h2>Materials</h2>
+          <h2>Prussa i3 (2012, kit 2015)</h2>
+          <div style="float: right">
+            <img src="https://reprap.org/mediawiki/images/thumb/5/55/Prusai3-metalframe.jpg/797px-Prusai3-metalframe.jpg"
+                 height="400">
+            <br/>
+            <small>https://reprap.org/wiki/RepRap</small>
+          </div>
           <ul>
-            <li>PLA - Polylatic Acid - Polyester made from corn, cassava, sugarcane, or sugar beet pulp. Melts at ~155&deg;C.</li>
-            <li>ABS - Acrylonitrile butadiene styrene - Mixed terpolymer made from natural gas and petroleum. Melts at - Polyester made from corn, cassava, sugarcane, or sugar beet pulp. Melts at ~200&deg;C.</li>
-            <li>Controlling 3D Printing with Forth</li>
+            <li>Rectilinear Printer</li>
+            <li>Moving Heated Bed</li>
+            <li>Moving Extruder Motor</li>
           </ul>
         </section>
 
         <section data-transition="fade-out">
-          <img src="delta1.jpg" height="600">
+          <h2>Kossel (2012)</h2>
+          <div style="float: right">
+            <img src="https://reprap.org/mediawiki/images/thumb/d/dd/Kossel.jpg/505px-Kossel.jpg"
+                 height="400">
+            <br/>
+            <small>https://reprap.org/wiki/RepRap</small>
+          </div>
+          <ul>
+            <li>Delta Printer</li>
+            <li>Stationary Glass Bed</li>
+            <li>Stationary Motors</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>My FLSUN Kossel</h2>
+          <div style="float: right">
+            <img src="delta1.jpg" height="500">
+          </div>
+          <ul>
+            <li>Kit Version of Kossel</li>
+            <li>Added Metal Heated Bed</li>
+            <li>~$200 in 2017</li>
+            <li>Stationary Motors</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>My FLSUN Kossel</h2>
+          <ul>
+            <li>First control board weird</li>
+            <li>FLSUN good about replacing</li>
+          </ul>
+          <div>
+            <img src="inside_printer.jpg" height="400">
+          </div>
         </section>
 
         <section data-transition="fade-out">
@@ -140,6 +185,28 @@ div {
 
         <section data-transition="fade-out">
           <img src="newt.jpg" height="600">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Materials</h2>
+          <ul>
+            <li>PLA - Polylatic Acid
+              <ul><li>Polyester made from corn, cassava, sugarcane, or sugar beet pulp.</li>
+                  <li>Used for recyclable utensils.</li>
+                  <li>Melts at ~155&deg;C.</li></ul></li>
+            <li>ABS - Acrylonitrile butadiene styrene
+              <ul><li>Mixed terpolymer made from natural gas and petroleum.
+                  <li>Used for Legos.</li>
+                  <li>Melts at ~200&deg;C.</li></ul></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <iframe width="900" height="600"
+                  src="https://www.youtube.com/embed/ar3iSOhlZy8"
+                  title="YouTube video player" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen></iframe>
         </section>
 
         <section data-transition="fade-out">
@@ -307,14 +374,6 @@ G1        ; Linearly interpolate (E.g. G0 goes straight there)
 
         <section data-transition="fade-out">
           <img src="microwave2.jpg" height="600">
-        </section>
-
-        <section data-transition="fade-out">
-          <iframe width="900" height="600"
-                  src="https://www.youtube.com/embed/ar3iSOhlZy8"
-                  title="YouTube video player" frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
         </section>
 
         <section data-transition="fade-out">
