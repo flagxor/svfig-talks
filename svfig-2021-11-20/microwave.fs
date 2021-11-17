@@ -113,24 +113,27 @@ variable samplepos
 : sampleslice
    clearslice slice samplepos !
    sweeprange do i y ! sampleyslice sweepstep +loop ;
+
 variable floodorder
 : toggleorder floodorder @ invert floodorder ! ;
+
+: horiflood ( pos -- pos )
+   dup 1- floodpush
+   dup 1+ floodpush
+   dup slicelength - floodpush
+   dup slicelength + floodpush ;
+: vertiflood ( pos -- pos )
+   dup slicelength - floodpush
+   dup slicelength + floodpush
+   dup 1- floodpush
+   dup 1+ floodpush ;
+
 : flooddrain
    begin unflooded while
      floodpop
      dup c@ if
        0 over c!
-       floodorder @ if
-         dup 1- floodpush
-         dup 1+ floodpush
-         dup slicelength - floodpush
-         dup slicelength + floodpush
-       else
-         dup slicelength - floodpush
-         dup slicelength + floodpush
-         dup 1- floodpush
-         dup 1+ floodpush
-       then
+       floodorder @ if horiflood else vertiflood then
        pointify
        2dup dist 500 um > if 9000 speed moveto 600 speed else lineto then
      else drop then 
