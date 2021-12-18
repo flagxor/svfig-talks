@@ -2,8 +2,8 @@
 <script src="../websent/websent.js"></script><script>
 USABLE = 0.9;
 FONT = 'Consolas, monospace';
-FOREGROUND = '#00f';
-BACKGROUND = '#eee';
+FOREGROUND = '#007';
+BACKGROUND = '#fff';
 </script><pre>
 
 ESP32Forth eoy 2021
@@ -12,9 +12,192 @@ ESP32Forth eoy 2021
         🙜
 Decemeber 18, 2021
 
-Introduction
+Agenda
     🙜
- • TODO
+ • Floating Point
+ • More Kinds of ESP-32
+ • Lots of Libraries
+
+Floating Point
+    🙜
+ • Use what the hardware has
+ • Preparing to run ML models
+ • ESP-32 only has hardware float32
+ • Many libraries take floats
+
+Approach
+    🙜
+ • Additional floating point stack
+ • fp pointer throughout
+
+  register cell_t *ip, *rp, *sp, tos, w;
+  register float *fp;
+  rp = init_rp;  ip = (cell_t *) *rp--;  sp = (cell_t *) *rp--;
+  fp = (float *) *rp--;
+  DROP; NEXT;
+ 
+#define PARK DUP; \
+  *++rp = (cell_t) fp; \
+  *++rp = (cell_t) sp; \
+  *++rp = (cell_t) ip
+
+static cell_t fconvert(const char *pos, cell_t n, float *ret) {
+  *ret = 0;
+  cell_t negate = 0;
+  cell_t has_dot = 0;
+  cell_t exp = 0;
+  float shift = 1.0;
+  if (!n) { return 0; }
+  if (*pos == '-') { negate = -1; ++pos; --n; }
+  for (; n; --n) {
+    if (*pos >= '0' && *pos <= '9') {
+      if (has_dot) {
+        shift = shift * 0.1f;
+        *ret = *ret + (*pos - '0') * shift;
+      } else {
+        *ret = *ret * 10 + (*pos - '0');
+      }
+    } else if (*pos == 'e' || *pos == 'E') {
+      break;
+    } else if (*pos == '.') {
+      if (has_dot) { return 0; }
+      has_dot = -1;
+    }
+    ++pos;
+  }
+  if (!n) { return 0; }  // must have E
+  ++pos; --n;
+  if (n) {
+    if (!convert(pos, n, 10, &exp)) { return 0; }
+  }
+  if (exp < -128 || exp > 128) { return 0; }
+  for (;exp < 0; ++exp) { *ret *= 0.1f; }
+  for (;exp > 0; --exp) { *ret *= 10.0f; }
+  if (negate) { *ret = -*ret; }
+  return -1;
+}
+  
+X("F>NUMBER?", FCONVERT, tos = fconvert((const char *) *sp, tos, fp); --sp) \
+
+    } else {
+      float f;
+      if (fconvert((const char *) name, len, &f)) {
+        if (g_sys.state) {
+          *g_sys.heap++ = g_sys.DOFLIT_XT;
+          *(float *) g_sys.heap++ = f;
+        } else {
+          *++(*fp) = f;
+        }
+
+#define FLOATING_POINT_LIST \
+  Y(DOFLIT, *++fp = *(float *) ip++) \
+
+  X("FDUP", FDUP, fp[1] = *fp; ++fp) \
+  X("FNIP", FNIP, fp[-1] = *fp; --fp) \
+  X("FDROP", FDROP, --fp) \
+  X("FOVER", FOVER, fp[1] = fp[-1]; ++fp) \
+  X("FSWAP", FSWAP, float ft = fp[-1]; fp[-1] = *fp; *fp = ft) \
+
+  X("F0<", FZLESS, DUP; tos = *fp-- < 0.0f ? -1 : 0) \
+  X("F0=", FZEQUAL, DUP; tos = *fp-- == 0.0f ? -1 : 0) \
+
+: f= ( r r -- f ) f- f0= ;
+: f< ( r r -- f ) f- f0< ;
+: f> ( r r -- f ) fswap f< ;
+: f<> ( r r -- f ) f= 0= ;
+: f<= ( r r -- f ) f> 0= ;
+: f>= ( r r -- f ) f< 0= ;
+
+  X("FNEGATE", FNEGATE, *fp = -*fp) \
+  X("F+", FPLUS, fp[-1] += *fp; --fp) \
+  X("F-", FMINUS, fp[-1] -= *fp; --fp) \
+  X("F*", FSTAR, fp[-1] *= *fp; --fp) \
+  X("F/", FSLASH, fp[-1] /= *fp; --fp) \
+  X("1/F", FINVERSE, *fp = 1.0 / *fp) \
+
+  X("S>F", STOF, *++fp = (float) tos; DROP) \
+  X("F>S", FTOS, DUP; tos = (cell_t) *fp--) \
+
+  X("FP@", FPAT, DUP; tos = (cell_t) fp) \
+  X("FP!", FPSTORE, fp = (float *) tos; DROP) \
+  X("SF@", FAT, *++fp = *(float *) tos; DROP) \
+  X("SF!", FSTORE, *(float *) tos = *fp--; DROP) \
+
+4 constant sfloat
+: sfloats ( n -- n*4 ) sfloat * ;
+: sfloat+ ( a -- a ) sfloat + ;
+: sf, ( r -- ) here sf! sfloat allot ;
+
+: afliteral ( r -- ) ['] DOFLIT , sf, align ;
+: fliteral   afliteral ; immediate
+: fconstant ( r "name" ) create sf, align does> sf@ ;
+: fvariable ( "name" ) create sfloat allot align ;
+
+6 value precision
+: set-precision ( n -- ) to precision ;
+: #f+s ( r -- ) fdup precision 0 ?do 10e f* loop
+                precision 0 ?do fdup f>s 10 mod [char] 0 + hold 0.1e f* loop
+                [char] . hold fdrop f>s #s ;
+: #fs ( r -- ) fdup f0< if fnegate #f+s [char] - hold else #f+s then ;
+: f. ( r -- ) <# #fs #> type space ;
+
+: fsqrt ( r -- r )
+  1e 20 0 do fover fover f/ f+ 0.5e f* loop fnip ;
+
+ESP32 Hardware Explosion
+    🙜
+ESP8266      - Tensilica Xtensa L106 - 80MHz  - Single Core
+ESP32        - Tensilica Xtensa LX6  - 240MHz - Dual Core
+ESP32-SOLO
+& ESP32-MINI - Tensilica Xtensa LX6  - 240MHz - Single Core
+ESP32-S2     - Tensilica Xtensa LX7  - 240MHz - Single Core
+ESP32-S3     - Tensilica Xtensa LX7  - 240MHz - Single Core
+ 
+ESP32-C3     - RISC-V                - 160MHz - Single Core
+ESP32-C6     - RISC-V                - 160MHz - Single Core
+
+ESP32 Hardware Explosion
+    🙜
+ESP8266      - 80KiB RAM  - 17 GPIO
+ESP32        - 320KiB RAM - 34 GPIO
+ESP32-SOLO   - 520KiB RAM - 22 GPIO - NO ARDUINO!
+ESP32-MINI   - 520KiB RAM - 28 GPIO - NO ARDUINO!
+ESP32-S2     - 320KiB RAM - 43 GPIO - USB OTG / No BLE
+ESP32-S3     - 384KiB RAM - 44 GPIO - USB OTG
+ 
+ESP32-C3     - 400KiB RAM - 22 GPIO (Pin compat 8266)
+ESP32-C6     - 400KiB RAM - 22 GPIO - NO ARDUINO!
+
+ESP32 Hardware Explosion
+    🙜
+ESP8266      - No FPU
+ESP32        - Single Precision FPU
+ESP32-SOLO   - Single Precision FPU
+ESP32-MINI   - Single Precision FPU
+ESP32-S2     - No FPU
+ESP32-S3     - Single Precision FPU
+ 
+ESP32-C3     - No FPU
+ESP32-C6     - No FPU
+
+Easy to Expand
+    🙜
+---- userwords.h ----
+int my_cool_function(char *foo, int bar, uint8_t *baz);
+...
+#define USER_WORDS \
+  Y(MY_FUNC, n0 = my_cool_function(c2, n1, b0); NIPn(2)) \
+
+Lots of Libraries
+    🙜
+ • Serial               • Serial Bluetooth
+ • LED Controller       • SPIFFS
+ • SD_MMC               • WiFi
+ • mDNS                 • I2C
+ • WebServer (Forth and Native)
+ • Camera               • GPIO & Interrupts
+ • Remote Control (RMT) • Tasks
+ • Blocks
 
 eforth.appspot.com
         ⚘
