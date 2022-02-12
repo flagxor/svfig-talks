@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+USABLE = 0.9;
+LINE_SPACING = 1.1;
+FONT = 'Consolas, monospace';
+BACKGROUND = '#020';
+FOREGROUND = '#fff';
+</script><pre>
+
+    ESP32forth
+       🙜
+February 12, 2022
+
+TOPICS
+------
+• Raw Strings
+• ESP32 variants
+• Memory
+
+const char boot[] = R"""(
+: (   41 parse drop drop ; immediate
+: \   10 parse drop drop ; immediate
+( Now can do comments! )
+  
+( Constants and Variables )
+: constant ( n "name" -- ) create , does> @ ;
+: variable ( "name" -- ) create 0 , ;
+...
+   
+)""";
+
+ESP32 Hardware Explosion
+    🙜
+ESP8266      - Tensilica Xtensa L106 - 80MHz  - Single Core
+ESP32        - Tensilica Xtensa LX6  - 240MHz - Dual Core
+ESP32-SOLO
+& ESP32-MINI - Tensilica Xtensa LX6  - 240MHz - Single Core
+ESP32-S2     - Tensilica Xtensa LX7  - 240MHz - Single Core
+ESP32-S3     - Tensilica Xtensa LX7  - 240MHz - Single Core
+ 
+ESP32-C3     - RISC-V                - 160MHz - Single Core
+ESP32-C6     - RISC-V                - 160MHz - Single Core
+
+ESP32 Hardware Explosion                                   
+    🙜
+ESP8266      - 80KiB RAM  - 17 GPIO
+ESP32        - 320KiB RAM - 34 GPIO
+ESP32-SOLO   - 520KiB RAM - 22 GPIO - NO ARDUINO!
+ESP32-MINI   - 520KiB RAM - 28 GPIO - NO ARDUINO!
+ESP32-S2     - 320KiB RAM - 43 GPIO - USB OTG / No BLE
+ESP32-S3     - 384KiB RAM - 44 GPIO - USB OTG
+ 
+ESP32-C3     - 400KiB RAM - 22 GPIO (Pin compat 8266)
+ESP32-C6     - 400KiB RAM - 22 GPIO - NO ARDUINO!
+
+ESP32 Hardware Explosion                                   
+    🙜
+ESP8266      - NO SUPPORT
+ESP32        - SUPPORTED
+ESP32-SOLO   - NO SUPPORT
+ESP32-MINI   - NO SUPPORT
+ESP32-S2     - SUPPORTED
+ESP32-S3     - NO SUPPORT
+ 
+ESP32-C3     - SUPPORTED
+ESP32-C6     - NO SUPPORT
+
+MEMORY EMBARRASSMENT
+--------------------
+100KB Heap
+73KB Used up!
+27KB Free :-(
+
+ESP32 MEMORY MAP
+----------------
+0x3FFA_E000 - 0x3FFD_FFFF SRAM2 (200KB)
+0x3FFE_FFFF - 0x3FFF_FFFF SRAM1 (128KB)
+0x4000_0000 - 0x4005_FFFF ROM
+0x4006_0000 - 0x4006_FFFF Reserved
+0x4007_0000 - 0x4007_FFFF SRAM0 (64KB) [Cache]
+0x4008_0000 - 0x4009_FFFF SRAM0 (128KB)
+0x400A_0000 - 0x400B_FFFF SRAM1 (128KB) [Remap]
+
+FORTH MEMORY MAP
+----------------
+base + 0x00000    Float Stack
+base + 0x00800    Return Stack
+base + 0x01000    Data Stack
+base + 0x01800    Forth Heap
+base + 0x08000      ~ Initially used
+base + 0x1BC80      ~ Limit
+
+ESP32forth v7.0.6.15 - rev b64e43f70152280caffc
+ESP32-D0WDQ6   240 MHz   2 cores   4194304 bytes flash
+     System Heap: 201476 free + 346176 used = 547652 total (36% free)
+                  97788 bytes max contiguous
+Forth dictionary: 80956 free + 26692 used = 107648 total (75% free)
+3 x Forth stacks: 2048 bytes each
+ ok
+--> 
+
+ESP32forth v7.0.6.15 - rev b64e43f70152280caffc
+FAKE-ESP32   240 MHz   2 cores   4194304 bytes flash
+     System Heap: 90000 free + 327680 used = 417680 total (21% free)
+                  81920 bytes max contiguous
+Forth dictionary: 1052220 free + 27076 used = 1079296 total (97% free)
+3 x Forth stacks: 2048 bytes each
+ ok
+--> include common/ansi.fs include common/all_tests.fs
+-----------------------------------------
+  PASSED: 103   RUN: 103   FOUND: 103
+  ALL TESTS PASSED
+-----------------------------------------
+
+( Lazy loaded Telnet )
+: telnetd r|
+  
+vocabulary telnetd   telnetd definitions also sockets
+...
+only forth definitions
+telnetd
+  
+| evaluate ;
+
+ORIGINAL OPCODES
+----------------
+0= 0< + U/MOD */MOD   AND OR XOR
+LSHIFT RSHIFT   DUP SWAP OVER DROP
+@ SL@ SW@ C@ ! L! W! C!   SP@ SP! RP@ RP!
+>R R> R@   : ; EXIT
+EXECUTE BRANCH 0BRANCH DONEXT DOLIT
+ALITERAL CELL DOES> IMMEDIATE 'SYS
+
+n10 n9 n8 n7 n6 n5 n4 n3 n2 n1 n0 - cell_t integer values
+                   c4 c3 c2 c1 c0 - char* values
+                   b4 b3 b2 b1 b0 - uint8_t* byte values
+                   a4 a3 a2 a1 a0 - void* values
+
+void myword(int a, int b, int c);
+int send_message(const char *message, int code);
+   🙜
+Y(myword, myword(n2, n1, n0); DROPn(3)) \
+X("send-message", SEND_MESSAGE, \
+  n0 = send_message(c1, n0); DROP) \
+
+#define VOCABULARY_LIST \
+  V(forth) V(internals) ...
+   🙜
+void myword(int a, int b, int c);
+int send_message(const char *message, int code);
+   🙜
+YV(vocabulary, myword, myword(n2, n1, n0); DROPn(3)) \
+XV(vocabulary, "send-message", SEND_MESSAGE, \
+   n0 = send_message(c1, n0); DROP) \
+
+#define OPCODE_LIST \
+  X("0=", ZEQUAL, tos = !tos ? -1 : 0) \
+  X("0<", ZLESS, tos = (tos|0) < 0 ? -1 : 0) \
+  X("+", PLUS, tos += *sp--) \
+  X("U/MOD", USMOD, w = *sp; *sp = (ucell_t) w % (ucell_t) tos; \
+                    tos = (ucell_t) w / (ucell_t) tos) \
+  X("*/MOD", SSMOD, SSMOD_FUNC) \
+  Y(LSHIFT, tos = (*sp-- << tos)) \
+  Y(RSHIFT, tos = (*sp-- >> tos)) \
+  Y(AND, tos &= *sp--) \
+  Y(OR, tos |= *sp--) \
+  Y(XOR, tos ^= *sp--) \
+  Y(DUP, DUP) \
+  Y(SWAP, w = tos; tos = *sp; *sp = w) \
+  Y(OVER, DUP; tos = sp[-1]) \
+  Y(DROP, DROP) \
+  X("@", AT, tos = *(cell_t *) tos) \
+  X("SL@", SLAT, tos = *(int32_t *) tos) \
+  X("SW@", SWAT, tos = *(int16_t *) tos) \
+  X("C@", CAT, tos = *(uint8_t *) tos) \
+  X("!", STORE, *(cell_t *) tos = *sp--; DROP) \
+  X("L!", LSTORE, *(int32_t *) tos = *sp--; DROP) \
+  X("W!", WSTORE, *(int16_t *) tos = *sp--; DROP) \
+  X("C!", CSTORE, *(uint8_t *) tos = *sp--; DROP) \
+  X("SP@", SPAT, DUP; tos = (cell_t) sp) \
+  X("SP!", SPSTORE, sp = (cell_t *) tos; DROP) \
+  X("RP@", RPAT, DUP; tos = (cell_t) rp) \
+  X("RP!", RPSTORE, rp = (cell_t *) tos; DROP) \
+  X(">R", TOR, *++rp = tos; DROP) \
+  X(">R", TOR, *++rp = tos; DROP) \
+  X("R>", FROMR, DUP; tos = *rp; --rp) \
+  X("R@", RAT, DUP; tos = *rp) \
+
+  Y(EXECUTE, w = tos; DROP; JMPW) \
+  YV(internals, BRANCH, ip = (cell_t *) *ip) \
+  YV(internals, 0BRANCH, if (!tos) ip = (cell_t *) *ip; else ++ip; DROP) \
+  YV(internals, DONEXT, *rp = *rp - 1; if (~*rp) ip = (cell_t *) *ip; else (--rp, ++ip)) \
+  YV(internals, DOLIT, DUP; tos = *ip++) \
+  YV(internals, ALITERAL, COMMA(g_sys.DOLIT_XT); COMMA(tos); DROP) \
+  Y(CELL, DUP; tos = sizeof(cell_t)) \
+  Y(FIND, tos = find((const char *) *sp, tos); --sp) \
+  Y(PARSE, DUP; tos = parse(tos, sp)) \
+  XV(internals, "S>NUMBER?", \
+      CONVERT, tos = convert((const char *) *sp, tos, g_sys.base, sp); \
+      if (!tos) --sp) \
+  Y(CREATE, DUP; DUP; tos = parse(32, sp); \
+            create((const char *) *sp, tos, 0, ADDR_DOCREATE); \
+            COMMA(0); DROPn(2)) \
+  X("DOES>", DOES, DOES(ip); ip = (cell_t *) *rp; --rp) \
+  Y(IMMEDIATE, DOIMMEDIATE()) \
+  XV(internals, "'SYS", SYS, DUP; tos = (cell_t) &g_sys) \
+  YV(internals, YIELD, PARK; return rp) \
+  X(":", COLON, DUP; DUP; tos = parse(32, sp); \
+                create((const char *) *sp, tos, SMUDGE, ADDR_DOCOLON); \
+                g_sys.state = -1; --sp; DROP) \
+  YV(internals, EVALUATE1, DUP; float *tfp = fp; \
+               sp = evaluate1(sp, &tfp); \
+               fp = tfp; w = *sp--; DROP; if (w) JMPW) \
+  Y(EXIT, ip = (cell_t *) *rp--) \
+  XV(internals, "'builtins", TBUILTINS, DUP; tos = (cell_t) &g_sys.builtins->code) \
+  XV(forth_immediate, ";", SEMICOLON, COMMA(g_sys.DOEXIT_XT); UNSMUDGE(); g_sys.state = 0)
+
+#define EXTRA_OPCODE_LIST \
+  Y(nip, NIP) \
+  Y(rdrop, --rp) \
+  X("*/", STARSLASH, SSMOD_FUNC; NIP) \
+  X("*", STAR, tos *= *sp--) \
+  X("/mod", SLASHMOD, DUP; *sp = 1; SSMOD_FUNC) \
+  X("/", SLASH, DUP; *sp = 1; SSMOD_FUNC; NIP) \
+  Y(mod, DUP; *sp = 1; SSMOD_FUNC; DROP) \
+  Y(invert, tos = ~tos) \
+  Y(negate, tos = -tos) \
+  X("-", MINUS, tos = (*sp--) - tos) \
+  Y(rot, w = sp[-1]; sp[-1] = *sp; *sp = tos; tos = w) \
+  X("-rot", MROT, w = tos; tos = *sp; *sp = sp[-1]; sp[-1] = w) \
+  X("<", LESS, tos = (*sp--) < tos ? -1 : 0) \
+  X(">", GREATER, tos = (*sp--) > tos ? -1 : 0) \
+  X("<=", LESSEQ, tos = (*sp--) <= tos ? -1 : 0) \
+  X(">=", GREATEREQ, tos = (*sp--) >= tos ? -1 : 0) \
+  X("=", EQUAL, tos = (*sp--) == tos ? -1 : 0) \
+  X("<>", NOTEQUAL, tos = (*sp--) != tos ? -1 : 0) \
+  X("0<>", ZNOTEQUAL, tos = tos ? -1 : 0) \
+  Y(bl, DUP; tos = ' ') \
+  Y(nl, DUP; tos = '\n') \
+  X("1+", ONEPLUS, ++tos) \
+  X("1-", ONEMINUS, --tos) \
+  X("2*", TWOSTAR, tos <<= 1) \
+  X("2/", TWOSLASH, tos >>= 1) \
+
+  X("4*", FOURSTAR, tos <<= 2) \
+  X("4/", FOURSLASH, tos >>= 2) \
+  X("+!", PLUSSTORE, *(cell_t *) tos += *sp--; DROP) \
+  X("cell+", CELLPLUS, tos += sizeof(cell_t)) \
+  X("cells", CELLSTAR, tos *= sizeof(cell_t)) \
+  X("cell/", CELLSLASH, DUP; tos = sizeof(cell_t); DUP; *sp = 1; SSMOD_FUNC; NIP) \
+  X("2drop", TWODROP, NIP; DROP) \
+  X("2dup", TWODUP, DUP; tos = sp[-1]; DUP; tos = sp[-1]) \
+  X("2@", TWOAT, DUP; *sp = ((cell_t *) tos)[1]; tos = *(cell_t *) tos) \
+  X("2!", TWOSTORE, DUP; ((cell_t *) tos)[0] = sp[-1]; \
+      ((cell_t *) tos)[1] = *sp; sp -= 2; DROP) \
+  Y(cmove, memmove((void *) *sp, (void *) sp[-1], tos); sp -= 2; DROP) \
+  X("cmove>", cmove2, memmove((void *) *sp, (void *) sp[-1], tos); sp -= 2; DROP) \
+  Y(fill, memset((void *) sp[-1], tos, *sp); sp -= 2; DROP) \
+  Y(erase, memset((void *) *sp, 0, tos); NIP; DROP) \
+  Y(blank, memset((void *) *sp, ' ', tos); NIP; DROP) \
+  Y(min, tos = tos < *sp ? tos : *sp; NIP) \
+  Y(max, tos = tos > *sp ? tos : *sp; NIP) \
+  Y(abs, tos = tos < 0 ? -tos : tos) \
+  Y(here, DUP; tos = (cell_t) g_sys.heap) \
+  Y(allot, g_sys.heap = (cell_t *) (tos + (cell_t) g_sys.heap); DROP) \
+  Y(aligned, tos = CELL_ALIGNED(tos)) \
+  Y(align, g_sys.heap = (cell_t *) CELL_ALIGNED(g_sys.heap)) \
+  X(",", COMMA, *g_sys.heap++ = tos; DROP) \
+  X("c,", CCOMMA, *((uint8_t *) g_sys.heap) = tos; DROP; \
+      g_sys.heap = (cell_t *) (1 + ((cell_t) g_sys.heap))) \
+  X(">flags", TOFLAGS, tos = *TOFLAGS(tos)) \
+  X(">params", TOPARAMS, tos = *TOPARAMS(tos)) \
+  X(">size", TOSIZE, tos = TOSIZE(tos)) \
+
+  X(">link&", TOLINKAT, tos = (cell_t) TOLINK(tos)) \
+  X(">link", TOLINK, tos = *TOLINK(tos)) \
+  X(">name", TONAME, DUP; *sp = (cell_t) TONAME(tos); tos = *TONAMELEN(tos)) \
+  X(">body", TOBODY, tos = (cell_t) TOBODY(tos)) \
+  XV(internals, "'heap", THEAP, DUP; tos = (cell_t) &g_sys.heap) \
+  Y(current, DUP; tos = (cell_t) &g_sys.current) \
+  XV(internals, "'context", TCONTEXT, DUP; tos = (cell_t) &g_sys.context) \
+  XV(internals, "'latestxt", TLATESTXT, DUP; tos = (cell_t) &g_sys.latestxt) \
+  XV(internals, "'notfound", TNOTFOUND, DUP; tos = (cell_t) &g_sys.notfound) \
+  XV(internals, "'heap-start", THEAP_START, DUP; tos = (cell_t) &g_sys.heap_start) \
+  XV(internals, "'heap-size", THEAP_SIZE, DUP; tos = (cell_t) &g_sys.heap_size) \
+  XV(internals, "'stack-cells", TSTACK_CELLS, DUP; tos = (cell_t) &g_sys.stack_cells) \
+  XV(internals, "'boot", TBOOT, DUP; tos = (cell_t) &g_sys.boot) \
+  XV(internals, "'boot-size", TBOOT_SIZE, DUP; tos = (cell_t) &g_sys.boot_size) \
+  XV(internals, "'tib", TTIB, DUP; tos = (cell_t) &g_sys.tib) \
+  X("#tib", NTIB, DUP; tos = (cell_t) &g_sys.ntib) \
+  X(">in", TIN, DUP; tos = (cell_t) &g_sys.tin) \
+  Y(state, DUP; tos = (cell_t) &g_sys.state) \
+  Y(base, DUP; tos = (cell_t) &g_sys.base) \
+  XV(internals, "'argc", ARGC, DUP; tos = (cell_t) &g_sys.argc) \
+  XV(internals, "'argv", ARGV, DUP; tos = (cell_t) &g_sys.argv) \
+  XV(internals, "'runner", RUNNER, DUP; tos = (cell_t) &g_sys.runner) \
+  Y(context, DUP; tos = (cell_t) (g_sys.context + 1)) \
+  Y(latestxt, DUP; tos = (cell_t) g_sys.latestxt)
+
+QUESTIONS?
+    ⚘
+Thank you!
