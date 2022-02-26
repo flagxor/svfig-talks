@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000';
+FOREGROUND = '#3f0';
+</script><pre>
+
+Adding Graphics to uEforth
+        🙜
+   February 26, 2022
+
+BACKGROUND
+    🙜
+⦿ uEforth = ESP32forth
+⦿ Colorful pictures make me happy
+⦿ uEforth has limited built-ins
+         ( though more than before )
+
+GOALS
+    🙜
+⦿ Same interface on Windows and Linux
+⦿ X11 not used unless graphics is
+⦿ Limited memory used unless graphics is
+⦿ Rasterize in Forth
+⦿ Don't break ESP32forth
+
+COMPONENTS
+    🙜
+⦿ Common graphics state variables
+⦿ Common rasterizer
+⦿ "Low level" graphics + "Higher level" rasterizer
+⦿ Separate Windows/Linux window
+         + event implementation
+
+"LOW-LEVEL"
+  INTERFACE
+
+Startup:
+  window ( w h -- )
+
+Drawing region:
+  pixel ( x y -- a ) (format [b g r x])
+  width ( -- n )
+  height ( -- n )
+  flip ( -- )
+
+Getting events:
+  wait ( -- )
+  poll ( -- )
+  event ( -- n )
+Event constants:
+  IDLE RESIZED EXPOSED MOTION
+  PRESSED RELEASED TYPED FINISHED
+
+Event info:
+  mouse-x ( -- n )
+  mouse-y ( -- n )
+  last-key ( -- n )
+  last-char ( -- n )
+  pressed? ( k -- f )
+Key/Button constants:
+  LEFT-BUTTON MIDDLE-BUTTON RIGHT-BUTTON
+
+"HIGH-LEVEL"
+  INTERFACE
+
+Pen:
+  ( $rrggbb ) to color
+Drawing:
+  box ( x y w h -- )
+
+Transforms:
+  g{ ( -- ) Preserve transform
+  }g ( -- ) Restore transform
+  translate ( x y -- )
+  scale ( nx dx ny dy -- )
+  viewport ( w h -- )
+  vertical-flip ( -- ) Use math style viewport.
+Conversions:
+  screen>g ( x y -- x' y' ) Transform screen to viewport
+
+g{
+  640 480 viewport
+  ...
+  \ draw stuff on 640x480 area
+  100 10 40 20 box
+  ...
+}g
+
+g{
+  vertical-flip
+  2000 2000 viewport
+  -1000 -1000 translate
+  ...
+  \ draw stuff in (-1000, 1000) in x, y
+  ...
+}g
+
+g{
+  ...
+  g{ -100 -100 translate wheel }
+  g{ 100 -100 translate wheel }
+  g{ -100 100 translate wheel }
+  g{ 100 100 translate wheel }
+}g
+
+g{
+  ...
+  g{ 1 10 1 10 scale disk }
+  g{ 2 10 2 10 scale disk }
+  g{ 3 10 3 10 scale disk }
+}g
+
+IMPLEMENTATION
+
+0 value mouse-x
+0 value mouse-y
+0 value last-key
+0 value last-char
+0 value event
+0 value width
+0 value height
+
+0 value backbuffer
+: pixel ( w h -- a ) width * + 4* backbuffer + ;
+
+: hline { x y w }
+  x y pixel w 1- for
+    color over l! 4 +
+  next drop ;
+
+YV(internals, fill32, \
+  cell_t c = tos; DROP; \
+  cell_t n = tos; DROP; \
+  uint32_t *a = (uint32_t *) tos; DROP; \
+  for (;n;--n) *a++ = c) \
+
+: hline { x y w }
+  x y pixel w color fill32 ;
+
+: raw-box { left top w h }
+  left w + top h + { right bottom }
+  left right 2dup min to left max to right
+  top bottom 2dup min to top max to bottom
+  left 0 max to left
+  top 0 max to top
+  right width min to right
+  bottom height min to bottom
+  left right >= top bottom >= or if exit then
+  right left - to w
+  bottom top - to h
+  top h 1- for left over w hline 1+ next drop
+;
+
+: box { left top w h }
+  left sx * tx + 16 rshift
+  top sy * ty + 16 rshift
+  w sx * 16 rshift
+  h sy * 16 rshift
+  raw-box
+;
+
+TRANSFORMS
+
+create gstack 1024 cells allot
+gstack value gp
+: >g ( n -- ) gp ! gp cell+ to gp ;
+: g> ( -- n ) gp cell - to gp gp @ ;
+: g{   sx >g   sy >g
+       tx >g   ty >g ;
+: }g   g> to ty   g> to tx
+       g> to sy   g> to sx ;
+
+: screen>g ( x y -- x' y' )
+  16 lshift ty - sy / swap
+  16 lshift tx - sx / swap ;
+
+: translate ( x y -- )
+  sy * +to ty   sx * +to tx ;
+: scale ( nx dx ny dy -- )
+  sy -rot */ to sy
+  sx -rot */ to sx ;
+
+: viewport { w h }
+  width 2/ height 2/ translate
+  10000 width height */ 10000 w h */ < if
+    width w  width h w */ h scale
+  else
+    height w h */ w  height h scale
+  then
+  w 2/ negate h 2/ negate translate
+;
+
+: vertical-flip
+  0 height 2/ translate
+  1 1 -1 1 scale
+  0 height 2/ negate translate
+;
+
+INTERFACING
+ TO WIN32 / X11
+
+z" libX11.so" shared-library xlib
+  
+z" XOpenDisplay" 1 xlib XOpenDisplay ( a -- a )
+z" XBlackPixel" 2 xlib XBlackPixel ( a n -- n )
+z" XWhitePixel" 2 xlib XWhitePixel ( a n -- n )
+z" XDisplayOfScreen" 1 xlib XDisplayOfScreen ( a -- a )
+z" XScreenOfDisplay" 2 xlib XScreenOfDisplay ( a n -- a )
+z" XDefaultColormap" 2 xlib XDefaultColormap ( a n -- n )
+z" XDefaultScreen" 1 xlib XDefaultScreen ( a -- n )
+z" XRootWindow" 2 xlib XRootWindow ( a n -- n )
+...
+
+: window { w h }
+  w 0< if 640 to w 480 to h then
+  NULL XOpenDisplay to display
+  display XDefaultScreen to screen
+  display screen XDefaultColorMap to colormap
+  display screen XDefaultVisual to visual
+  display screen XDefaultDepth to screen-depth
+  display screen XBlackPixel to black
+  display screen XWhitePixel to white
+  display screen XRootWindow to root-window
+  display root-window 0 0 w h 0 black white
+    XCreateSimpleWindow to window-handle
+  display window-handle XMapWindow drop
+  display window-handle 0 NULL XCreateGC to gc
+  display window-handle EVENT-MASK XSelectInput drop
+  1 1 image-resize
+;
+
+STRUCTURES
+
+struct WINDCLASSA
+  i16 field ->style
+  ptr field ->lpfnWndProc
+  i32 field ->cbClsExtra
+  i32 field ->cbWndExtra
+  ptr field ->hInstance
+  ptr field ->hIcon
+  ptr field ->hCursor
+  ptr field ->hbrBackground
+  ptr field ->lpszMenuName
+  ptr field ->lpszClassName
+
+vocabulary xkey  also xkey definitions
+struct XKeyEvent
+   i32 field ->type
+  long field ->serial
+  bool field ->send_event
+   ptr field ->display
+   win field ->window
+   win field ->root
+   win field ->subwindow
+  time field ->time
+   i32 field ->x
+   i32 field ->y
+   i32 field ->x_root
+   i32 field ->y_root
+   i32 field ->state
+   i32 field ->keycode
+  bool field ->same_screen
+previous definitions
+
+variable last-align
+: typer ( align sz "name" )
+  create , ,
+  does> dup cell+ @ last-align ! @ ;
+1 1 typer i8
+2 2 typer i16
+4 4 typer i32
+cell 8 typer i64
+cell cell typer ptr
+long-size long-size typer long
+
+variable last-struct
+: struct ( "name" )
+  1 0 typer latestxt >body last-struct ! ;
+: align-by ( a n -- a )
+  1- dup >r + r> invert and ;
+: struct-align ( n -- )
+  dup last-struct @ cell+ @ max last-struct @ cell+ !
+  last-struct @ @ swap align-by last-struct @ ! ;
+: field ( n "name" )
+  last-align @ struct-align
+  create last-struct @ @ , last-struct @ +!
+  does> @ + ;
+
+WINDOWS CALLBACKS
+
+static LRESULT WindowProcShim(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+  if (msg == WM_NCCREATE) {
+    SetWindowLongPtr(
+        hwnd, GWLP_USERDATA,
+        (LONG_PTR) ((CREATESTRUCT *) lParam)->lpCreateParams);
+  }
+  if (!GetWindowLongPtr(hwnd, GWLP_USERDATA)) {
+    return DefWindowProc(hwnd, msg, wParam, lParam);
+  }
+  cell_t stacks[STACK_CELLS * 3 + 4];
+  cell_t *at = stacks;
+  at += 4;
+  float *fp = (float *) (at + 1); at += STACK_CELLS;
+  cell_t *rp = at + 1; at += STACK_CELLS;
+  cell_t *sp = at + 1; at += STACK_CELLS;
+  cell_t *ip = (cell_t *) GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  cell_t tos = 0;
+  DUP; tos = (cell_t) hwnd;
+  DUP; tos = (cell_t) msg;
+  DUP; tos = (cell_t) wParam;
+  DUP; tos = (cell_t) lParam;
+  PARK;
+  rp = forth_run(rp);
+  UNPARK;
+  return tos;
+}
+
+pad WINDCLASSA erase
+  WindowProcShim pad ->lpfnWndProc !
+  hinstance pad ->hInstance !
+  GrfClassName pad ->lpszClassName !
+  NULL IDC_ARROW LoadCursorA pad ->hCursor !
+  hinstance IDI_MAIN_ICON LoadIconA pad ->hIcon !
+pad RegisterClassA to GrfClass
+  
+0 GrfClass GrfWindowTitle WS_OVERLAPPEDWINDOW
+  CW_USEDEFAULT CW_USEDEFAULT width height
+  NULL NULL hinstance ['] GrfWindowProc callback
+  CreateWindowExA to hwnd
+
+   79 windows/windows_console.fs
+   68 windows/windows_core.fs
+   77 windows/windows_files.fs
+   74 windows/windows_gdi.fs
+  360 windows/windows_messages.fs
+   73 windows/windows_test.fs
+  173 windows/windows_user.fs
+  178 windows/grf.fs
+   81 common/grf.fs
+  100 common/grf_utils.fs
+ 1263 total
+
+  213 posix/x11.fs
+  171 posix/grf.fs
+   81 common/grf.fs
+  100 common/grf_utils.fs
+  565 total
+
+HEARTS
+
+Hx(t) = 16 * sin^3(t)
+Hy(t) = 13 * cos(t) 
+       - 5 * cos(2t)
+       - 2 * cos(3t)
+           - cos(4t)
+
+@heart1.png
+
+: heart-f ( f: t -- x y )
+  fdup fsin 3e f** 16e f* fswap
+  fdup fcos 13e f*
+  fover 2e f* fcos 5e f* f-
+  fover 3e f* fcos 2e f* f-
+  fswap 4e f* fcos f- ;
+
+4000 constant heart-steps
+1024 constant heart-size
+create heart-start heart-size allot
+create heart-end heart-size allot
+heart-start heart-size 0 fill
+heart-end heart-size 0 fill
+
+|
+|  [--]
+| [----]
+|[-------]
+[--------]
+[-------]
+[------]
+[----]
+[--]
+[-]
+[]
+|
+
+: cmin! ( n a ) dup >r c@ min r> c! ;
+: cmax! ( n a ) dup >r c@ max r> c! ;
+
+: heart-initialize
+  heart-start heart-size 7 29 */ 128 fill
+  heart-end heart-size 7 29 */ 128 fill
+  heart-steps 0 do
+    i s>f heart-steps s>f f/ pi f* heart-f
+    fnegate 12e f+ 29.01e f/ heart-size s>f f* fswap 16e f* f>s f>s
+    2dup heart-start + cmin!
+    heart-end + cmax!
+  loop
+  heart-size 0 do
+    heart-end i + c@ heart-start i + c@ - heart-end i + c!
+  loop
+;
+
+512 29 32 */ constant heart-ratio
+ 
+: raw-heart 0 { x y sx sy r }
+  heart-start c@ 0= if heart-initialize then
+  y sy 2/ - to y
+  sy 0< if
+    y sy + to y
+    sy abs to sy
+  then
+
+  sy 0 do
+    i heart-size sy */ to r
+    x heart-start r + c@ sx heart-ratio */ +
+      y i +
+      heart-end r + c@ sx heart-ratio */
+      1 raw-box
+    x heart-start r + c@
+      heart-end r + c@ + sx heart-ratio */ -
+      y i +
+      heart-end r + c@ sx heart-ratio */
+      1 raw-box
+  loop
+;
+
+QUESTIONS?
+     ⚘
+   Thank you!
