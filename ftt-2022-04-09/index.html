@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000';
+FOREGROUND = '#3f0';
+</script><pre>
+
+Esp32forth Update
+        🙜
+   April 9, 2022
+
+CHANGES SINCE EARLY FEBRUARY
+    🙜
+⦿ Serial2
+⦿ Odds and ends
+⦿ More floating point
+⦿ Optimize variables/values
+⦿ Goings on in the repo
+   ⦿ Structures
+   ⦿ Graphics
+
+SERIAL2
+  🙜
+⦿ Serial2.begin
+⦿ Serial2.end
+⦿ Serial2.available
+⦿ Serial2.readBytes
+⦿ Serial2.write
+⦿ Serial2.flush
+
+ODDS AND ENDS
+  🙜
+⦿ FILL32, ?DUP
+⦿ UW@, UL@ (Supplementing SW@, SL@)
+
+MORE FLOATING POINT
+  🙜
+⦿ FSIN, FCOS, FSINCOS, FATAN2
+⦿ F**, FLOOR, FEXP, FLN
+⦿ FABS, FMIN, FMAX
+⦿ FSQRT - use native
+
+OPTIMIZING CONSTANTS/VARIABLES/VALUES
+  🙜
+⦿ Fix duplication of DOCREATE, DODOES, DOCOL
+⦿ Add DOCON, DOVAR, DOSET
+   ⦿ Leverage better support for IMMEDIATE built-ins
+⦿ Revise VALUE to use CONSTANT + DOSET
+
+OPTIMIZING CONSTANTS/VARIABLES (before)
+  🙜
+( Constants and Variables )
+: constant ( n "name" -- ) create , does> @ ;
+: variable ( "name" -- ) create 0 , ;
+
+OPTIMIZING CONSTANTS/VARIABLES/VALUES
+  🙜
+YV(internals, DOSET, *((cell_t *) *ip++) = tos; DROP) \
+YV(internals, DOCON, DUP; tos = *(cell_t *) (w + sizeof(cell_t))) \
+YV(internals, DOVAR, DUP; tos = w + sizeof(cell_t)) \
+  🙜
+YV(internals, DOCOL, ++rp; *rp = (cell_t) ip; ip = (cell_t *) (w + sizeof(cell_t))) \
+YV(internals, DOCREATE, DUP; tos = w + sizeof(cell_t) * 2) \
+YV(internals, DODOES, DUP; tos = w + sizeof(cell_t) * 2; \
+                      ++rp; *rp = (cell_t) ip; \
+                      ip = (cell_t *) *(cell_t *) (w + sizeof(cell_t))) \
+
+OPTIMIZING VALUES (before)
+  🙜
+( Values )
+: value ( n -- ) create , does> @ ;
+: value-bind ( xt-val xt )
+   >r >body state @ if aliteral r> , else r> execute then ;
+: to ( n -- ) ' ['] ! value-bind ; immediate
+: +to ( n -- ) ' ['] +! value-bind ; immediate
+
+OPTIMIZING VALUES (after)
+  🙜
+( Values )
+: value ( n -- ) constant ;
+: value-bind ( xt-val xt )
+  >r >body state @ if
+     r@ ['] ! = if rdrop ['] doset , , else aliteral r> , then
+  else r> execute then ;
+: to ( n -- ) ' ['] ! value-bind ; immediate
+: +to ( n -- ) ' ['] +! value-bind ; immediate
+
+MAKES SEE BETTER!
+  🙜
+--> 0 value x
+--> : foo x 2* to x ;
+--> see foo
+: foo  x 2* TO X ;
+
+POLL
+  Is making SEE
+  higher fidelity useful?
+
+STRUCTURES
+  🙜
+⦿ C libraries use structures
+⦿ Padded to support alignment
+⦿ Want a simple forth implementation
+
+STRUCTURES - syntax
+  🙜
+vocabulary xbutton  also xbutton definitions
+struct XButtonEvent
+   i32 field ->type
+  long field ->serial
+  bool field ->send_event
+   ptr field ->display
+   win field ->window
+   win field ->root
+   win field ->subwindow
+  time field ->time
+   i32 field ->x
+   i32 field ->y
+   i32 field ->x_root
+   i32 field ->y_root
+   i32 field ->state
+   i32 field ->button
+  bool field ->same_screen
+previous definitions
+
+struct WINDCLASSA
+  i16 field ->style
+  ptr field ->lpfnWndProc
+  i32 field ->cbClsExtra
+  i32 field ->cbWndExtra
+  ptr field ->hInstance
+  ptr field ->hIcon
+  ptr field ->hCursor
+  ptr field ->hbrBackground
+  ptr field ->lpszMenuName
+  ptr field ->lpszClassName
+
+STRUCTURES - syntax
+  🙜
+create foo XButtonEvent allot
+123 foo ->x !
+foo ->x @ .
+
+STRUCTURES - implementation
+  🙜
+variable last-align
+: typer ( align sz "name" ) create , ,
+                            does> dup cell+ @ last-align ! @ ;
+1 1 typer i8
+2 2 typer i16
+4 4 typer i32
+cell 8 typer i64
+cell cell typer ptr
+long-size long-size typer long
+
+STRUCTURES - implementation
+  🙜
+variable last-struct
+: struct ( "name" ) 1 0 typer latestxt >body last-struct ! ;
+: align-by ( a n -- a ) 1- dup >r + r> invert and ;
+: struct-align ( n -- )
+  dup last-struct @ cell+ @ max last-struct @ cell+ !
+  last-struct @ @ swap align-by last-struct @ ! ;
+: field ( n "name" )
+  last-align @ struct-align
+  create last-struct @ @ , last-struct @ +!
+  does> @ + ;
+
+POLL
+  Useful for ESP32?
+
+GRAPHICS
+
+"LOW-LEVEL"
+  INTERFACE
+
+Startup:
+  window ( w h -- )
+Drawing region:
+  pixel ( x y -- a ) (format [b g r x])
+  width ( -- n )
+  height ( -- n )
+  flip ( -- )
+
+Getting events:
+  wait ( -- )
+  poll ( -- )
+  event ( -- n )
+Event constants:
+  IDLE RESIZED EXPOSED MOTION
+  PRESSED RELEASED TYPED FINISHED
+
+Event info:
+  mouse-x ( -- n )
+  mouse-y ( -- n )
+  last-key ( -- n )
+  last-char ( -- n )
+  pressed? ( k -- f )
+Key/Button constants:
+  LEFT-BUTTON MIDDLE-BUTTON RIGHT-BUTTON
+
+"HIGH-LEVEL"
+  INTERFACE
+
+Pen:
+  ( $rrggbb ) to color
+Drawing:
+  box ( x y w h -- )
+
+Transforms:
+  g{ ( -- ) Preserve transform
+  }g ( -- ) Restore transform
+  translate ( x y -- )
+  scale ( nx dx ny dy -- )
+  viewport ( w h -- )
+  vertical-flip ( -- ) Use math style viewport.
+Conversions:
+  screen>g ( x y -- x' y' ) Transform screen to viewport
+
+g{
+  640 480 viewport
+  ...
+  \ draw stuff on 640x480 area
+  100 10 40 20 box
+  ...
+}g
+
+g{
+  vertical-flip
+  2000 2000 viewport
+  -1000 -1000 translate
+  ...
+  \ draw stuff in (-1000, 1000) in x, y
+  ...
+}g
+
+g{
+  ...
+  g{ -100 -100 translate wheel }
+  g{ 100 -100 translate wheel }
+  g{ -100 100 translate wheel }
+  g{ 100 100 translate wheel }
+}g
+
+g{
+  ...
+  g{ 1 10 1 10 scale disk }
+  g{ 2 10 2 10 scale disk }
+  g{ 3 10 3 10 scale disk }
+}g
+
+POLL
+  Useful for ESP32?
+
+QUESTIONS?
+     ⚘
+   Thank you!
