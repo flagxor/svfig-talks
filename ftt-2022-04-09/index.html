@@ -45,6 +45,7 @@ MORE FLOATING POINT
 OPTIMIZING CONSTANTS/VARIABLES/VALUES
   🙜
 ⦿ Fix duplication of DOCREATE, DODOES, DOCOL
+   ⦿ ADDROF
 ⦿ Add DOCON, DOVAR, DOSET
    ⦿ Leverage better support for IMMEDIATE built-ins
 ⦿ Revise VALUE to use CONSTANT + DOSET
@@ -86,6 +87,23 @@ OPTIMIZING VALUES (after)
   else r> execute then ;
 : to ( n -- ) ' ['] ! value-bind ; immediate
 : +to ( n -- ) ' ['] +! value-bind ; immediate
+
+ADDR_DOCOL -> ADDROF
+  🙜
+#define ADDR_DOCOLON && OP_DOCOLON
+#define ADDR_DOCREATE && OP_DOCREATE
+#define ADDR_DODOES && OP_DODOES
+  🙜
+#define ADDROF(x) (&& OP_ ## x)
+
+ADDR_DOCOL -> ADDROF
+  🙜
+Y(VARIABLE, DUP; DUP; tos = parse(32, sp); \
+            create((const char *) *sp, tos, 0, ADDROF(DOVAR)); \
+            COMMA(0); DROPn(2)) \
+Y(CONSTANT, DUP; DUP; tos = parse(32, sp); \
+            create((const char *) *sp, tos, 0, ADDROF(DOCON)); \
+            DROPn(2); COMMA(tos); DROP) \
 
 MAKES SEE BETTER!
   🙜
