@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000';
+FOREGROUND = '#3f0';
+</script><pre>
+
+s" /usr/share/dict/words" r/o open-file throw value dict-words
+dict-words file-size throw constant dict-size
+dict-size 1+ allocate throw value dict-data
+dict-data dict-size dict-words read-file throw drop
+0 dict-data dict-size + c!  ( null terminate )
+    🙜
+s" my20.txt" r/o open-file throw value my20-words
+my20-words file-size throw constant my20-size
+my20-size 1+ allocate throw value my20-data
+my20-data my20-size my20-words read-file throw drop
+0 my20-data my20-size + c!  ( null terminate )
+
+: next-word ( a -- a ) begin 1+ dup c@ nl = until 1+ ;
+: each-step ( a -- a' a n ) dup next-word swap over over - 1- ;
+: each{   postpone begin postpone dup postpone c@
+          postpone while postpone each-step ; immediate
+: }each   postpone repeat ; immediate
+
+create letters 256 cells allot
+letters 256 cells 0 fill
+0 value total
+    🙜
+: letter+ ( ch -- ) cells letters + 1 swap +! ;
+: letter@ ( ch -- n ) cells letters + @ ;
+: init-frequencies
+  dict-data each{
+    0 ?do dup i + c@ letter+ 1 +to total loop drop 
+  }each
+;
+
+: n. ( n -- )
+  10000 total */ <# # # # # [char] . hold #s #> type ;
+    🙜
+: table.
+  [char] z 1+ [char] a do
+    i emit space i letter@ n. cr
+  loop
+;
+
+: word-freq ( a n -- n ) 
+  0 -rot 0 do dup i + c@ letter@ rot + swap loop drop ;
+: run
+  init-frequencies
+  table.
+  cr
+  my20-data each{
+    2dup type space
+    word-freq n. cr
+  }each
+;
+run bye
+
+a 0.0754
+b 0.0168
+c 0.0358
+d 0.0326
+e 0.1041
+f 0.0119
+g 0.0258
+h 0.0222
+i 0.0785
+j 0.0017
+k 0.0094
+l 0.0477
+m 0.0247
+n 0.0670
+o 0.0577
+p 0.0249
+q 0.0017
+r 0.0670
+s 0.1068
+t 0.0612
+u 0.0307
+v 0.0090
+w 0.0083
+x 0.0024
+y 0.0148
+z 0.0037
+
+adieu 0.3217
+tears 0.4149
+lares 0.4013
+alert 0.3557
+alone 0.3522
+atone 0.3657
+audio 0.2753
+blind 0.2429
+canoe 0.3403
+cough 0.1724
+media 0.3156
+notes 0.3971
+orate 0.3657
+radio 0.3115
+raise 0.4322
+resin 0.4238
+senor 0.4029
+steam 0.3725
+stone 0.3971
+tares 0.4149
