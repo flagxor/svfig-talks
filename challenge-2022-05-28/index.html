@@ -16,8 +16,8 @@ dict-data dict-size dict-words read-file throw drop
 0 dict-data dict-size + c!  ( null terminate )
 
 : upper ( ch -- ch) 95 and ;
-: toupper ( a n -- ) 0 do dup c@ upper over c! 1+ loop drop ;
-dict-data dict-size toupper
+: upper*s ( a n -- ) 0 do dup c@ upper over c! 1+ loop drop ;
+dict-data dict-size upper*s
 
 : next-word ( a -- a ) begin 1+ dup c@ nl = until 1+ ;
 : each-step ( a -- a' a n ) dup next-word swap over over - 1- ;
