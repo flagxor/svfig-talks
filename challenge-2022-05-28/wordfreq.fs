@@ -6,6 +6,10 @@ dict-size 1+ allocate throw value dict-data
 dict-data dict-size dict-words read-file throw drop
 0 dict-data dict-size + c!  ( null terminate )
 
+: upper ( ch -- ch) 95 and ;
+: toupper ( a n -- ) 0 do dup c@ upper over c! 1+ loop drop ;
+dict-data dict-size toupper
+
 : next-word ( a -- a ) begin 1+ dup c@ nl = until 1+ ;
 : each-step ( a -- a' a n ) dup next-word swap over over - 1- ;
 : each{   postpone begin postpone dup postpone c@
@@ -28,12 +32,12 @@ letters 256 cells 0 fill
   10000 total */ <# # # # # [char] . hold #s #> type ;
 
 : table.
-  [char] z 1+ [char] a do
+  [char] Z 1+ [char] A do
     i emit space i letter@ n. cr
   loop
 ;
 
-: letter? ( ch -- f ) dup [char] a >= swap [char] z <= and ;
+: letter? ( ch -- f ) dup [char] A >= swap [char] Z <= and ;
 : letters? ( a n ) -1 swap 0 do >r dup c@ letter? >r 1+ r> r> and loop nip ;
 
 : word-freq ( a n -- n ) 
