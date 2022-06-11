@@ -77,8 +77,10 @@ CREATE w 80 4* ALLOT
   SWAP - RSHIFT OR 32-bit ;
 
 VARIABLE ends
-: <-> ( n - n ) ends ! 0 4 0 DO 8 LSHIFT ends I + C@ OR LOOP ;
-: <->* ( a n -- ) 0 ?DO DUP UL@ <-> OVER L! 4 + LOOP DROP ;
+: <-> ( n - n )
+  ends ! 0 4 0 DO 8 LSHIFT ends I + C@ OR LOOP ;
+: <->* ( a n -- )
+  0 ?DO DUP UL@ <-> OVER L! 4 + LOOP DROP ;
 
 : >dig ( a n -- a )
   BASE @ >R HEX <# # # # # # # # # #> R> BASE !
@@ -104,13 +106,18 @@ VARIABLE ends
 : chunk   extend start chunk1 chunk2 chunk3 chunk4 finish ;
 
 : >w { msg n }
-  w 64 ERASE  msg w n CMOVE  $80 w n + c!  w 64 <->* ;
+  w 64 ERASE
+  msg w n CMOVE
+  $80 w n + c!
+  w 64 <->* ;
 
 40 constant sha1-size
 create sha1-hash  sha1-size allot
 
 : format
-  sha1-hash  h0 >dig  h1 >dig  h2 >dig  h3 >dig  h4 >dig  DROP ;
+  sha1-hash  h0 >dig  h1 >dig
+             h2 >dig  h3 >dig
+             h4 >dig  DROP ;
 
 : sha1 { msg n -- hash n } n 64 /mod { edge wholes }
   init
