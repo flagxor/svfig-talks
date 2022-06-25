@@ -33,6 +33,10 @@ pre {
   background-color: #000;
   padding: 10px;
 }
+code {
+  color: #0f0;
+  background-color: #555;
+}
 div {
   color: #ff0;
 }
@@ -92,21 +96,241 @@ div {
         </section>
 
         <section data-transition="fade-out">
-          <h2>Things</h2>
+          <h2>Why still thinking about colorForth?</h2>
           <ul>
-            <li>color dispatch table</li>
-            <li>if ; then</li>
-            <li>push pop</li>
-            <li>MACRO and FORTH</li>
-            <li>variables in block space</li>
-            <li>a and b variables, @+ !+ etc.</li>
-            <li>channels</li>
-            <li>cell sized addresses</li>
-            <li>tagged words, word size words</li>
-            <li>gobbling editor</li>
-            <li>or = xor</li>
-            <li>- = invert</li>
-            <li>-if</li>
+            <li>Rich with novel ideas to reduce complexity.</li>
+            <li>Simple enough to fit in my head.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why the Web?</h2>
+          <ul>
+            <li>Portable, powerful, relatively simple I/O APIs.</li>
+            <li>JITs and WebAssembly mean it can go fast!</li>
+            <li>It's easy to show people.</li>
+            <li>It let's people run my code without trusting me.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>So Many Ideas in colorForth!</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Word Sized Words!</h2>
+          <ul>
+            <li>Most words fit in a single 32-bit machine word.</li>
+            <li>Complexity of strings is elided.</li>
+            <li>Words and numbers are "pre-parsed".</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Frequency Coded Words</h2>
+          <pre>
+   0 000    0      10 000 s  8    1100 000 d 16
+   0 001 r  1      10 001 m  9    1100 001 v 17
+   0 010 t  2      10 010 c 10    1100 010 p 18
+   0 011 o  3      10 011 y 11    1100 011 b 19
+   0 100 e  4      10 100 l 12    1100 100 h 20
+   0 101 a  5      10 101 g 13    1100 101 x 21
+   0 110 n  6      10 110 f 14    1100 110 u 22
+   0 111 i  7      10 111 w 15    1100 111 q 23
+
+1101 000 k 24    1110 000 8 32    1111 000 ; 40
+1101 001 z 25    1110 001 9 33    1111 001 : 41
+1101 010 j 26    1110 010 1 34    1111 010 ! 42
+1101 011 3 27    1110 011 - 35    1111 011 + 43
+1101 100 4 28    1110 100 0 36    1111 100 @ 44
+1101 101 5 29    1110 101 . 37    1111 101 * 45
+1101 110 6 30    1110 110 2 38    1111 110 , 46
+1101 111 7 31    1110 111 / 39    1111 111 ? 47
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Tagged Words</h2>
+          <pre>
+WORDS
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 0000] extension
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 0001] interpret (yellow)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 0011] define (red)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 0100] compile (green)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 0111] postpone (cyan)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 1001] comment (white)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 1010] Comment (white)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 1011] COMMENT (white)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxx 1100] variable (magenta)
+
+NUMBERS
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxH 1000] interpret (yellow)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxH 0110] compile (green)
+
+BIG NUMBERS
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxH 0010] + [WORD] interpret (yellow)
+[xxxx xxxx|xxxx xxxx|xxxx xxxx|xxxH 0101] + [WORD] compile (green)
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Color Dispatch Table</h2>
+          <ul>
+            <li>16 word table (called "spaces" in COLOR.ASM) define what colors do.</li>
+            <li>Vocabulary words and applications can mutate it.</li>
+            <li>A variable (register EDI on Pentium) tracks word being interpreted.</li>
+            <li>Interpreter is dead simple: retreive next word, dispatch on lower 4-bits, repeat.</li>
+            <li>Minimizes plumbing that must live in kernel.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Only two vocabularies</h2>
+          <ul>
+            <li><code>forth</code> contains regular words</li>
+            <li><code>macro</code> contains immediate words</li>
+            <li><code style="color: #0ff">cyan</code> words compile rather than execute macros</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Unconventional but terse naming</h2>
+          <ul>
+            <li><code>or</code> is what's usually called <code>xor</code> since you can live without OR.</li>
+            <li><code>-</code> is what's usually called invert.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>if & -if</h2>
+          <ul>
+            <li><code>if</code> doesn't consume its argument!</li>
+            <li><code>if foo bar then</code> is equivalent to<br/><code>dup if foo bar then</code></li>
+            <li><code>-if foo bar then</code> is equivalent to<br/>
+                <code>dup 0&lt; if foo bar then</code></li>
+            <li>No <code>else</code>, since you can do <code>if ; then</code> to exit.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>push & pop</h2>
+          <ul>
+            <li><code>&gt;R</code> becomes <code>push</code></li>
+            <li><code>R&gt;</code> becomes <code>pop</code></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Fewer Symbols</h2>
+          <pre>
+            0123456789     :;,.@!+-*/?
+            abcdefghijklmnopqrstuvwxyz
+          </pre>
+          <ul>
+            <li><code>&lt;</code> becomes <code>less</code></li>
+            <li>OR <code>-if</code></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Variable in "Block Space"</h2>
+          <ul>
+            <li>Variable use space in source <code style="color: #f0f">var</code> <code style="color: #0f0">0</code></li>
+            <li>Saving and Loading preserve variable state.</li>
+            <li>View current values in source.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Address Register</h2>
+          <ul>
+            <li><code>a!</code> and <code>a</code> reference a temporary address register.</li>
+            <li><code>@+</code> and <code>!+</code> read/write and advance.</li>
+            <li><code>dest a! 0 31 for dup !+ next</code></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Cell Sized Addressing</h2>
+          <ul>
+            <li>Addresses are in words not bytes.</li>
+            <li><code>1+</code> rather than <code>cell+</code></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Color transitions matter</h2>
+          <ul>
+            <li><code style="color: #ff0">yellow</code> to <code style="#0f0">green</code> triggers literal creation.</li>
+            <li>Seems to match usage of [] in practice often.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Powerful but simple editor</h2>
+          <ul>
+            <li>Vi like modal editor.</li>
+            <li>Implemented in kernel but easy to expand in code.</li>
+            <li>Clever "gobbling" cursor merges copy / cut / paste / delete.</li>
+            <li>Color encoding complexity kept in editor.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Dispatch Tables</h2>
+          <ul>
+            <li>Use a word definition as a call table!</li>
+            <li><code style="color:#f00">mylayout</code><code> pad nop up down left right nop</code></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>RainbowForth</h2>
+          <ul>
+            <li><a href="https://rainbowforth.appspot.com/">https://rainbowforth.appspot.com/</a></li>
+            <li>My attempt at a WebApp!</li>
+            <li>Each Forth word is a function.</li>
+            <li>Terminal done with DOM element manipulation.</li>
+            <li>Boostraps from plaintext Forth.</li>
+            <li>Ignores most colorForth quirks other than color.</li>
+            <li>Encodes color in >128 "special spaces".</li>
+            <li>Incompatible use of blue for ' word.</li>
+            <li>AppEngine datastore used to keep global shared, signed in block state.</li>
+            <li>Editor build in Forth.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>RainbowForth Errors</h2>
+          <ul>
+            <li>Missed out on the radical simplicity of one word, one word.</li>
+            <li>Slow due to non-performant use of JavaScript (was unusable on IE).</li>
+            <li>Should have considered local storage vs hitting network all the time.</li>
+            <li>Should have provided low level graphics.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>My Current Attempt, Tint</h2>
+          <ul>
+            <li>Use Int32Array for heap.</li>
+            <li>Use Asm.js for speed, and eventually blt to canvas / 3d canvas.</li>
+            <li>Put opcodes in a table to re-use them when assembling.</li>
+            <li>Mirror most of colorForth (to start), yielding to JS for I/O.</li>
+            <li>Focus on builting main dispatch table and then implement in high level Forth.</li>
+            <li>Start with a JS editor. Save to local storage, with option to download.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Status</h2>
+          <ul>
+            <li>Can compile and execute simple words.</li>
+            <li>Theoretically all opcodes complete.</li>
+            <li>JS Editor working.</li>
+            <li>Missing key + graphics bindings.</li>
+            <li>Missing keymap update.</li>
+            <li>Save and load to local storage isn't hooked up to Forth.</li>
           </ul>
         </section>
 
