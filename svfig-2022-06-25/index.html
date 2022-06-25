@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Re-reimaginging colorForth for the Web</title>
+    <meta name="description"
+          content="Re-reimagining colorForth for the Web - June 25, 2022">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/moon.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../common/forth.css">
+    <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!--
+
+Re-reimaging colorForth for the Web
+***********************************
+Almost 14 years ago, I explored an odd sort of colorForth variant called rainbowforth that runs on AppEngine.
+In the intervening years, I've learned a good deal more about Forth, colorForth, simplicity, and the Web.
+I'll take another look at how to translate Chuck's simple vision into something that makes sense on the web.
+
+-->
+
+    <style>
+pre {
+  background-color: #000;
+  padding: 10px;
+}
+div {
+  color: #ff0;
+}
+.reveal-viewport {
+  background-color: #000;
+}
+.reveal h1 {
+  font-weight: bold;
+}
+.reveal h2 {
+  color: #f00;
+}
+.reveal h3 {
+}
+.reveal h4 {
+}
+.hljs-comment {
+}
+.reveal a:link {
+  color: #00f;
+}
+.reveal a:visited {
+  color: #00f;
+}
+.reveal a:hover {
+  color: #77f;
+}
+.reveal a:active {
+  color: #77f;
+}
+.reveal .controls {
+  color: #00a;
+}
+.reveal .progress {
+  color: #007;
+}
+  </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>Re-reimaging colorForth for the Web</h2>
+          <h3>June 25, 2022</h3>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Things</h2>
+          <ul>
+            <li>color dispatch table</li>
+            <li>if ; then</li>
+            <li>push pop</li>
+            <li>MACRO and FORTH</li>
+            <li>variables in block space</li>
+            <li>a and b variables, @+ !+ etc.</li>
+            <li>channels</li>
+            <li>cell sized addresses</li>
+            <li>tagged words, word size words</li>
+            <li>gobbling editor</li>
+            <li>or = xor</li>
+            <li>- = invert</li>
+            <li>-if</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <br/>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/forth.js"></script>
+
+  </body>
+</html>
