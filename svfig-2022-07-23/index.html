@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>µEForth on the Web</title>
+    <meta name="description"
+          content="µEForth on the Web - July 23, 2022">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/night.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../common/forth.css">
+    <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!--
+
+µEForth on the Web
+------------------------
+After a long delay, the same µEForth engine that powers ESP32forth now runs on a webpage!
+https://eforth.appspot.com/web.html
+I'll describe how it works, how it is generated from the same Forth/C codebase, and what took so long.
+
+-->
+
+    <style>
+code {
+  color: #fc0;
+  background-color: #520;
+  padding: 10px;
+}
+.reveal h2 {
+  color: #fc0;
+}
+  </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
+        <h2 style="font-family=monospace" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>µEForth on the Web</h2>
+          <h3>July 23, 2022</h3>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why the Web?</h2>
+          <ul>
+            <li>Portable, powerful, relatively simple I/O APIs.</li>
+            <li>JITs and WebAssembly mean it can go fast!</li>
+            <li>It's easy to show people.</li>
+            <li>It let's people run my code without trusting me.</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <code>
+: square dup *;
+          </code>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <br/>
+          <a href="https://eforth.appspot.com/web.html">try it here</a><br/>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/forth.js"></script>
+
+  </body>
+</html>
