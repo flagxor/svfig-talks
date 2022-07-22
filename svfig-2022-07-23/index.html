@@ -1,97 +1,306 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>µEForth on the Web</title>
-    <meta name="description"
-          content="µEForth on the Web - July 23, 2022">
-    <meta name="author" content="Brad Nelson">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
-    <link rel="stylesheet" href="../reveal.js/dist/theme/night.css" id="theme">
-    <!-- Code syntax highlighting -->
-    <link rel="stylesheet" href="../common/forth.css">
-    <script src="../common/printing.js"></script>
-    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
-
-<!--
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#fff';
+FOREGROUND = '#111';
+</script><pre>
 
 µEForth on the Web
-------------------------
-After a long delay, the same µEForth engine that powers ESP32forth now runs on a webpage!
-https://eforth.appspot.com/web.html
-I'll describe how it works, how it is generated from the same Forth/C codebase, and what took so long.
+     🕸 🌎 🕸
+  July 23, 2022
 
--->
+µEForth and ESP32forth
+     ✨ ✨ ✨
+• An EForth with minimal non-Forth
+• Minimal redundancy
+• Kernel compiled
+   from inline Forth text
 
-    <style>
-code {
-  color: #fc0;
-  background-color: #520;
-  padding: 10px;
+Why the Web?
+  🕸 🌎 🕸
+• Portable, powerful,
+   relatively simple I/O APIs.
+• Asm.js, WebAssembly, and JITs
+   mean it can go fast!
+• It's easy to show people.
+• It let's people run my code
+   without trusting me.  🙊
+
+µEForth Approach
+       ⚓
+• Express opcodes in 1-2 lines of C code
+• Define "system variables" in a C structure
+• Define 5 "core" opcodes
+   in larger C functions
+    ➥ These could be built from opcodes
+    ➥ Avoid needing to "assemble" loops
+• Boot from Forth code in a string
+
+Design Choices
+      😎
+• Indirect Threaded
+    ➥ Single cell VM opcodes
+    ➥ Simpler SEE / DOES>
+    ➥ Computed goto in C avoids assembly
+    ➥ Other models might be faster?
+• Unlimited stacks
+• 32-bit floats only
+• No counted strings
+
+How to Build
+a Forth!  🧱
+
+Decide Your Registers
+      ® ® ® ®
+register cell_t *ip, *rp,
+                *sp, tos, w;
+register float *fp, ft;
+
+ ip ➵ Instruction Pointer
+ rp ➵ Return Stack Pointer
+ sp ➵ Data Stack Pointer
+tos ➵ Top of Stack
+  w ➵ Work / Last Word
+ fp ➵ Float Stack Pointer
+ ft ➵ Temp Float
+
+Define Common Operations
+         ⊛
+#define NIP (--sp)
+#define NIPn(n) (sp -= (n))
+#define DROP (tos = *sp--)
+#define DROPn(n) (NIPn(n-1), DROP)
+#define DUP (*++sp = tos)
+#define PUSH DUP; tos = (cell_t)
+
+Be able to Park/Unpark
+          🏞
+run(rp) {
+  UNPARK;
+  ..interpret..
+  PARK;
+  return rp;
 }
-.reveal h2 {
-  color: #fc0;
+
+Be able to Park/Unpark
+          🏞
+#define PARK   DUP;
+               *++rp = (cell_t) fp;
+               *++rp = (cell_t) sp;
+               *++rp = (cell_t) ip
+#define UNPARK ip = (cell_t *) *rp--;
+               sp = (cell_t *) *rp--;
+               fp = (float *) *rp--;
+               DROP
+
+X-Macros
+   ⚔
+• Define a list of macro calls
+• Encode a table of information
+• Reuse portions of the list in
+   multiple places
+
+Struture of an Opcode
+         ⌱
+X("myop!", MY_OP_C_NAME, tos = my_code) \
+
+Alternate Syntax
+       ⛕
+#define Y(name, code) X(#name, name, code)
+
+#define OPCODES \
+Y(AND, tos &= *sp--) \
+Y(OR, tos |= *sp--) \
+Y(XOR, tos ˆ= *sp--) \
+X("DUP", ALTDUP, DUP) \
+Y(SWAP, w = tos; tos = *sp; *sp = w) \
+Y(OVER, DUP; tos = sp[-1]) \
+X("C@", CAT, tos = *(uint8_t *) tos) \
+X("!", STORE, *(cell_t *) tos = *sp--; DROP) \
+X("C!", CSTORE, *(uint8_t *) tos = *sp--; DROP) \
+X("SP@", SPAT, DUP; tos = (cell_t) sp) \
+X("SP!", SPSTORE, sp = (cell_t *) tos; DROP) \
+X("RP@", RPAT, DUP; tos = (cell_t) rp) \
+X("RP!", RPSTORE, rp = (cell_t *) tos; DROP) \
+X(">R", TOR, *++rp = tos; DROP) \
+X("R>", FROMR, DUP; tos = *rp; --rp) \
+X("R@", RAT, DUP; tos = *rp) \
+
+With Vocabularies
+       ⌱
+X("name", NAME, code)
+Y(name, code)
+XV(forth_and_vocab, "name", NAME, code)
+YV(forth_and_vocab, NAME, code)
+
+: QUIT
+   BEGIN
+     EVALUATE1
+   AGAIN ;
+
+S>NUMBER? 🡆 BASE
+    PARSE 🡆 'TIB #TIB >IN
+   CREATE 🡆 CURRENT
+     FIND 🡆 CONTEXT
+EVALUATE1 🡆 STATE 'NOTFOUND
+
+static int match(char sep, char ch) {
+  return sep == ch || (sep == ' ' && (ch == '\t' || ch == '\n' || ch == '\r'));
 }
-  </style>
-  </head>
+ 
+static cell_t parse(cell_t sep, cell_t *ret) {
+  if (sep == ' ') {
+    while (g_sys->tin < g_sys->ntib &&
+           match(sep, g_sys->tib[g_sys->tin])) { ++g_sys->tin; }
+  }
+  cell_t start = g_sys->tin;
+  while (g_sys->tin < g_sys->ntib &&
+         !match(sep, g_sys->tib[g_sys->tin])) { ++g_sys->tin; }
+  cell_t len = g_sys->tin - start;
+  if (g_sys->tin < g_sys->ntib) { ++g_sys->tin; }
+  *ret = (cell_t) (g_sys->tib + start);
+  return len;
+}
 
-  <body>
-    <div style="position: fixed; bottom: 0; width: 100%">
-      <center>
-        <h2 style="font-family=monospace; color: blue" id="cc1"></h2>
-        <h2 style="font-family=monospace" id="cc2"></h2>
-      </center>
-    </div>
-    <div class="reveal">
+const char boot[] = R"""(
+: ( 41 parse drop drop ; immediate
+: \ 10 parse drop drop ; immediate
+: #! 10 parse drop drop ; immediate ( shebang for scripts )
+( Now can do comments! )
+( Useful Basic Compound Words )
+: nip ( a b -- b ) swap drop ;
+: rdrop ( r: n n -- ) r> r> drop >r ;
+: */ ( n n n -- n ) */mod nip ;
+: * ( n n -- n ) 1 */ ;
+: /mod ( n n -- n n ) 1 swap */mod ;
+: / ( n n -- n ) /mod nip ;
+: mod ( n n -- n ) /mod drop ;
+: invert ( n -- ˜n ) -1 xor ;
+: negate ( n -- -n ) invert 1 + ;
+: - ( n n -- n ) negate + ;
 
-      <div class="slides">
-        <section data-transition="fade-out">
-          <h2>µEForth on the Web</h2>
-          <h3>July 23, 2022</h3>
-          <p>
-          <small><a href="http://flagxor.com">Brad Nelson</a> /
-            <a href="http://twitter.com/flagxor">@flagxor</a></small>
-          </p>
-        </section>
+How to bring it to the Web?
+    ⛵ 🌎 🕸
+• Convert to Asm.js
+    ➥ Hand convert 5 "core" words
+    ➥ Automate the opcodes
 
-        <section data-transition="fade-out">
-          <h2>Why the Web?</h2>
-          <ul>
-            <li>Portable, powerful, relatively simple I/O APIs.</li>
-            <li>JITs and WebAssembly mean it can go fast!</li>
-            <li>It's easy to show people.</li>
-            <li>It let's people run my code without trusting me.</li>
-          </ul>
-        </section>
+Asm.js
+ ⛵🐱
+• Best hack ever
+• Embed C in JavaScript
+• Converted by Chrome to WebAssembly
 
-        <section data-transition="fade-out">
-          <code>
-: square dup *;
-          </code>
-        </section>
+Asm.js
+ ⛵🐱
+a = a | 0;  // a is an int
+a = fround(a);  // a is a float32
+a = (a + 1) | 0;  // ++a;
+a = (a + b) | 0;  // a = a + b;
+a = imul32(a, b);  // a = a * b;
+a = i32[p>>2] | 0;  // a = *p;  (32-bit)
+a = u8[p] | 0;  // a = *p;  (8-bit)
+return a | 0;  // function returns an int
 
-        <section data-transition="fade-out">
-          <p>
-          <br/>
-          <a href="https://eforth.appspot.com/web.html">try it here</a><br/>
-          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
-          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
-          </p>
-          <h1>&#x2698;</h1>
-          <h2>Thank you</h2>
-        </section>
-     </div>
-    </div>
+function Match(sep, ch) {
+  return sep == ch || (sep == 32 && (ch == 9 || ch == 10 || ch == 13));
+}
+function Parse(sep, ret) {
+  if (sep == 32) {
+    while (i32[g_sys_tin>>2] < i32[g_sys_ntib>>2] &&
+      Match(sep, u8[i32[g_sys_tib>>2] + i32[g_sys_tin>>2]])) { ++i32[g_sys_tin>>2];
+    }
+  }
+  var start = i32[g_sys_tin>>2];
+  while (i32[g_sys_tin>>2] < i32[g_sys_ntib>>2] &&
+         !Match(sep, u8[i32[g_sys_tib>>2] + i32[g_sys_tin>>2]])) { ++i32[g_sys_tin>>2]; }
+  var len = i32[g_sys_tin>>2] - start;
+  if (i32[g_sys_tin>>2] < i32[g_sys_ntib>>2]) { ++i32[g_sys_tin>>2]; }
+  i32[ret>>2] = i32[g_sys_tib>>2] + start;
+  if (DEBUGGING) { console.log(’PARSE: [’ + GetString(i32[ret>>2], len) + ’]’); }
+  return len;
+}
 
-    <script src="../reveal.js/dist/reveal.js"></script>
-    <script src="../reveal.js/plugin/math/math.js"></script>
-    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
-    <script src="../common/forth.js"></script>
+Makefiles and Nodejs
+    ☋         ☊
+• Glue together C without includes
+• Allows one big .ino file for ESP32
+• Replace patterns in opcodes with Asm.js
 
-  </body>
-</html>
+cases = ReplaceAll(cases, ’tos += *sp--’, ’tos = (tos + *sp)|0; --sp’);
+cases = ReplaceAll(cases, ’tos = (*sp--) - tos’, ’tos = (*sp - tos)|0; --sp’);
+cases = ReplaceAll(cases, ’tos *= *sp--’, ’tos = imul(tos, *sp); --sp’);
+cases = ReplaceAll(cases, ’++tos’, ’tos = (tos + 1)|0’);
+cases = ReplaceAll(cases, ’--tos’, ’tos = (tos - 1)|0’);
+
+Regex Folly
+    🙃
+• Compilation by Regex works... poorly
+• 140 lines of replacements,
+   for 150 lines base opcodes
+• Probably should revisit
+
+Talking to the Outside
+         ☎️
+#define PLATFORM_OPCODE_LIST \
+  X("CALL", CALL, DUP; sp = Call(sp|0)|0; DROP) \
+
+Talking to the Outside
+         ☎️
+var objects = [SetEval];
+function SetEval(sp) {
+  var index = i32[sp>>2]; sp -= 4;
+  var n = i32[sp>>2]; sp -= 4;
+  var a = i32[sp>>2]; sp -= 4;
+  objects[index] = eval(GetString(a, n));
+  return sp;
+}
+function Call(sp) {
+  var op = i32[sp>>2]; sp -= 4;
+  return objects[op](sp);
+}
+
+r|
+(function(sp) {
+  if (globalObj[’readline’]) {
+    return -1;
+  }
+  sp += 4; i32[sp>>2] = globalObj.inbuffer.length ? -1 : 0;
+  return sp;
+})
+| 4 jseval!
+: web-key? ( -- f ) yield 4 call ;
+’ web-key? is key?
+
+Caveats
+ 😈 👿
+• */MOD opcode is a lie
+• Asm.js heap is fixed sized
+• Doesn't work on mobile yet
+• Terminal is too slow
+
+function SSMOD(sp) {
+  var a = i32[(sp - 8)>>2];
+  var b = i32[(sp - 4)>>2];
+  var c = i32[sp>>2];
+  a *= b;
+  var x = Math.floor(a / c);
+  var m = a - x * c;
+  if (m < 0) {
+    x--;
+    m += c;
+  }
+  i32[(sp - 8)>>2] = m;
+  i32[sp>>2] = x;
+}
+
+Happy Things
+    ◔‿◔
+• Basic graphics already added
+• Asm.js memory passable to WebGL
+
+DEMO & QUESTIONS?
+     🏵
+   Thank you!
