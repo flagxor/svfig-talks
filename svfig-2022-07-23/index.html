@@ -17,6 +17,8 @@ FOREGROUND = '#111';
 • Minimal redundancy
 • Kernel compiled
    from inline Forth text
+• Support for Window, Linux, ESP32,
+   and now Web!
 
 Why the Web?
   🕸 🌎 🕸
@@ -30,12 +32,12 @@ Why the Web?
 
 µEForth Approach
        ⚓
-• Express opcodes in 1-2 lines of C code
+• Each opcodes in 1-2 lines of C code
 • Define "system variables" in a C structure
 • Define 5 "core" opcodes
    in larger C functions
     ➥ These could be built from opcodes
-    ➥ Avoid needing to "assemble" loops
+    ➥ But avoid needing to "assemble" loops
 • Boot from Forth code in a string
 
 Design Choices
@@ -105,6 +107,18 @@ X-Macros
 Struture of an Opcode
          ⌱
 X("myop!", MY_OP_C_NAME, tos = my_code) \
+
+enum {
+#define X(name, op, code) OP_ ## op,
+  PLATFORM_OPCODE_LIST
+#undef X
+};
+ 
+switch (*(cell_t *) w & 0xff) {
+#define X(name, op, code) case OP_ ## op: { code; } NEXT;
+  PLATFORM_OPCODE_LIST
+#undef X
+}
 
 Alternate Syntax
        ⛕
@@ -274,12 +288,16 @@ r|
 : web-key? ( -- f ) yield 4 call ;
 ’ web-key? is key?
 
+&lt;div id="ueforth">&lt;/div>
+&lt;script src="ueforth.js">&lt;/script>
+
 Caveats
  😈 👿
 • */MOD opcode is a lie
 • Asm.js heap is fixed sized
 • Doesn't work on mobile yet
 • Terminal is too slow
+• I lied, S>FLOAT? is "core" too
 
 function SSMOD(sp) {
   var a = i32[(sp - 8)>>2];
