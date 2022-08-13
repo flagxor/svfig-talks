@@ -79,6 +79,38 @@ SOCK_DGRAM  - UDP
 ------------------------
 [       address        ]
 ------------------------
+[       unused         ]
+------------------------
+[       unused         ]
+------------------------
+
+🙬 struct sockaddr_in 🙮
+ 
+[    ][    ][    ][    ]
+------------------------
+[ 16 ][fam ][   port   ]
+------------------------
+[       address        ]
+------------------------
+[       unused         ]
+------------------------
+[       unused         ]
+------------------------
+
+struct sockaddr_in {
+    short            sin_family;   // e.g. AF_INET
+    unsigned short   sin_port;     // e.g. htons(1234)
+    struct in_addr   sin_addr;     // IP address big-endian
+    char             sin_zero[8];  // unused
+};
+
+struct sockaddr_in {
+    char             sin_len;      // sizeof(sockaddr_in)
+    char             sin_family;   // e.g. AF_INET
+    unsigned short   sin_port;     // e.g. htons(3490)
+    struct in_addr   sin_addr;     // IP address big-endian
+    char             sin_zero[8];  // unused
+};
 
 🙬 struct sockaddr_in 🙮
  
@@ -95,6 +127,12 @@ SOCK_DGRAM  - UDP
   
 ntohs htons
 ntohl htonl
+
+sockaddr addr  ( AF_INET pre-set )
+->addr@ ( a -- ip )
+->addr! ( ip a -- )
+->port@ ( a -- port )
+->port! ( port a -- )
 
 🙬 Making a TCP Connection 🙮
    
@@ -129,7 +167,7 @@ struct hostent {
 z" google.com" gethostbyname constant google.com
 google.com ->h_addr ip.
 142.251.46.238 ok
- 
+
 ( Fill in an address + port )
 sockaddr googleaddr
 80 googleaddr ->port!
