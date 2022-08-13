@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'Courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#ffa';
+FOREGROUND = '#111';
+</script><pre>
+
+🙬 ESP32forth Sockets 🙮
+       🙚     🙘
+    August 13, 2022
+
+🙬 Berkeley Sockets 🙮
+ 
+• THE Internet Networking API
+• Released in 1983, free of AT&T in 1989
+• File descriptors as network endpoints
+• Multi-protocol and Multi-transport
+• Designed to support concurrency
+
+🙬 Multi-Transport 🙮
+ 
+AF_INET  - IPv4
+AF_INET6 - IPv6
+AF_UNIX  - domain socket
+
+🙬 IPv4 & IPv6 🙮
+  
+IPv4 192.168.0.1
+IPv6 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+     2001:db8:85a3:::8a2e:370:7334
+
+🙬 Multi-Protocol 🙮
+ 
+SOCK_STREAM - TCP
+SOCK_DGRAM  - UDP
+
+🙬 TCP 🙮
+ 
+• Transmission Control Protocol
+• Bi-directional byte stream
+• Connection oriented
+  • Multiple inbound connections
+• Reliable delivery
+• Auto-adapts to network conditions
+
+🙬 TCP Use-cases 🙮
+ 
+• HTTP / HTTPS
+• SSH
+• Telnet
+• FTP
+
+🙬 UDP 🙮
+ 
+• User Datagram Protocol
+• Variable length packets
+  • Up to 65,527 bytes
+  • About ~500 bytes practical
+• Connectionless
+• Unreliabled, packets can be:
+  • lost
+  • corrupt
+  • repeated
+  • out of order
+
+🙬 UDP Use-cases 🙮
+ 
+• DNS
+• DHCP
+• Video streaming
+
+🙬 struct sockaddr_in 🙮
+ 
+[    ][    ][    ][    ]
+------------------------
+[  family  ][   port   ]
+------------------------
+[       address        ]
+------------------------
+
+🙬 struct sockaddr_in 🙮
+ 
+[    ][    ][    ][    ][    ][    ][    ][    ]
+------------------------------------------------
+[  family  ][   port   ][       flow info      ]
+------------------------------------------------
+[                   address                    ]
+------------------------------------------------
+[       scope id       ]
+------------------------
+
+🙬 Big-Endian 🙮
+  
+ntohs htons
+ntohl htonl
+
+🙬 Making a TCP Connection 🙮
+   
+gethostbyname(hostname)
+socket(domain, type, protocol)
+connect(sock, addr, addrlen)
+send(sock, data, datalen, flags)     
+recv(sock, data, datalen, flags)
+close(sock)
+
+🙬 Making a TCP Connection 🙮
+   
+gethostbyname - lookup DNS
+socket        - make a socket
+connect       - connect to an address
+send          - send data
+recv          - receive data
+close         - close connection
+
+🙬 Looking up a Host 🙮
+ 
+struct hostent {
+    char  *h_name;            /* official name of host */
+    char **h_aliases;         /* alias list */
+    int    h_addrtype;        /* host address type */
+    int    h_length;          /* length of address */
+    char **h_addr_list;       /* list of addresses */
+}
+#define h_addr h_addr_list[0] /* for backward compatibility */
+
+( Lookup a Host ) 
+z" google.com" gethostbyname constant google.com
+google.com ->h_addr ip.
+142.251.46.238 ok
+ 
+( Fill in an address + port )
+sockaddr googleaddr
+80 googleaddr ->port!
+google.com ->h_addr googleaddr ->addr!
+ 
+( Create a socket and connect )
+AF_INET SOCK_STREAM 0 socket value sock
+sock googleaddr sizeof(sockaddr_in) connect throw
+
+( Send an HTTP request )
+s" GET / HTTP/1.0" sock write-file throw
+: semit ( ch s -- ) swap >r rp@ swap 1 swap write-file throw rdrop ;
+: semit ( ch s -- ) swap >r rp@ 1 0 send 0< throw rdrop ;
+: scr   13 sock semit 10 sock semit ;
+scr scr
+   
+( Read and print part of reply )
+here 100000 sock read-file throw constant len
+here len type
+
+🙬 A TCP Server 🙮
+   
+socket(domain, type, protocol)
+bind(sock, addr, addrlen)
+listen(sock, backlog)
+accept(sock, addr, *addrlen)
+send(sock, data, datalen, flags)          
+recv(sock, data, datalen, flags)
+close(sock)
+
+🙬 A TCP Server 🙮
+   
+socket  - make a socket
+bind    - bind it to a port
+listen  - listen for up to n connections
+accept  - accept a connection (new socket)
+send    - send data
+recv    - receive data
+close   - close the connection
+
+🙬 Server Challenges 🙮
+    
+• Management multiple connections
+• Blocking on connections
+• poll / select
+  • fd_set etc. absent
+
+🙬 A UDP Client/Server 🙮
+  
+gethostbyname(hostname)
+socket(domain, type, protocol)
+bind(sock, addr, addrlen)
+sendto(sock, data, datalen, flags, addr, addrlen)
+recvfrom(sock, data, datalen, flags, addr, *addrlen)
+close(sock)
+
+🙬 A UDP Client/Server 🙮
+  
+gethostbyname - lookup other hosts
+socket        - make a socket
+bind          - bind it to an incoming port         
+sendto        - send a packet
+recvfrom      - receive a packet
+close         - close the binding
+
+( Create a addres to listen on )
+sockaddr incoming
+9999 incoming ->port!
+ 
+( Create a socket and bind to address )
+AF_INET SOCK_DGRAM 0 socket value sockfd
+sockfd non-block throw  ( Optionally make non-blocking )
+sockfd incoming sizeof(sockaddr_in) bind throw
+
+( Read an incoming packet )
+sockaddr received
+variable received-len sizeof(sockaddr_in) received-len !
+sockfd msg len 0 received received-len recvfrom to len
+received ->addr@ ip. ." :" received ->port@ . 
+    space space msg swap type cr
+
+( Send an outgoing packet )
+sockaddr outgoing
+: say ( port -- "host" )
+  ( Setup address )
+  outgoing ->port!
+  bl parse s>z gethostbyname ->h_addr outgoing ->addr!
+  ( Sent rest of the parse buffer as the message )
+  sockfd tib >in @ + #tib @ >in @ -
+    0 outgoing sizeof(sockaddr_in) sendto drop
+  #tib @ >in !
+;
+
+DEMO & QUESTIONS?
+       🏵
+   Thank you!
