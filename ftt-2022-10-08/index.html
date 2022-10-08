@@ -101,7 +101,7 @@ CODE2, ( n -- ) -- Compile 2 byte
 CODE3, ( n -- ) -- Compile 3 byte
 CODE4, ( n -- ) -- Compile 4 byte
 
-A C SIGNATURE:
+Forth to C Entry SIGNATURE:
 cell_t *myfunc(cell_t *sp, float **fp);
 -------
 On x64:
@@ -109,7 +109,7 @@ On x64:
   %rax - Data stack pointer out
   %rsi - Pointer to floating stack pointer
 -------
-On Xtensa (ESP32)
+On Xtensa (ESP32):
   a2 - Data stack pointer in & out
   a3 - Pointer to floating stack pointer
 
