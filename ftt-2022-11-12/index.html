@@ -430,8 +430,11 @@ END-CODE
 Properties
   🙘
 • ~113 lines generic assembler / disassembler
-• ~286 lines Xtensa specific code
+• ~304 lines Xtensa specific code
+• ~152 lines Xtensa specific code
 • Lazy loaded on first run
+• Layered vocabularies:
+    FORTH > asm > xtensa/riscv
 • Memory safe / misaligned reads mixed in
 
 Future Directions
@@ -440,9 +443,8 @@ Future Directions
 • Fix some numeric operands
 • Add structured flow control
 • Better tests
-• Clean up what there
-• Try it for another architecture like:
-  RISC-V, x64
+• Clean up what's there
+• Implement x86 / x64
 • What about emulation?
 
 Maybe emulation like this?
