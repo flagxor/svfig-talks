@@ -37,18 +37,28 @@ Target Systems
   🙘
 • ESP32forth
   - C based Forth, no ASM out of the box
-• ESP32/S2/S3 Tensillica Xtensa LX6/LX7
+• ESP32/-S2/-S3 Tensillica Xtensa LX6/LX7
   - https://0x04.net/~mwk/doc/xtensa.pdf
 • ESP32-C3 RISC-V
   - https://riscv.org/wp-content/uploads
               /2017/05/riscv-spec-v2.2.pdf
 
-Xtensa LX6 (ESP32 flavor)
+Xtensa LX6 (ESP32/-S2 flavor)
   🙘
+• SIP Core with lots of options
 • 2 and 3 byte instructions
 • 16 x 32-bit integer registers a0-a15
   - Internal register window, slid in multiples of 4
   - 64 physical registers
+• 16 x 32-bit floating point registers f0-f15
+
+RISC-V (ESP32-C3 flavor)
+  🙘
+• Open-source core with layered instruction set
+• 2 and 4 byte instructions
+• 32 x 32-bit integer registers x0-x15
+  - x0 / zero is fixed at zero used for some encodings
+  - jump and link style RISC
 • 16 x 32-bit floating point registers f0-f15
 
 @add.png
@@ -256,6 +266,7 @@ $4 ALU2.S RFR,     $5 ALU2.S WFR,     $6 ALU2.S NEG.S,
 
 Code Words
   🙘
+• Registers assigned by C are abitrary and hidden
 • Use a C call signature for stable ABI
 • Not all memory can be used for ESP32 code
 • ESP32 and Linux support only at the moment
