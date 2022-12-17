@@ -49,6 +49,17 @@ Why the Web?
     ➥ But avoid needing to "assemble" loops
 • Boot from Forth code in a string
 
+: QUIT
+   BEGIN
+     EVALUATE1
+   AGAIN ;
+
+S>NUMBER? 🡆 BASE
+    PARSE 🡆 'TIB #TIB >IN
+   CREATE 🡆 CURRENT
+     FIND 🡆 CONTEXT
+EVALUATE1 🡆 STATE 'NOTFOUND
+
 Design Choices
       😎
 • Indirect Threaded
@@ -85,20 +96,84 @@ a = i32[p>>2] | 0;  // a = *p;  (32-bit)
 a = u8[p] | 0;  // a = *p;  (8-bit)
 return a | 0;  // function returns an int
 
+function Match(sep, ch) {
+  return sep == ch || (sep == 32 && (ch == 9 || ch == 10 || ch == 13));
+}
+function Parse(sep, ret) {
+  if (sep == 32) {
+    while (i32[g_sys_tin>>2] < i32[g_sys_ntib>>2] &&
+      Match(sep, u8[i32[g_sys_tib>>2] + i32[g_sys_tin>>2]])) { ++i32[g_sys_tin>>2];
+    }
+  }
+  var start = i32[g_sys_tin>>2];
+  while (i32[g_sys_tin>>2] < i32[g_sys_ntib>>2] &&
+         !Match(sep, u8[i32[g_sys_tib>>2] + i32[g_sys_tin>>2]])) { ++i32[g_sys_tin>>2]; }
+  var len = i32[g_sys_tin>>2] - start;
+  if (i32[g_sys_tin>>2] < i32[g_sys_ntib>>2]) { ++i32[g_sys_tin>>2]; }
+  i32[ret>>2] = i32[g_sys_tib>>2] + start;
+  if (DEBUGGING) { console.log(’PARSE: [’ + GetString(i32[ret>>2], len) + ’]’); }
+  return len;
+}
+
+  X("0=", ZEQUAL, tos = !tos ? -1 : 0) \
+  X("0<", ZLESS, tos = (tos|0) < 0 ? -1 : 0) \
+  X("+", PLUS, tos += *sp--) \
+  Y(LSHIFT, tos = (*sp << tos); --sp) \
+  Y(RSHIFT, tos = (((ucell_t) *sp) >> tos); --sp) \
+  Y(ARSHIFT, tos = (*sp >> tos); --sp) \
+  Y(AND, tos &= *sp--) \
+  Y(OR, tos |= *sp--) \
+  Y(XOR, tos ^= *sp--) \
+  X("DUP", ALTDUP, DUP) \
+  Y(SWAP, w = tos; tos = *sp; *sp = w) \
+  Y(OVER, DUP; tos = sp[-1]) \
+  X("DROP", ALTDROP, DROP) \
+  X("@", AT, tos = *(cell_t *) tos) \
+
+cases = ReplaceAll(cases, '*(cell_t *) tos = ', 'i32[tos>>2] = ');
+cases = ReplaceAll(cases, '((cell_t *) tos)[1] = ', 'i32[(tos + 4)>>2] = ');
+cases = ReplaceAll(cases, '*(int32_t *) tos = ', 'i32[tos>>2] = ');
+cases = ReplaceAll(cases, '*(int16_t *) tos = ', 'i16[tos>>1] = ');
+cases = ReplaceAll(cases, '*(uint8_t *) tos = ', 'u8[tos] = ');
+cases = ReplaceAll(cases, '*(float *) tos = ', 'f32[tos>>2] = ');
+cases = ReplaceAll(cases, '*(cell_t *) tos', '(i32[tos>>2]|0)');
+cases = ReplaceAll(cases, '((cell_t *) tos)[1]', '(i32[(tos + 4)>>2]|0)');
+cases = ReplaceAll(cases, '*(int32_t *) tos', '(i32[tos>>2]|0)');
+cases = ReplaceAll(cases, '*(uint32_t *) tos', '(i32[tos>>2]>>>0)');
+cases = ReplaceAll(cases, '*(int16_t *) tos', '(i16[tos>>1]|0)');
+cases = ReplaceAll(cases, '*(uint16_t *) tos', '(i16[tos>>1]>>>0)');
+cases = ReplaceAll(cases, '*(uint8_t *) tos', '(u8[tos]|0)');
+cases = ReplaceAll(cases, '*(float *) tos', 'f32[tos>>2]');
+cases = ReplaceAll(cases, '*(float *) ip', 'f32[ip>>2]');
+
 Bindings to JavaScript
   ⛓⛓⛓
-jseval! ( a n slot -- )
 call ( slot -- )
+jseval! ( a n slot -- )
+jseval ( a n -- )
 
+  X("CALL", CALL, DUP; sp = Call(sp|0)|0; DROP) \
+ 
 function(sp) {
   var tos = i32[sp>>2]; sp -= 4;
   // do something with tos
   return sp;
 }
 
-Bindings to JavaScript
-  ⛓⛓⛓
-jseval ( a n -- )
+function SetEval(sp) {
+  var index = i32[sp>>2]; sp -= 4;
+  var n = i32[sp>>2]; sp -= 4;
+  var a = i32[sp>>2]; sp -= 4;
+  objects[index] = eval(GetString(a, n));
+  return sp;
+}
+ 
+var objects = [SetEval];
+ 
+function Call(sp) {
+  var op = i32[sp>>2]; sp -= 4;
+  return objects[op](sp);
+}
 
 r~
   // Run a bunch of JavaScript!
