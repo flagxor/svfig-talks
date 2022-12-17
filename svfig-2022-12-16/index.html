@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#fffff7';
+FOREGROUND = '#001';
+</script><pre>
+
+    μEforth
+Graphics and Sound
+   on the Web
+        -- Redux!
+       🙘
+  December 17, 2022
+
+Now
+  with
+Working
+   DEMOS!
+
+ μEforth
+✨ ✨ ✨
+• Multi-platform eForth based Forth
+• One codebase targets:
+  - Windows 32-bit and 64-bit
+  - Linux & WSL
+  - ESP32 / ESP32-S2/S3 / ESP32-C3 / ESP-CAM
+    (known as ESP32forth)
+  - Web!
+
+Why the Web?
+  🕸 🌎 🕸
+• Portable, powerful,
+   relatively simple I/O APIs.
+• Asm.js, WebAssembly, and JITs
+   mean it can go fast!
+• It's easy to show people.
+• It let's people run my code
+   without trusting me.  🙊
+
+µEForth Approach
+       ⚓
+• Each opcodes in 1-2 lines of C code
+• Define "system variables" in a C structure
+• Define 5 "core" opcodes
+   in larger C functions
+    ➥ These could be built from opcodes
+    ➥ But avoid needing to "assemble" loops
+• Boot from Forth code in a string
+
+Design Choices
+      😎
+• Indirect Threaded
+    ➥ Single cell VM opcodes
+    ➥ Simpler SEE / DOES>
+    ➥ Computed goto in C avoids assembly
+    ➥ Other models might be faster?
+• Unlimited stacks
+• 32-bit floats only
+• No counted strings
+
+How to bring it to the Web?
+    ⛵ 🌎 🕸
+• Convert to Asm.js
+    ➥ Hand convert 5 "core" words
+    ➥ Automate converting opcodes
+      .. with Regexes 🙃 ..
+
+Asm.js
+ ⛵🐱
+• Best hack ever
+• Embed C in JavaScript
+• Converted by Chrome
+  to WebAssembly
+
+Asm.js
+ ⛵🐱
+a = a | 0;  // a is an int
+a = fround(a);  // a is a float32
+a = (a + 1) | 0;  // ++a;
+a = (a + b) | 0;  // a = a + b;
+a = imul32(a, b);  // a = a * b;
+a = i32[p>>2] | 0;  // a = *p;  (32-bit)
+a = u8[p] | 0;  // a = *p;  (8-bit)
+return a | 0;  // function returns an int
+
+Bindings to JavaScript
+  ⛓⛓⛓
+jseval! ( a n slot -- )
+call ( slot -- )
+
+function(sp) {
+  var tos = i32[sp>>2]; sp -= 4;
+  // do something with tos
+  return sp;
+}
+
+Bindings to JavaScript
+  ⛓⛓⛓
+jseval ( a n -- )
+
+r~
+  // Run a bunch of JavaScript!
+~ jseval
+
+Bindings to JavaScript
+  ⛓⛓⛓
+JSWORD: myword { }
+  // Do something in JS
+~
+
+Arguments to JavaScript
+  😠😠
+JSWORD: my+ { a b -- n }
+  return a + b;
+~
+
+Multiple Return
+    🎶🎶🎶
+JSWORD: myswap { a b -- n n }
+  return [b, a];
+~
+
+Graphics
+  🐷🐷
+gr ( -- ) Enter graphics mode
+text ( -- ) Text mode
+show-text ( f -- ) Show/hide text
+viewport@ ( -- w h )
+window ( w h -- )
+
+Input
+ 🐭
+mouse ( -- x y )
+button ( -- b )
+
+Color
+🟠 🟡 🟢 🟣
+color! ( rgb -- )
+$ff0000 constant red
+$ffff00 constant yellow
+$0000ff constant blue
+
+Drawing
+ 🎨 🎨
+box ( x y w h -- )
+line ( x1 y1 x2 y2 -- )
+font ( a n -- )
+fillText ( str str# x y -- )
+
+Paths
+🚧 🚧
+lineWidth ( w -- )
+beginPath ( -- )
+moveTo ( x y -- )
+lineTo ( x y -- )
+quarticCurveTo ( cx cy x y -- )
+stroke ( -- )
+fill ( -- )
+
+Transforms
+ 🤖🤖🤖
+translate ( x y -- )
+scale ( sx sy div -- )
+rotate ( angle div -- )
+gpush ( -- ) Push transform stack
+gpop ( -- ) Push transform stack
+
+Sound
+🔊 🔊
+tone ( note[midi] volume[0-100] voice[0-7] )
+silence ( -- )
+
+       DEMO
+eforth.appspot.com
+
+QUESTIONS?
+   🏵
+ Thank you!
