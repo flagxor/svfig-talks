@@ -9,9 +9,22 @@ FOREGROUND = '#ffdd00';
 
    Pig Latin
    CHALLENGE
-       🐖
+      🐖
 January 28, 2023
 
+PIG LATIN
+🐖 Argot or jargon
+🐶 Dog Latin
+    Costard: Go to; thou hast it ad dungill,
+             at the fingers' ends, as they say.
+    Holofernes: O, I smell false Latine;
+                dunghill for unguem.
+      — Love's Labour's Lost, William Shakespeare
+🐖 Modern version appears ~1919.
+🐖 bsdgames - /usr/games/pig
+
+SINGLE  CONSONANT
+    🐖 🐖 🐖
    pig ↬ igpay
  latin ↬ atinlay
 banana ↬ ananabay
@@ -25,6 +38,8 @@ simple ↬ implesay
    say ↬ aysay
  bagel ↬ agelbay
 
+    SINGLE  CONSONANT
+        🐖 🐖 🐖
 p - ig    ↬ ig    - p - ay
 l - atin  ↬ atin  - l - ay
 b - anana ↬ anana - b - ay
@@ -38,6 +53,8 @@ s - imple ↬ imple - s - ay
 s - ay    ↬ ay    - s - ay
 b - agel  ↬ agel  - b - ay
 
+  MULTI-CONSONANT
+     🐖 🐖 🐖
 friends ↬ iendsfray
   smile ↬ ilesmay
  string ↬ ingstray
@@ -47,6 +64,8 @@ friends ↬ iendsfray
   floor ↬ oorflay
   store ↬ orestay
 
+       MULTI-CONSONANT
+          🐖 🐖 🐖
 fr  - iends ↬ iends - fr  - ay
 sm  - ile   ↬ ile   - sm  - ay
 str - ing   ↬ ing   - str - ay
@@ -56,6 +75,8 @@ tr  - ash   ↬ ash   - tr  - ay
 fl  - oor   ↬ oor   - fl  - ay
 st  - ore   ↬ ore   - st  - ay
 
+   INITIAL VOWEL
+     🐖 🐖 🐖
     eat ↬ eatway
  omelet ↬ omeletway
     are ↬ areway
@@ -66,6 +87,8 @@ explain ↬ explainway
  honest ↬ honestway
       I ↬ Iway
 
+     INITIAL VOWEL
+       🐖 🐖 🐖
     eat ↬ eat     - way
  omelet ↬ omelet  - way
     are ↬ are     - way
@@ -76,6 +99,8 @@ explain ↬ explain - way
  honest ↬ honest  - way
       I ↬ I       - way
 
+     INITIAL VOWEL
+       🐖 🐖 🐖
     eat ↬ eat     - way
  omelet ↬ omelet  - way
     are ↬ are     - way
@@ -86,21 +111,466 @@ explain ↬ explain - way
  honest ↬ onest - h -ay
       I ↬ I       - WAY
 
+        QU-
+     🐖 🐖 🐖
    quest ↬ estquay
 quantity ↬ antityquay
 
+            QU-
+         🐖 🐖 🐖
 qu - est    ↬ est    - qu - ay
 qu - antity ↬ antity - qu - ay
 
+          Y-
+       🐖 🐖 🐖
       yes ↬ yesay
 yesterday ↬ yesterdayay
      yell ↬ yellay
 
+          Y-
+       🐖 🐖 🐖
       yes ↬ yes       - ay
 yesterday ↬ yesterday - ay
      yell ↬ yell      - ay
 
-DEMO
+ENCODING APPROACH
+🐖 Keep a buffer for first constant cluster
+🐖 Fill character by character
+🐖 Once a non-consonant is seen, consider it "stemmed"
+🐖 Print first vowel in case based on the "stem"
+🐖 At the end emit buffer in lowercase + final -way/-ay
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+|
+ 🐖         :buffer
+ 🐖         :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+ |
+ S🐖        :buffer
+ 🐖         :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+  |
+ Sc🐖       :buffer
+ 🐖         :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+   |
+ Scr🐖      :buffer
+ 🐖         :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+    |
+ Scr🐖      :buffer
+ A🐖        :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+     |
+ Scr🐖      :buffer
+ Am🐖       :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+      |
+ Scr🐖      :buffer
+ Amscr🐖    :output
+
+ENCODING APPROACH
+    🐖 🐖 🐖
+ Scram
+      |
+ Scr🐖      :buffer
+ Amscray🐖  :output
+
+ BASICS
+🐖 🐖 🐖
+: between? ( ch a b ) >r over r> <= >r >= r> and ;
+: upper? ( ch -- f ) [char] A [char] Z between? ;
+: lower? ( ch -- f ) [char] a [char] z between? ;
+: letter? ( ch -- f ) dup upper? swap lower? or ;
+: cupper ( ch -- ch )
+   dup lower? if [char] a - [char] A + then ;
+: clower ( ch -- ch )
+   dup upper? if [char] A - [char] a + then ;
+
+VOWELS AND CONSONANTS
+      🐖 🐖 🐖
+: contains? ( ch a n -- f ) 
+   1- for
+     dup c@ >r over r> = if
+       rdrop 2drop -1 exit
+     then
+     1+
+   next
+   2drop 0 ;
+: vowely? ( ch -- f )
+   clower s" aeiouy" contains? ;
+: consonant? ( ch -- f )
+   clower s" bcdfghjklmnpqrstvwxz" contains? ;
+
+KEEP A BUFFER
+  🐖 🐖 🐖
+1000 constant capacity
+create buffer capacity allot
+create alt-buffer capacity allot
+variable slot  buffer slot !
+
+OPERATIONS ON BUFFER
+     🐖 🐖 🐖
+: clear   buffer slot ! ;
+: +buffer ( ch -- ) slot @ c!  1 slot +! ;
+: full? ( -- f ) buffer slot @ <> ;
+: buffer> ( -- a n ) buffer slot @ buffer - ;
+
+PRINT BUFFER IN LOWERCASE
+       🐖 🐖 🐖
+: ltype ( a n -- )
+   for aft
+     dup c@ clower emit 1+
+   then next
+   drop ;
+: buffer.   buffer> ltype ;
+
+TRACK FIRST STEM
+   🐖 🐖 🐖
+variable stemmed
+: capital? ( -- f )
+   full? buffer c@ upper? and ;
+: capvowel ( ch -- ch )
+   stemmed @ 0= capital? and if cupper then ;
+: +consonant ( ch -- )
+   stemmed @ if emit else +buffer then ;
+
+END OF A WORD
+  🐖 🐖 🐖
+: finish
+   full? if
+     buffer. ." ay" clear
+   else
+     stemmed @ if ." way" then
+   then
+   0 stemmed ! ;
+
+PUT IT TOGETHER
+   🐖 🐖 🐖
+: pig1 ( ch -- )
+   dup vowely? if
+     capvowel emit -1 stemmed ! exit
+   then
+   dup consonant? if
+     +consonant exit
+   then
+   finish emit ;
+: pig   begin key dup 0< if bye then pig1 again ;
+
+What about
+  in reverse?
+
+pork ↬ orkpay
+ 🐖 🐖 🐖
+orkpay ↬ pork
+
+work ↬ orkway
+ are ↬ areway
+ 🐖 🐖 🐖
+orkway ↬ ork ?
+areway ↬ ware ?
+
+play ↬ ayplay
+ 🐖 🐖 🐖
+ayplay ↬ layp ?
+       ↬ play ?
+
+ONLY SOME STEMS IN ENGLISH
+       🐖 🐖 🐖
+Single Letters
+    AND
+bl br ch chl chr cl cr cs cz dh dj dr dw fj fl fr
+gh gl gn gr kh kl kn kr ks ll ls mn ph phl phr pl
+pn pr ps pt qu rh sc sch schl schm schn schr scht
+schw scl scr sh shl shr sht sk sl sm sn sp sph spl
+spr squ sr st str sv sw th thr thw tr ts tw tz wh
+wr zw
+
+: clusters: begin create latestxt >name nip 5 > until ;
+vocabulary clusters sealed  also clusters definitions
+clusters: bl br ch chl chr cl cr cs cz dh dj dr dw fj fl fr gh gl gn gr
+          kh kl kn kr ks ll ls mn ph phl phr pl pn pr ps pt qu rh
+          sc sch schl schm schn schr scht schw scl scr sh shl shr sht
+          sk sl sm sn sp sph spl spr squ sr st str sv sw th thr thw tr
+          ts tw tz wh wr zw xxxxxxxx
+only forth definitions
+: cluster? ( a n -- f )
+   dup 1 = >r over c@ consonant? r> and if 2drop -1 exit then
+   clusters find forth ;
+
+chops ↬ opschay
+   🐖 🐖 🐖
+opschay ↬ hopsc
+        ↬ chops
+        ↬ schop
+
+Check the
+ Dictionary!
+
+LOAD DICTIONARY IN MEMORY
+      🐖 🐖 🐖
+s" /usr/share/dict/words" r/o open-file throw value dict-words
+dict-words file-size throw constant dict-size
+dict-size 1+ allocate throw value dict-data
+dict-data dict-size dict-words read-file throw drop
+0 dict-data dict-size + c!  ( null terminate )
+
+ITERATE THROUGH EACH WORD
+       🐖 🐖 🐖
+: next-word ( a -- a ) begin 1+ dup c@ nl = until 1+ ;
+: each-step ( a -- a' a n ) dup next-word swap over over - 1- ;
+: each{   postpone begin postpone dup postpone c@
+          postpone while postpone each-step ; immediate
+: }each   postpone repeat postpone drop ; immediate
+
+COMPARE DISREGARDING CASE
+       🐖 🐖 🐖
+: case= ( a n a n -- f )
+   >r swap r@ <> if rdrop 2drop 0 exit then r>
+   for aft
+     2dup c@ clower swap c@ clower <> if rdrop 2drop 0 exit then
+     1+ swap 1+ swap
+   then next 2drop -1 ;
+
+CHECK IF BUFFER HAS A WORD
+       🐖 🐖 🐖
+: word? ( -- f )
+   dict-data each{
+     buffer> case= if drop -1 exit then
+   }each 0 ; 
+: word-w? ( -- f )
+   dict-data each{
+     buffer> 1- 0 max case= if drop -1 exit then
+   }each 0 ; 
+
+heat ↬ eathay
+   🐖 🐖 🐖
+eathay ↬ heat
+       ↬ thea ( Thea)
+
+CHECK IF BUFFER HAS A NONPROPER NOUN
+          🐖 🐖 🐖
+: ?nonproper? ( a n -- a n f ) over c@ lower? ;
+: nonpropers{
+   postpone each{ postpone ?nonproper? postpone if ; immediate
+: }nonpropers
+   postpone else postpone 2drop postpone then
+   postpone }each ; immediate
+
+CHECK IF BUFFER HAS A NONPROPER NOUN
+          🐖 🐖 🐖
+: nonproper? ( -- f )
+   dict-data nonpropers{
+     buffer> case= if drop -1 exit then
+   }nonpropers 0 ;
+: nonproper-w? ( -- f )
+   dict-data nonpropers{
+     buffer> 1- 0 max case= if drop -1 exit then
+   }nonpropers 0 ;
+
+MORE OPERATIONS ON BUFFER
+       🐖 🐖 🐖
+: drop-buffer   slot @ 1- buffer max slot ! ;
+: 1rot-buffer   buffer> buffer 1+ swap cmove> buffer> + c@ buffer c! ;
+: rot-buffer ( n -- ) for aft 1rot-buffer then next ;
+: stash-buffer   buffer> alt-buffer swap cmove ;
+: unstash-buffer   buffer> >r alt-buffer swap r> cmove ;
+
+UTILITIES
+🐖 🐖 🐖
+: capupper.
+   buffer c@ cupper emit  shift-buffer ;
+: w? ( -- f )
+   full? buffer buffer> + 1- max c@ [char] w = and ;
+
+TRY A ROTATION
+  🐖 🐖 🐖
+: lastn ( n -- a n )
+   buffer> nip min >r buffer> r> dup >r - + r> ;
+: try-rot ( xt n -- f )
+   stash-buffer rot-buffer
+   execute dup 0= if unstash-buffer then ;
+: try-cluster-rot ( xt n -- f )
+   dup lastn cluster? if try-rot else 2drop 0 then ;
+
+TRY SEVERAL ROTATIONS
+      🐖 🐖 🐖
+: try-rots ( -- f )
+   2 4 do
+     ['] word? i try-rot if unloop -1 exit then
+   -1 +loop 0 ;
+: try-clusters-rot { xt -- f }
+   1 4 do
+     xt i try-cluster-rot if unloop -1 exit then
+   -1 +loop 0 ;
+
+CONSIDER EACH IN ORDER
+      🐖 🐖 🐖
+: rot-stem
+   w? if nonproper-w? if drop-buffer exit then then
+   ['] nonproper? try-clusters-rot if exit then
+   w? if word-w? if drop-buffer exit then then
+   ['] word? try-clusters-rot if exit then
+   try-rots if exit then
+   w? if drop-buffer else 1 rot-buffer then ;
+
+PUT IT ALL TOGETHER
+     🐖 🐖 🐖
+: unvent
+   full? if
+     capital? >r drop-buffer drop-buffer rot-stem
+              r> if capupper.
+   then buffer. clear then ;
+: unpig1 ( ch -- )
+   dup letter? if +buffer exit then unvent emit ;
+: unpig
+   begin key dup 0< if bye then unpig1 again ;
+
+TWO MODES IN ONE PROGRAM
+       🐖 🐖 🐖
+: usage   ." USAGE: pig.fs [-r]" cr 1 terminate ;
+: run
+   argc 3 > if usage then
+   argc 3 = if 2 argv s" -r" str= 0= if usage then unpig exit then
+   pig
+;
+run
+
+SIZE
+ 🐖
+~ 129 lines
+
+There live not three good men unhanged in England;
+and one of them is fat and grows old.
+-- Henry IV, Part 1, Act 2, Scene 4.
+ 🐖 🐖 🐖 🐖 🐖 🐖
+Erethay ivelay otnay eethray oodgay enmay unhangedway inway Englandway;
+andway oneway ofway emthay isway atfay andway owsgray oldway.
+-- Enryhay IVway, Artpay 1, Actway 2, Enescay 4.
+ 🐖 🐖 🐖 🐖 🐖 🐖
+There live not three good men unhanged in England;
+and one of them is fat and grows old.
+-- Henry Iv, Part 1, Act 2, Scene 4.
+
+I pity the fellow who has to create a dialect or paraphrase
+the dictionary to get laughs.
+I can't spell, but I have never stooped to spell cat
+with a 'k' to get at your funny bone.
+I love a drink, but I never encouraged drunkenness
+by harping on its alleged funny side.
+-- Mark Twain
+ 🐖 🐖 🐖 🐖 🐖 🐖
+Iway itypay ethay ellowfay owhay ashay otay eatecray away ialectday orway araphrasepay
+ethay ictionaryday otay etgay aughslay.
+Iway ancay'tay ellspay, utbay Iway avehay evernay oopedstay otay ellspay atcay
+ithway away 'kay' otay etgay atway yourway unnyfay onebay.
+Iway ovelay away inkdray, utbay Iway evernay encouragedway unkennessdray
+ybay arpinghay onway itsway allegedway unnyfay idesay.
+-- Arkmay Aintway
+
+Ode to Psyche
+BY JOHN KEATS
+O Goddess! hear these tuneless numbers, wrung
+         By sweet enforcement and remembrance dear,
+And pardon that thy secrets should be sung
+         Even into thine own soft-conched ear:
+Surely I dreamt to-day, or did I see
+         The winged Psyche with awaken'd eyes?
+I wander'd in a forest thoughtlessly,
+         And, on the sudden, fainting with surprise,
+Saw two fair creatures, couched side by side
+         In deepest grass, beneath the whisp'ring roof
+         Of leaves and trembled blossoms, where there ran
+                A brooklet, scarce espied:
+ 🐖 🐖 🐖 🐖 🐖 🐖
+21 lines differ, out of 71 lines total
+
+2c2
+< By John Keats
+---
+> BY JOHN KEATS
+4c4
+< O Goddess! rhea these tuneless numbers, wrung
+---
+> O Goddess! hear these tuneless numbers, wrung
+8c8
+< Surely I reamtd to-day, or did I see
+---
+> Surely I dreamt to-day, or did I see
+13c13
+<          In deepest grass, beneath the hispw'grin roof
+---
+>          In deepest grass, beneath the whisp'ring roof
+15c15
+<                 A rookletb, scarce espied:
+---
+>                 A brooklet, scarce espied:
+
+21c21
+<          Their slip touch'd not, but had not bade adieu,
+---
+>          Their lips touch'd not, but had not bade adieu,
+26c26
+< But who ast thou, O happy, happy dove?
+---
+> But who wast thou, O happy, happy dove?
+44c44
+< When holy ere the haunted forest boughs,
+---
+> When holy were the haunted forest boughs,
+53c53
+<          From ingeds censer teeming;
+---
+>          From swinged censer teeming;
+57c57
+< Yes, I ill be thy priest, and build a fane
+---
+> Yes, I will be thy priest, and build a fane
+60c60
+<          Instead of spine shall murmur in the wind:
+---
+>          Instead of pines shall murmur in the wind:
+
+62c62
+<          Ledgef the wild-ridged mountains steep by steep;
+---
+>          Fledge the wild-ridged mountains steep by steep;
+66c66
+< A rosy sanctuary ill I dress
+---
+> A rosy sanctuary will I dress
+70c70
+<          Who breeding flowers, ill never breed the same:
+---
+>          Who breeding flowers, will never breed the same:
+72c72
+<          That shadowy thought can in,
+---
+>          That shadowy thought can win,
+74c74
+<          To let the arm Love in!
+---
+>          To let the warm Love in!
 
 QUESTIONS?
    🏵

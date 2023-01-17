@@ -15,7 +15,7 @@ Handling to µEforth
 What is Fault Handing?
 ══════════════════════
 🙈 Reading an "illegal" addresses
-🖊 Writing an "illegal" addresses
+🤬 Writing an "illegal" addresses
 🔥 Executing an "illegal" addresses
 🚫 Divide by zero
 
@@ -25,6 +25,35 @@ What's an "illegal" address?
 ⛔ Memory with wrong permissions
 🌀 Unaligned memory (sometimes)
 
+static cell_t *forth_run(cell_t *init_rp) {
+  static const BUILTIN_WORD builtins[] = {
+#define Z(flags, name, op, code) \
+    name, ((VOC_ ## flags >> 8) & 0xff) | BUILTIN_MARK, \
+    sizeof(name) - 1, (VOC_ ## flags & 0xff), && OP_ ## op,
+    PLATFORM_OPCODE_LIST
+    TIER2_OPCODE_LIST
+    TIER1_OPCODE_LIST
+    TIER0_OPCODE_LIST
+#undef Z
+    0, 0, 0, 0, 0,
+  };
+
+  if (!init_rp) {
+    g_sys->DOCREATE_OP = ADDROF(DOCREATE);
+    g_sys->builtins = builtins;
+    💥forth_faults_setup();💥
+    return 0;
+  }
+  register cell_t *ip, *rp, *sp, tos, w;
+  register float *fp, ft;
+  rp = init_rp; UNPARK; 💥FAULT_ENTRY;💥 NEXT;
+#define Z(flags, name, op, code) OP_ ## op: { code; } NEXT;
+  PLATFORM_OPCODE_LIST
+  TIER2_OPCODE_LIST
+  TIER1_OPCODE_LIST
+  TIER0_OPCODE_LIST
+#undef Z
+}
 
 🧨 DEMO 🧨
 
