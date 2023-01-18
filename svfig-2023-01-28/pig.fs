@@ -9,7 +9,7 @@
 : cupper ( ch -- ch ) dup lower? if [char] a - [char] A + then ;
 : clower ( ch -- ch ) dup upper? if [char] A - [char] a + then ;
 
-: contains? ( ch a n -- f ) 
+: contains? ( ch a n -- f )
   1- for dup c@ >r over r> = if rdrop 2drop -1 exit then 1+ next 2drop 0 ;
 : vowely? ( ch -- f ) clower s" aeiouy" contains? ;
 : consonant? ( ch -- f ) clower s" bcdfghjklmnpqrstvwxz" contains? ;
@@ -68,9 +68,9 @@ dict-data dict-size dict-words read-file throw drop
      2dup c@ clower swap c@ clower <> if rdrop 2drop 0 exit then
      1+ swap 1+ swap
    then next 2drop -1 ;
-: word? ( -- f ) dict-data each{ buffer> case= if drop -1 exit then }each 0 ; 
+: word? ( -- f ) dict-data each{ buffer> case= if drop -1 exit then }each 0 ;
 : word-w? ( -- f )
-   dict-data each{ buffer> 1- 0 max case= if drop -1 exit then }each 0 ; 
+   dict-data each{ buffer> 1- 0 max case= if drop -1 exit then }each 0 ;
 : nonproper? ( -- f )
    dict-data nonpropers{ buffer> case= if drop -1 exit then }nonpropers 0 ;
 : nonproper-w? ( -- f )
