@@ -26,6 +26,22 @@ What's an "illegal" address?
 ⛔ Memory with wrong permissions
 🌀 Unaligned memory (sometimes)
 
+Guru Meditation Error: Core  1 panic'ed (LoadProhibited). Exception was unhandled.
+ 
+Core  1 register dump:
+PC      : 0x400d4e00  PS      : 0x00060a30  A0      : 0x800d5300  A1      : 0x3ffb2650
+A2      : 0x3ffe4bd8  A3      : 0x3ffe7e44  A4      : 0x3ffe53f8  A5      : 0x0000007b
+A6      : 0x3ffe5bdc  A7      : 0x3ffe5bd8  A8      : 0x800d51b9  A9      : 0x3f40d104
+A10     : 0x3f40d02c  A11     : 0x3ffe63dc  A12     : 0x400d4dfe  A13     : 0x3ffe7ca8
+A14     : 0x00000001  A15     : 0x3ffe7ca8  SAR     : 0x0000000a  EXCCAUSE: 0x0000001c
+EXCVADDR: 0x0000007b  LBEG    : 0x4008a4c8  LEND    : 0x4008a4d2  LCOUNT  : 0x00000000
+ 
+ 
+Backtrace:0x400d4dfd:0x3ffb26500x400d52fd:0x3ffb2800 0x400dbc35:0x3ffb2820
+
+@guru.gif
+<img src="guru.gif">
+
 Goal:                🥅
   Turn faults into
   regular Forth exceptions
@@ -272,6 +288,76 @@ work:
   }
 }
 
+What about
+  Ctrl-Break?
+
+Windows Ctrl-Break/C
+══════════════════
+💥 SetConsoleCtrlHandler
+  - Must happen after AllocConsole
+💥 Ctrl-Break/C triggers
+    a handler on separate thread
+💥 How to move back to the
+    main thread, CRASH it!
+
+YV(windows, SetupCtrlBreakHandler, SetupCtrlBreakHandler()) \
+
+static DWORD forth_main_thread_id;
+static uintptr_t forth_main_thread_resume_sp;
+static uintptr_t forth_main_thread_resume_bp;
+
+static void SetupCtrlBreakHandler(void) {
+  forth_main_thread_id = GetCurrentThreadId();
+  SetConsoleCtrlHandler(forth_ctrl_handler, TRUE);
+  CONTEXT context = { 0 };
+  context.ContextFlags = CONTEXT_CONTROL;
+  GetThreadContext(GetCurrentThread(), &context);
+#ifdef _WIN64
+  forth_main_thread_resume_sp = context.Rsp;
+  forth_main_thread_resume_bp = context.Rbp;
+#else
+  forth_main_thread_resume_sp = context.Esp;
+  forth_main_thread_resume_bp = context.Ebp;
+#endif
+}
+
+static BOOL WINAPI forth_ctrl_handler(DWORD fdwCtrlType) {
+  HANDLE main_thread;
+  CONTEXT context = { 0 };
+  if (fdwCtrlType == CTRL_C_EVENT ||
+      fdwCtrlType == CTRL_BREAK_EVENT) {
+    // Using explicit instead of THREAD_ALL_ACCESS to be explicit as per docs.
+    // THREAD_QUERY_INFORMATION seems to be required for reasons unknown on x64.
+    main_thread = OpenThread(THREAD_QUERY_INFORMATION |
+                             THREAD_SET_CONTEXT |
+                             THREAD_GET_CONTEXT |
+                             THREAD_SUSPEND_RESUME, FALSE, forth_main_thread_id);
+    SuspendThread(main_thread);
+    context.ContextFlags = CONTEXT_CONTROL;
+    GetThreadContext(main_thread, &context);
+#ifdef _WIN64
+    context.Rip = 0;
+    context.Rsp = forth_main_thread_resume_sp;
+    context.Rbp = forth_main_thread_resume_bp;
+#else
+    context.Eip = 0;
+    context.Esp = forth_main_thread_resume_sp;
+    context.Ebp = forth_main_thread_resume_bp;
+#endif
+    SetThreadContext(main_thread, &context);
+    ResumeThread(main_thread);
+    CloseHandle(main_thread);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+ESP32 Panic Handler
+═══════════════════
+🚫 Triggers for many/most failures
+🚫 Doesn't seem have documented
+    knobs except gdb hook
+
 ESP32 Xtensa Exceptions
 ═══════════════════════
 🔥 Xtensa Exception Option
@@ -388,7 +474,10 @@ components/esp_system/port/cpu_start.c
            🔥🔥🔥🔥🔥🔥🔥🔥
 esp_cpu_intr_set_ivt_addr(&_vector_table);
 
-So something for next time...
+Missing Things
+══════════════
+🌀 So maybe RISC-V next time...
+🌀 Document and standardize throw values
 
 💣 DEMO 💣
 
