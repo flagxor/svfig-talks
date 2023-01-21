@@ -288,6 +288,70 @@ work:
   }
 }
 
+What about
+  Ctrl-Break?
+
+Windows Ctrl-Break/C
+══════════════════
+💥 SetConsoleCtrlHandler
+  - Must happen after AllocConsole
+💥 Ctrl-Break/C triggers
+    a handler on separate thread
+💥 How to move back to the
+    main thread, CRASH it!
+
+YV(windows, SetupCtrlBreakHandler, SetupCtrlBreakHandler()) \
+
+static DWORD forth_main_thread_id;
+static uintptr_t forth_main_thread_resume_sp;
+static uintptr_t forth_main_thread_resume_bp;
+
+static void SetupCtrlBreakHandler(void) {
+  forth_main_thread_id = GetCurrentThreadId();
+  SetConsoleCtrlHandler(forth_ctrl_handler, TRUE);
+  CONTEXT context = { 0 };
+  context.ContextFlags = CONTEXT_CONTROL;
+  GetThreadContext(GetCurrentThread(), &context);
+#ifdef _WIN64
+  forth_main_thread_resume_sp = context.Rsp;
+  forth_main_thread_resume_bp = context.Rbp;
+#else
+  forth_main_thread_resume_sp = context.Esp;
+  forth_main_thread_resume_bp = context.Ebp;
+#endif
+}
+
+static BOOL WINAPI forth_ctrl_handler(DWORD fdwCtrlType) {
+  HANDLE main_thread;
+  CONTEXT context = { 0 };
+  if (fdwCtrlType == CTRL_C_EVENT ||
+      fdwCtrlType == CTRL_BREAK_EVENT) {
+    // Using explicit instead of THREAD_ALL_ACCESS to be explicit as per docs.
+    // THREAD_QUERY_INFORMATION seems to be required for reasons unknown on x64.
+    main_thread = OpenThread(THREAD_QUERY_INFORMATION |
+                             THREAD_SET_CONTEXT |
+                             THREAD_GET_CONTEXT |
+                             THREAD_SUSPEND_RESUME, FALSE, forth_main_thread_id);
+    SuspendThread(main_thread);
+    context.ContextFlags = CONTEXT_CONTROL;
+    GetThreadContext(main_thread, &context);
+#ifdef _WIN64
+    context.Rip = 0;
+    context.Rsp = forth_main_thread_resume_sp;
+    context.Rbp = forth_main_thread_resume_bp;
+#else
+    context.Eip = 0;
+    context.Esp = forth_main_thread_resume_sp;
+    context.Ebp = forth_main_thread_resume_bp;
+#endif
+    SetThreadContext(main_thread, &context);
+    ResumeThread(main_thread);
+    CloseHandle(main_thread);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 ESP32 Panic Handler
 ═══════════════════
 🚫 Triggers for many/most failures
