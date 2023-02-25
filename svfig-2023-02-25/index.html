@@ -45,9 +45,10 @@ cr
 @@| What about a Forth script tag? |
 ; +slide
 
+: close-script  ." </" ." script>" ;
 :noname big slide|  Script Tags |
-@@| Two kinds inline [script]..[/script] and | cr
-r|   [script src="..."][/script] | type cr
+@@| Two kinds inline <script>..| type close-script ."  and " cr
+r|   <script src="...">| type close-script cr
 @@| Tags have tag.text for the first, but caveats... |
 @@| Loading script src requires XMLHttpRequest, | cr
 r|   more caveats... | type cr
@@ -84,14 +85,14 @@ web
 ; +slide
 
 :noname big slide|  Titles and Bullets |
-r|
-: @@\   postpone r\ postpone bullet
+r~
+: @@|   postpone r| postpone bullet
         postpone type postpone cr ; immediate
 : title ( a n -- ) 9 fg 2dup type cr regular
                    nip 1 fg 1- for ." ─" next
                    regular cr ;
-: slide\   postpone r\ postpone title ; immediate
-| type
+: slide|   postpone r| postpone title ; immediate
+~ type
 ; +slide
 
 :noname big slide|  Track Slides |
