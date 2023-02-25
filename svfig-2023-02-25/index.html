@@ -53,9 +53,10 @@ r|   [script src="..."][/script] | type cr
 r|   more caveats... | type cr
 ; +slide
 
-:noname big slide|  Precident wwwBasic |
-@@| Also use script based loading |
-@@| Uses graphics mode for text too |
+:noname big slide|  Precidents |
+@@| wwwBasic uses script based loading |
+@@| Uses graphics mode for text |
+@@| websent (my usual slides) uses raw div |
 ; +slide
 
 :noname big slide|  What can you use it for? |
@@ -126,6 +127,7 @@ r|
     key case
       [char] h of index @ 1- 0 max index ! endof
       [char] l of index @ 1+ slide-count @ 1- min index ! endof
+      [char] q of exit endof
     endcase
   again
 ;
