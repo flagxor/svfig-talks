@@ -2,6 +2,131 @@
 <script src="https://eforth.appspot.com/ueforth.js"></script>
 <script type="text/forth">
 
-40 web text-size!
-." Hello!" cr
-bye
+web
+
+: regular   15 fg 18 bg ;
+: bullet   11 fg ." • " regular ;
+
+: big  text 40 text-size! regular page ;
+: huge  text 70 text-size! regular page ;
+
+: @@|   postpone r| postpone bullet postpone type postpone cr ; immediate
+: title ( a n -- ) 9 fg 2dup type cr regular nip 1 fg 1- for ." ─" next regular cr ;
+: slide|   postpone r| postpone title ; immediate
+
+variable index
+create deck 200 cells allot
+variable slide-count
+: +slide ( xt -- ) deck slide-count @ cells + !  1 slide-count +! ;
+
+:noname huge ."  " cr cr slide|  µEforth Web Injection |
+cr
+11 fg ." Bradley Nelson" cr regular
+." February 25, 2023" cr
+; +slide
+
+:noname big slide|  Motivation |
+@@| Forth is great. |
+@@| Forth on a web page is better! |
+@@| Write Forth on a webpage instead of JavaScript |
+@@| Make my Forth environment work everywhere |
+; +slide
+
+:noname big slide|  Loadability |
+@@| Make https://eforth.appspot.com/ueforth.js load easily |
+@@| Needs to load at init AND after a script tag is added |
+@@| Proof of concept: A secret at flagxor.com |
+; +slide
+
+:noname big slide|  Ways to Use |
+@@| On a bare page |
+@@| Fit in a div called ueforth |
+@@| Lazy add, call ueforth.Start(); |
+@@| What about a Forth script tag? |
+; +slide
+
+:noname big slide|  Script Tags |
+@@| Two kinds inline [script]..[/script] and | cr
+r|   [script src="..."][/script] | type cr
+@@| Tags have tag.text for the first, but caveats... |
+@@| Loading script src requires XMLHttpRequest, | cr
+r|   more caveats... | type cr
+; +slide
+
+:noname big slide|  Precident wwwBasic |
+@@| Also use script based loading |
+@@| Uses graphics mode for text too |
+; +slide
+
+:noname big slide|  What can you use it for? |
+@@| This slide deck |
+@@| Making things interactive! |
+; +slide
+
+:noname big
+gr 100 100 window
+$ff0000 color! 20 30 10 10 box
+$00ff00 color! 50 60 30 10 box
+$ffff00 color! 30 80 20 10 box
+$0000ff color! 70 20 20 10 box
+." Hello! "
+; +slide
+
+:noname big slide|  Setup Fonts |
+r|
+web
+: regular   15 fg 18 bg ;
+: bullet   11 fg ." • " regular ;
+: big  text 40 text-size! regular page ;
+: huge  text 70 text-size! regular page ;
+| type
+; +slide
+
+:noname big slide|  Titles and Bullets |
+r|
+: @@\   postpone r\ postpone bullet
+        postpone type postpone cr ; immediate
+: title ( a n -- ) 9 fg 2dup type cr regular
+                   nip 1 fg 1- for ." ─" next
+                   regular cr ;
+: slide\   postpone r\ postpone title ; immediate
+| type
+; +slide
+
+:noname big slide|  Track Slides |
+r|
+variable index
+create deck 200 cells allot
+variable slide-count
+: +slide ( xt -- ) deck slide-count @ cells + !
+                   1 slide-count +! ;
+| type
+; +slide
+
+:noname big slide|  Main Loop |
+r|
+: run   begin 
+    page index @ cells deck + @ execute ."  " cr
+    key case
+      [char] h of index @ 1- 0 max index ! endof
+      [char] l of index @ 1+
+                  slide-count @ 1- min index ! endof
+    endcase
+  again ;
+| type
+; +slide
+
+:noname huge ."  " cr
+11 fg ." DEMO + Questions?" cr regular
+; +slide
+
+: run
+  begin 
+    page index @ cells deck + @ execute ."  " cr
+    key case
+      [char] h of index @ 1- 0 max index ! endof
+      [char] l of index @ 1+ slide-count @ 1- min index ! endof
+    endcase
+  again
+;
+run
