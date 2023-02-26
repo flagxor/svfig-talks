@@ -8,7 +8,7 @@ web
 : bullet   11 fg ." • " regular ;
 
 : big  text 40 text-size! regular page ;
-: huge  text 70 text-size! regular page ;
+: huge  text 50 text-size! regular page ;
 
 : @@|   postpone r| postpone bullet postpone type postpone cr ; immediate
 : title ( a n -- ) 9 fg 2dup type cr regular nip 1 fg 1- for ." ─" next regular cr ;
@@ -23,6 +23,7 @@ variable slide-count
 cr
 11 fg ." Bradley Nelson" cr regular
 ." February 25, 2023" cr
+4 fg ." L=next slide H=prev slide" cr
 ; +slide
 
 :noname big slide|  Motivation |
