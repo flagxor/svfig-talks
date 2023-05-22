@@ -1,0 +1,11 @@
+Dependency Injection in Forth
+----------------------------------------
+Dependency Injection has become an increasingly popular
+design pattern in languages like Java, Kotlin,
+and C# by way of frameworks like Guice, Dagger, and Spring.
+Although the pattern can be a frightening fount of complexity
+if overused, when applied in moderation it can sometimes be useful.
+We'll explore how this pattern can be expressed in Forth
+and consider if a pattern usually applied in gigantic codebases
+works at the scale of Forth.
+https://en.wikipedia.org/wiki/Dependency_injection
