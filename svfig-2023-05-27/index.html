@@ -12,12 +12,44 @@ Dependency Injection
 ════════════════════
     May 27, 2023
 
+Introduction
+════════════
+➼ What is Dependency Injection?
+➼ Oofda, yet another Forth OO system
+➼ Poke, a Forth Dependency Injection tool
+➼ Can we make this simpler?
+
 What is Dependency Injection?
 ═════════════════════════════
-➼ Blah blah
-➼ Blah blah
-➼ Blah blah
-➼ Blah blah
+➼ Inversion of Control
+➼ Hollywood Principle, "Don't call us..."
+➼ Indirect rather than direct dependencies
+
+public class Foo {
+  private final Bar bar;
+  private final Baz baz;
+  
+  Foo() {
+    this.bar = new Bar();
+    this.baz = new Baz();
+  }
+  ...
+}
+ 
+Foo foo = new Foo();
+
+public class Foo {
+  private final Bar bar;
+  private final Baz baz;
+  
+  Foo(Bar bar, Baz baz) {
+    this.bar = bar;
+    this.baz = baz;
+  }
+  ...
+}
+ 
+Foo foo = new Foo(new Bar(), new Baz());
 
 @coffee_maker.png
 <img src="coffee_maker.png">
@@ -30,6 +62,480 @@ What is Dependency Injection?
 
 @coffee_all.png
 <img src="coffee_all.png">
+
+@pountain.jpg
+<img src="pountain.jpg">
+
+Object Oriented Forth
+═════════════════════
+➼ Pountain
+➼ In 1996, Brad Rodrigeuz examined 17!
+  different OO Forth systems
+➼ SWOOP
+
+CLASS POINT
+VARIABLE X
+VARIABLE Y
+: SHOW ( -- )   X @ . Y @ . ;
+: DOT ( -- )   ." Point at " SHOW ;
+END-CLASS
+
+Oofda
+═════
+➼ Every Object starts with a pointer to a vtable
+➼ Classes are objects that include a vtable
+➼ Fixed size vtables
+➼ Messages are words that invoke vtable offsets
+➼ Data fields are accessible only at definition time
+➼ All methods are public + dynamic
+➼ Single Inheritance, no interfaces required
+
+@vtable.png
+<img src="vtable.png">
+
+class Point2
+  variable x
+  variable y
+  : .construct ( x y -- ) y ! x ! ;
+  : .show   x @ . y @ . ;
+  : .dot   ." Point at " this .show ;
+end-class
+
+class Point2
+  value x
+  value y
+  : .construct ( x y -- ) to y to x ;
+  : .show   x . y . ;
+  : .dot   ." Point at " this .show ;
+end-class
+
+class Point3 extends Point2
+  value z
+  : .construct ( x y z -- )
+     to z super .construct ;
+  : .show   super .show z . ;
+end-class
+
+1 2 3 Point3 .new constant p
+p .show
+=>
+Point at 1 2 3
+
+@points.png
+<img src="points.png">
+
+class Foo
+  value bar
+  value baz
+  : construct ( bar baz -- ) to baz to bar ;
+  ...
+end-class
+ 
+Bar .new Baz .new Foo .new constant f
+
+Implementation
+══════════════
+➼ Pick a fixed method limit
+➼ Use a global for "this"
+➼ Keep most things in a "classing" vocabulary
+➼ Allocate methods in the "forth" vocabulary
+
+defined? oofda-max-methods 0= [IF]
+  100 constant oofda-max-methods
+[THEN]
+  
+vocabulary classing also classing definitions also forth
+ 
+variable 'this   : this ( -- o ) 'this @ ;
+
+variable methods   variable last-method
+: new-method ( ".name" -- xt )
+   methods @ oofda-max-methods >= throw
+   create methods @ , 1 methods +! latestxt
+   does> this >r swap ( save this ) 'this ! ( switch it )
+         dup last-method ! ( save last method )
+         @ cells this @ + @ execute ( invoke method )
+         r> 'this ! ( restore this ) ;
+: method ( ".name" -- xt )
+   current @ >r also forth definitions
+   >in @ bl parse find dup if
+     nip
+   else
+     drop >in !  new-method
+   then
+   previous r> current ! ;
+
+: m# ( "name" -- n ) method >body @ ;
+: m: ( "name" ) method drop ;
+m: .construct  ( make this 0 )
+: m! ( xt n class ) swap 3 + cells + ! ;
+: field' ( "name" -- n ) ' >body @ ;
+
+: undefined
+   last-method @ 2 cells - ( body> ) this .fallback ;
+: error-fallback ( xt -- )
+   ." Undefined method: " >name type cr throw -1 ;
+: blank-vtable
+   oofda-max-methods 0 do ['] undefined , loop ;
+
+create ClassClass
+  here 3 cells + ,              ( vtable* )
+  0 ,                           ( parent )
+  oofda-max-methods 3 + cells , ( size )
+  blank-vtable                  ( vtable[] )
+
+: nop-construct ;
+m: .fallback   m: .size   m: .grow
+m: .vtable   m: .parent   m: .getClass
+:noname ( xt n ) this m! ;
+m# .setMethod ClassClass m!
+
+: create ( "name" )
+   create this .size ,
+   does> @ this + ;
+: variable ( "name" )
+   create this .size , cell this .grow
+   does> @ this + ;
+
+: value ( "name" )
+   create this .size , cell this .grow
+   does> @ this + @ ;
+: to ( n -- "name" )
+   field' postpone literal postpone this postpone +
+   postpone ! ; immediate
+: +to ( n -- "name" )
+   field' postpone literal postpone this postpone +
+   postpone +! ; immediate
+
+: dosuper ( n -- )
+   this ClassClass .getClass
+     .parent .vtable + @ execute ;
+: super ( "method" )
+   field' cells postpone literal
+   postpone dosuper ; immediate
+
+: : ( "name" ) m# :noname ;
+: ;   postpone ; swap
+      this .setMethod ; immediate
+
+: defining ( cls -- )
+   'this ! current @ also classing definitions ;
+m: .new   m: .inherit
+: class   create ClassClass .new defining ;
+: end-class   previous current ! 0 'this ! ;
+: extends   ' execute this .inherit ;
+: extend   ' execute defining ;
+: ClassClass ( -- cls ) ClassClass ;
+
+extend ClassClass
+  : .parent ( -- a ) this cell+ @ ;
+  : .setParent ( a -- ) this cell+ ! ;
+  : .size& ( -- a ) this 2 cells + ;
+  : .size ( -- n ) this .size& @ ;
+  : .setSize ( -- n ) this .size& ! ;
+  : .grow ( n -- ) this .size + this .setSize ;
+  : .vtable ( -- a ) this 3 cells + ;
+  : .getClass ( o -- cls ) @ 3 cells - ;
+  : .allocate ( n -- a ) here swap allot ;
+  : .getName ( -- a n ) this 2 cells - >name ;
+  : .getMethod ( n -- xt ) cells this .vtable + @ ;
+  : .construct   0 this .setParent
+                 cell this .setSize
+                 oofda-max-methods 0 do ['] undefined i this .setMethod loop
+                 ['] error-fallback [ m# .fallback ] literal this .setMethod
+                 ['] nop-construct [ m# .construct ] literal this .setMethod ;
+  : .setup ( -- cls ) this .size this .allocate
+                      dup this .size 0 fill
+                      this .vtable over ! ;
+  : .new ( -- cls ) this .setup
+                    dup >r .construct r> ;
+  : .inherit ( cls -- ) dup this .setParent
+                        .size& this .size& oofda-max-methods 1+ cells cmove ;
+end-class
+
+Making DI Easier
+════════════════
+➼ Hooking things up manually is tedious
+➼ Doing setup globally is unscalable
+➼ Could we make it automatic + declarative?
+
+DI Frameworks
+═════════════
+➼ Spring
+➼ Guice
+➼ Dagger
+➼ Dagger 2
+
+Spring
+══════
+➼ Specify dependencies in XML
+  - Config doesn't live with code :-(
+➼ Runtime validation + configuration
+
+ &lt;beans>
+   &lt;bean id="coffeeMaker" class="CoffeeMaker">
+     &lt;constructor-arg ref="heater"/>
+     &lt;constructor-arg reg="pump"/>
+   &lt;bean>
+   &lt;bean id="heater" class="ElectricHeater">
+     &lt;constructor-arg reg="pump"/>
+   &lt;/bean>
+   &lt;bean id="pump" class="Thermosiphon"/>
+ &lt;/beans>
+
+Java Annotations
+════════════════
+➼ Include compile/runtime code annotations
+➼ Syntax aware extensions to language
+➼ Compile time code generators that add classes
+➼ A problem Forth doesn't really have!
+  - See IMMEDIATE
+
+public @interface MyAnnotation {
+}
+  
+@MyAnnotation public void method() {
+}
+
+public @interface MyAnnotation {
+  String name();
+  int number();
+}
+ 
+@MyAnnotation(name = "Rumplestitskin", number = 123)
+MyClass object = new MyClass();
+
+ @Retention(RetentionPolicy.RUNTIME)
+ @Target({ElementType.METHOD})
+ public @interface MyAnnotation {
+ }
+
+Guice & Dagger
+══════════════
+➼ Guice - Annotation based configuration
+           Runtime validation
+➼ Dagger 1 - Partial compile time validation
+              Runtime graph composition
+➼ Dagger 2 - Compile time validaiton
+
+/** A coffee maker to brew the coffee. */
+public class CoffeeMaker {
+  private final CoffeeLogger logger;
+  private final Lazy<Heater> heater; // Create a possibly costly heater only when we use it.
+  private final Pump pump;
+  
+  @Inject
+  CoffeeMaker(CoffeeLogger logger, Lazy<Heater> heater, Pump pump) {
+    this.logger = logger;
+    this.heater = heater;
+    this.pump = pump;
+  }
+  
+  public void brew() {
+    heater.get().on();
+    pump.pump();
+    logger.log(" [_]P coffee! [_]P ");
+    heater.get().off();
+  }
+}
+
+DI Framework Concepts
+═════════════════════
+➼ @Inject - Ask for dependencies (and sometimes provide)
+             Used in regular code
+➼ @Provides - Provide ambiguous bindings
+               Used in modules
+➼ @Module - A "glue" class to contain specializations
+             (e.g. a thermosiphon as a pump)
+➼ @Component - Container for modules or implicit modules
+                Generated into an instantiable thing
+➼ @Singleton - Global scope annotation
+                (other scopes exist)
+
+Poke
+════
+➼ Build DI-framework-like tools on Oofda
+➼ Simplify framework concepts
+➼ Use strings for bindings
+➼ Explicit @Inject for each needed dependency
+➼ Explicit .providesName methods for providings bindings
+➼ Component base class to create module container
+➼ Runtime on demand instantiation
+
+( A coffee maker to brew the coffee. )
+class CoffeeMaker
+  value logger   value heater   value pump
+  m: .provideCoffeeLogger m: .provideHeater m: .providePump
+  m: .on m: .off m: .pump m: .isHot?
+  : .construct   @Inject CoffeeLogger to logger
+                 @Inject Heater to heater
+                 @Inject Pump to pump ;
+  : .brew   heater .on
+            pump .pump
+            s" [_]P coffee! [_]P " logger .log
+            heater .off ;
+end-class
+  
+class CoffeeMakerModule
+  : .provideCoffeeMaker CoffeeMaker .new ;
+end-class
+
+( A logger to log steps while brewing coffee. )
+class CoffeeLogger
+  value logs
+  : .construct   30 Array .new to logs ;
+  : .log ( a n -- ) String .new logs .append ;
+  : .dump   logs .length 0 ?do
+               i logs .get .get type cr
+            loop cr ;
+end-class
+  
+class LoggerModule
+  : .provideCoffeeLogger @Singleton CoffeeLogger .new ;
+end-class
+
+( An electric heater to heat the coffee. )
+class ElectricHeater
+  value logger
+  value heating
+  : .construct   @Inject CoffeeLogger to logger
+                 0 to heating ;
+  : .on   -1 to heating
+          s" ~ ~ ~ heating ~ ~ ~" logger .log ;
+  : .off   0 to heating ;
+  : .isHot? ( -- f ) heating ;
+end-class
+  
+class HeaterModule
+  : .provideHeater @Singleton ElectricHeater .new ;
+end-class
+
+( A thermosiphon to pump the coffee. )
+class Thermosiphon
+  value logger
+  value heater
+  : .construct   @Inject CoffeeLogger to logger
+                 @Inject Heater to heater ;
+  : .pump   heater .isHot? if
+              s" => => pumping => =>" logger .log
+            then ;
+end-class
+  
+class PumpModule
+  : .providePump Thermosiphon .new ;
+end-class
+
+( The main app responsible for brewing
+  the coffee and printing the logs. )
+class CoffeeApp extends Component
+  : .construct   super .construct
+                 HeaterModule this .include
+                 PumpModule this .include
+                 LoggerModule this .include
+                 CoffeeMakerModule this .include ;
+end-class
+  
+CoffeeApp .new constant coffeeShop
+coffeeShop .provideCoffeeMaker .brew
+coffeeShop .provideCoffeeLogger .dump
+
+Implementation
+══════════════
+➼ Use a global to pass a provider through constructors
+   - Keep an array of providing modules
+   - save the current one if we nest
+➼ Use IMMEDIATE magic for @Singleton to store a cached
+   values inside modules objects data area
+➼ Use .fallback handler for undefined methods to route
+   to each provider module in turn
+➼ Count how many providers to avoid bad graphs
+
+variable provider
+: do@Inject ( xt -- o ) provider @ swap execute ;
+create name-buffer 200 allot  0 value name-length
+: 0name   0 to name-length ;
+: +name ( a n -- ) dup >r name-buffer name-length + swap cmove
+                       r> +to name-length ;
+: name ( -- a n ) name-buffer name-length ;
+: @Inject ( "name" -- o )
+   0name s" [ ' .provide" +name bl parse +name s"  ]" +name
+   name evaluate postpone literal postpone do@Inject ; immediate
+
+: do@Singleton ( n -- n )
+   this + dup @ if @ rdrop exit then
+   r> swap [ here 7 cells + ] literal swap >r >r >r exit
+   r> over >r ! r> ;
+: @Singleton   this .size postpone literal
+               cell this .grow
+               postpone do@Singleton ; immediate
+
+class Component
+  value providers
+  : .construct   50 Array .new to providers ;
+  : .include ( m -- ) .new providers .append ;
+  : .hasMethod ( m n -- f )
+     providers .get ClassClass .getClass .getMethod ['] undefined <> ;
+  : .countHasMethod { m -- f }
+     0 providers .length 0 do
+       m i this .hasMethod if 1+ then
+     loop ;
+  : .pickHasMethod { m -- provider }
+     0 providers .length 0 do
+       m i this .hasMethod if i providers .get unloop exit then
+     loop -1 throw ;
+
+  : .fallback { xt } xt >body @ { m }
+     provider @ { old } this provider !
+     m this .countHasMethod { matches }
+     matches 1 > if ." Multiple Providers: " xt >name type cr -1 throw then
+     matches 1 <> if xt error-fallback then
+     m this .pickHasMethod xt execute
+     old provider ! ;
+end-class
+
+But is it Forthy?
+═════════════════
+➼ This is a LOT of complexity!
+   (Even in Java!)
+➼ Singleton vs N is partially the cause
+➼ Forth thrives on singletons
+➼ Forth has a better mechanism!
+
+DEFER / IS
+
+DEFER log
+DEFER heater-on
+DEFER heater-off
+DEFER pump
+: brew   heater-on
+         pump
+         s" [_]P coffee! [_]P " log
+         heater-off ;
+
+: console-log ( a n -- ) type cr ;
+' console-log IS log
+   
+DEFER hot?
+: thermosiphon
+    hot? if s" => => pumping => =>" log then ;
+' thermosiphon IS pump
+
+0 value switch
+: electric-on   -1 TO switch
+                s" ~ ~ ~ heating ~ ~ ~" log ;
+: electric-off   0 TO switch ;
+' electric-on IS heater-on
+' electric-off IS heater-off
+' switch IS hot?
+ 
+brew
+
+~ ~ ~ heating ~ ~ ~
+=> => pumping => =>
+[_]P coffee! [_]P
+
+https://github.com/flagxor/ueforth
+            /tree/main/attic/oofda
 
 QUESTIONS?
     💉 
