@@ -17,13 +17,15 @@ Introduction
 ➼ What is Dependency Injection?
 ➼ OOFda, yet another Forth OO system
 ➼ Poke, a Forth Dependency Injection tool
-➼ Can we make this simpler?
+➼ Can we make this simpler? 🤔
 
 What is Dependency Injection?
 ═════════════════════════════
 ➼ Inversion of Control
-➼ Hollywood Principle, "Don't call us..."
-➼ Indirect rather than direct dependencies
+➼ 😎 Hollywood Principle 🎥
+       "Don't call us..."
+➼ Dependencies are passed in,
+   instead of direct
 
 public class Foo {
   private final Bar bar;
@@ -51,6 +53,15 @@ public class Foo {
  
 Foo foo = new Foo(new Bar(), new Baz());
 
+Why Dependency Injection?
+═════════════════════════
+➼ Improve testing, inject mocks and fakes
+➼ Ease refactoring 🏗️
+➼ Swap in alternate variant components
+➼ Allow powerful mix-ins 🍸
+➼ Encourage encapsulation
+➼ Enable lego-block programming style 🧱
+
 @coffee_maker.png
 <img src="coffee_maker.png">
 
@@ -68,10 +79,12 @@ Foo foo = new Foo(new Bar(), new Baz());
 
 Object Oriented Forth
 ═════════════════════
-➼ Pountain
+➼ Forth allows infinite diversity
+   in infinite combinations 🖖
+➼ Pountain, 1986
 ➼ In 1996, Brad Rodrigeuz examined 17!
   different OO Forth systems
-➼ SWOOP
+➼ SWOOP is nice 🫡
 
 CLASS POINT
 VARIABLE X
@@ -80,15 +93,19 @@ VARIABLE Y
 : DOT ( -- )   ." Point at " SHOW ;
 END-CLASS
 
+But...
+    I'll
+ make my own
+
 OOFda
 ═════
 ➼ Every Object starts with a pointer to a vtable
 ➼ Classes are objects that include a vtable
-➼ Fixed size vtables
+➼ Fixed size vtables →🕮←
 ➼ Messages are words that invoke vtable offsets
 ➼ Data fields are accessible only at definition time
 ➼ All methods are public + dynamic
-➼ Single Inheritance, no interfaces required
+➼ Single Inheritance, no interfaces required 🦆
 
 @vtable.png
 <img src="vtable.png">
@@ -135,10 +152,10 @@ Bar .new Baz .new Foo .new constant f
 
 Implementation
 ══════════════
-➼ Pick a fixed method limit
-➼ Use a global for "this"
+➼ Pick a fixed method limit 💯
+➼ Use a global for "this" 🌎
 ➼ Keep most things in a "classing" vocabulary
-➼ Allocate methods in the "forth" vocabulary
+➼ Allocate methods in the "FORTH" vocabulary
 
 defined? oofda-max-methods 0= [IF]
   100 constant oofda-max-methods
@@ -255,22 +272,22 @@ end-class
 
 Making DI Easier
 ════════════════
-➼ Hooking things up manually is tedious
-➼ Doing setup globally is unscalable
+➼ Hooking things up manually is tedious 😠
+➼ Doing setup globally is unscalable ⚖
 ➼ Could we make it automatic + declarative?
 
 DI Frameworks
 ═════════════
-➼ Spring
-➼ Guice
-➼ Dagger
-➼ Dagger 2
+➼ Spring 🌱
+➼ Guice 🧃
+➼ Dagger 🗡️
+➼ Dagger 2 🗡️🗡️
 
-Spring
-══════
-➼ Specify dependencies in XML
+Spring 🌱
+═════════
+➼ Specify dependencies in XML 🤕
   - Config doesn't live with code :-(
-➼ Runtime validation + configuration
+➼ Runtime validation + configuration 🏃
 
  &lt;beans>
    &lt;bean id="coffeeMaker" class="CoffeeMaker">
@@ -286,10 +303,10 @@ Spring
 Java Annotations
 ════════════════
 ➼ Include compile/runtime code annotations
-➼ Syntax aware extensions to language
+➼ Syntax aware extensions to language 🗨
 ➼ Compile time code generators that add classes
 ➼ A problem Forth doesn't really have!
-  - See IMMEDIATE
+  - See IMMEDIATE 😁
 
 public @interface MyAnnotation {
 }
@@ -310,13 +327,13 @@ MyClass object = new MyClass();
  public @interface MyAnnotation {
  }
 
-Guice & Dagger
-══════════════
-➼ Guice - Annotation based configuration
+🧃 Guice & Dagger  🗡️
+══════════════════════
+➼ Guice - Annotation based configuration 🧃
            Runtime validation
 ➼ Dagger 1 - Partial compile time validation
-              Runtime graph composition
-➼ Dagger 2 - Compile time validaiton
+              Runtime graph composition 🗡️
+➼ Dagger 2 -  🗡️🗡️ Compile time validation
 
 /** A coffee maker to brew the coffee. */
 public class CoffeeMaker {
@@ -354,13 +371,13 @@ DI Framework Concepts
 
 Poke
 ════
-➼ Build DI-framework-like tools on OOFda
-➼ Simplify framework concepts
-➼ Use strings for bindings
-➼ Explicit @Inject for each needed dependency
+➼ Build DI-framework-like tools on OOFda 🏗️
+➼ Simplify framework concepts 🫢
+➼ Use strings for bindings 🧶
+➼ Explicit @Inject for each needed dependency 💉
 ➼ Explicit .providesName methods for providings bindings
 ➼ Component base class to create module container
-➼ Runtime on demand instantiation
+➼ Runtime on demand instantiation 🏃
 
 ( A coffee maker to brew the coffee. )
 class CoffeeMaker
@@ -443,12 +460,28 @@ Implementation
 ══════════════
 ➼ Use a global to pass a provider through constructors
    - Keep an array of providing modules
-   - save the current one if we nest
+   - save the current one if we nest 🪺
 ➼ Use IMMEDIATE magic for @Singleton to store a cached
    values inside modules objects data area
 ➼ Use .fallback handler for undefined methods to route
-   to each provider module in turn
+   to each provider module in turn 🎲
 ➼ Count how many providers to avoid bad graphs
+
+class Array
+  value data
+  value length
+  value capacity
+  : .construct ( n -- ) to capacity
+                        here to data capacity cells allot
+                        0 to length ;
+  : .get ( n -- n ) cells data + @ ;
+  : .set ( n n -- ) cells data + ! ;
+  : .length ( -- n ) length ;
+  : .capacity ( -- n ) capacity ;
+  : .append ( n -- ) this .length this .capacity >= throw
+                     this .length this .set 1 +to length ;
+  : .length ( -- n ) length ;
+end-class
 
 variable provider
 : do@Inject ( xt -- o ) provider @ swap execute ;
@@ -496,10 +529,10 @@ end-class
 But is it Forthy?
 ═════════════════
 ➼ This is a LOT of complexity!
-   (Even in Java!)
+   (Even in Java!) 🤪
 ➼ Singleton vs N is partially the cause
-➼ Forth thrives on singletons
-➼ Forth has a better mechanism!
+➼ Forth thrives on singletons 🤫
+➼ 😁 Forth has a better mechanism!
 
 DEFER / IS
 
@@ -530,6 +563,7 @@ DEFER hot?
  
 brew
 
+        ☕
 ~ ~ ~ heating ~ ~ ~
 => => pumping => =>
 [_]P coffee! [_]P
