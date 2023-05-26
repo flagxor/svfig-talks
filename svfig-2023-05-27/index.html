@@ -14,7 +14,7 @@ Dependency Injection
 
 Introduction
 ════════════
-➼ What is Dependency Injection?
+➼ What is Dependency Injection? Why?
 ➼ OOFda, yet another Forth OO system
 ➼ Poke, a Forth Dependency Injection tool
 ➼ Can we make this simpler? 🤔
@@ -25,7 +25,18 @@ What is Dependency Injection?
 ➼ 😎 Hollywood Principle 🎥
        "Don't call us..."
 ➼ Dependencies are passed in,
-   instead of direct
+   not directly instatiated
+➼ "$25 term for a 5¢ concept"
+
+Where is it used?
+═════════════════
+➼ Most popular in Java, Kotlin, and C#
+➼ Probably popular in these strongly
+   typed languages, because:
+   - Weak module (file) runtime scope
+   - Typing of closures is hard
+   - Few monkeypatching options 🐒
+   - Lots of boilerplate
 
 public class Foo {
   private final Bar bar;
@@ -58,6 +69,7 @@ Why Dependency Injection?
 ➼ Improve testing, inject mocks and fakes
 ➼ Ease refactoring 🏗️
 ➼ Swap in alternate variant components
+➼ Can be made easier with frameworks 🦊
 ➼ Allow powerful mix-ins 🍸
 ➼ Encourage encapsulation
 ➼ Enable lego-block programming style 🧱
@@ -83,7 +95,7 @@ Object Oriented Forth
    in infinite combinations 🖖
 ➼ Pountain, 1986
 ➼ In 1996, Brad Rodrigeuz examined 17!
-  different OO Forth systems
+   different OO Forth systems
 ➼ SWOOP is nice 🫡
 
 CLASS POINT
@@ -102,7 +114,7 @@ OOFda
 ➼ Every Object starts with a pointer to a vtable
 ➼ Classes are objects that include a vtable
 ➼ Fixed size vtables →🕮←
-➼ Messages are words that invoke vtable offsets
+➼ Method are words that invoke vtable offsets
 ➼ Data fields are accessible only at definition time
 ➼ All methods are public + dynamic
 ➼ Single Inheritance, no interfaces required 🦆
@@ -155,7 +167,7 @@ Implementation
 ➼ Pick a fixed method limit 💯
 ➼ Use a global for "this" 🌎
 ➼ Keep most things in a "classing" vocabulary
-➼ Allocate methods in the "FORTH" vocabulary
+➼ Methods are alway in the "FORTH" vocabulary
 
 defined? oofda-max-methods 0= [IF]
   100 constant oofda-max-methods
@@ -186,8 +198,8 @@ variable methods   variable last-method
 : m: ( "name" ) method drop ;
 m: .construct  ( make this 0 )
 : m! ( xt n class ) swap 3 + cells + ! ;
-: field' ( "name" -- n ) ' >body @ ;
 
+m: .fallback
 : undefined
    last-method @ 2 cells - ( body> ) this .fallback ;
 : error-fallback ( xt -- )
@@ -202,7 +214,7 @@ create ClassClass
   blank-vtable                  ( vtable[] )
 
 : nop-construct ;
-m: .fallback   m: .size   m: .grow
+m: .size   m: .grow
 m: .vtable   m: .parent   m: .getClass
 :noname ( xt n ) this m! ;
 m# .setMethod ClassClass m!
@@ -217,6 +229,7 @@ m# .setMethod ClassClass m!
 : value ( "name" )
    create this .size , cell this .grow
    does> @ this + @ ;
+: field' ( "name" -- n ) ' >body @ ;
 : to ( n -- "name" )
    field' postpone literal postpone this postpone +
    postpone ! ; immediate
@@ -269,6 +282,8 @@ extend ClassClass
   : .inherit ( cls -- ) dup this .setParent
                         .size& this .size& oofda-max-methods 1+ cells cmove ;
 end-class
+
+Back to DI...
 
 Making DI Easier
 ════════════════
