@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#eeffee';
+FOREGROUND = '#004400';
+</script><pre>
+
+Dividing ESP32forth
+═══════════════════
+   July 8, 2023
+
+ ESP32forth is
+🔥 TOO BIG! 🤬
+
+What happened?
+
+💡 Some OLED module
+📷 ESP32-CAM ⇒ camera bindings
+🦆 32-bit floating point
+🥣 Serial and Serial2
+🦷 Bluetooth Serial
+🏢 Structures
+
+📁 Files + SPIFFS
+🧱 Blocks
+⏰ Timers
+🔌 Sockets
+📶 WiFi
+⛔ Fault Handling
+
+🗎 Visual Editor
+⚠ Interrupts
+🅌 SD / SD_MMC Cards
+⏧ I2C
+✣ Heap management
+❃ LEDC
+
+Even more outside ESP32!
+════════════════════════
+🗔 Windows API bindings
+ ╳ X11 API bindings
+⌒  Graphics and Bezier curves
+🧵 Threads
+
+Root Causes
+═══════════
+☉ Different applications want
+   different APIs / bindings
+☉ It's easier to ship one big release
+☉ It's easier to add than remove/refactor
+
+How Big is too Big?
+═══════════════════
+☉ Should a Forth have DO..LOOP
+   (or is FOR..NEXT enough) ?
+☉ What about VALUE TO ?
+☉ What about { locals } ?
+☉ Structures ?
+☉ Tasks ?
+☉ Graphics ?
+
+ESP32 Resources are Weird
+═════════════════════════
+☉ RAM is more scarce than Flash
+   - So words defined in Forth are more expensive
+   - So changable things are more expensive
+☉ C Libraries can be huge (Bluetooth)
+☉ Contiguous RAM varies by model
+
+How to limit growth?
+════════════════════
+☉ Size of your ROM? (Jupiter ACE)
+☉ What's in the standard? (Gforth)
+☉ What limit? (Win32Forth)
+
+What has helped?
+════════════════
+☉ Clearer hooks for expansion (userwords.h)
+☉ People complaining it won't fit / build!
+☉ Files for Linux + Windows
+
+userwords.h
+═══════════
+int my_cool_function(char *foo, int bar, uint8_t *baz);
+#define USER_WORDS \
+  Y(MY_FUNC, n0 = my_cool_function(c2, n1, b0); NIPn(2)) \
+
+Using Files more with ESP32forth?
+═════════════════════════════════
+☉ Many extensions are more about C libraries
+☉ How to get things on/off the device?
+   - ESP32forth isn't always on the network
+   - putty etc. don't have X-Modem or the like
+☉ I actually use files with SD card devices
+   (e.g. ESP32-CAM)
+
+A Stab in the Dark
+══════════════════
+☉ Break apart ESP32forth.ino
+☉ Carve off less used modules placing them
+   in the optional/ directory in the distribution zip
+☉ Use __has_include("name.h") to load if moved
+   next to ESP32forth.ino
+☉ Iterate with the user community
+   on which modules should be optional
+☉ Maybe some should be optionally removable?
+
+The Initial Optionals
+═════════════════════
+☉ assemblers.h - The assemblers for Xtensa + RISC-V
+                  (not widely used/useful,
+                   poorly documented/tested)
+☉ camera.h - ESP32-CAM / OV2640
+              (specific hardware,
+               inaccurate detection of board)
+☉ oled.h - Adafruit SSD1306 OLED support
+            (specific hardware,
+             not relevant to everyone)
+☉ serial-bluetooth.h - Serial Bluetooth
+                        + Bluetooth Terminal
+                        (really big flash footprint)
+☉ spi-flash.h - Low level SPI flash partition access
+                 (not relevant to most users)
+
+Potential Future Candidates?
+════════════════════════════
+☉ LEDC support
+☉ FreeRTOS Tasks
+☉ GPIO interrupt triggers
+☉ Timers
+☉ RMT - Remote Control
+☉ Sockets / Web Server
+☉ Files / Block
+☉ Editors
+☉ I2C / Wire
+☉ Floating Point
+
+Discussion
+══════════
+☉ Are any of these a mistake?
+☉ What else to leave out?
+☉ Is there a good general principle?
+
+QUESTIONS?
+    😕
+ Thank you!
