@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Rediscovering CGA with Pygmy Forth</title>
+    <meta name="description"
+          content="Rediscovering CGA with Pygmy Forth - July 22, 2023">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../common/forth.css">
+    <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!--
+
+Rediscovering CGA with Pygmy Forth
+**********************************
+The 42 year old "Color Graphics Adapter" was the first color graphics
+device for the original IBM PC. It produced notoriously ugly graphics,
+but also held many secrets.
+I'll use Frank Sargent's Pygmy Forth and DOSBox to explore
+ancient graphics tricks through the magic of emulation.
+
+-->
+
+    <style>
+@font-face {
+  font-family: 'IBMVGA8';
+  src: url(ibm_vga8.woff2) format(woff2);
+}
+pre {
+  background-color: #000;
+  padding: 10px;
+  font-family: 'IBMVGA8', monospace;
+}
+code {
+  color: #0f0;
+  background-color: #555;
+  font-family: 'IBMVGA8', monospace;
+}
+div {
+  color: #fff;
+  font-family: 'IBMVGA8', monospace;
+}
+.reveal-viewport {
+  background-color: #000;
+}
+.reveal h1 {
+  font-family: 'IBMVGA8', monospace;
+  font-weight: bold;
+}
+.reveal h2 {
+  font-family: 'IBMVGA8', monospace;
+  color: #f0f;
+}
+.reveal h3 {
+  font-family: 'IBMVGA8', monospace;
+  color: #0ff;
+}
+.reveal h4 {
+  font-family: 'IBMVGA8', monospace;
+  color: #fff;
+}
+.hljs-comment {
+}
+.reveal a:link {
+  color: #0ff;
+}
+.reveal a:visited {
+  color: #0ff;
+}
+.reveal a:hover {
+  color: #f0f;
+}
+.reveal a:active {
+  color: #f0f;
+}
+.reveal .controls {
+  color: #0ff;
+}
+.reveal .progress {
+  color: #0ff;
+}
+  </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="color: blue" id="cc1"></h2>
+        <h2 style="" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>Rediscovering <span style="color: #fff">C</span>G<span style="color: #0ff">A</span>
+              with <span style="color: #0ff">Pygmy Forth</span></h2>
+          <h3>July 22, 2023</h3>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          <br/><br/>
+          <small>Fonts from: https://int10h.org/oldschool-pc-fonts/download/</small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Color Graphics Adapter</h3>
+          <img height="500" src="https://upload.wikimedia.org/wikipedia/commons/5/55/IBM_Color_Graphics_Adapter.jpg">
+          <small>https://upload.wikimedia.org/wikipedia/commons/5/55/IBM_Color_Graphics_Adapter.jpg</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://int10h.org/blog/img/1k03_16c_cga_ansi_from_hell.png">
+          <small>https://int10h.org/blog/img/1k03_16c_cga_ansi_from_hell.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://cdn.mobygames.com/screenshots/16277063-paku-paku-dos-title-and-scores.png">
+          <small>https://cdn.mobygames.com/screenshots/16277063-paku-paku-dos-title-and-scores.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://dosgames.com/screens/pakupaku.png">
+          <small>https://dosgames.com/screens/pakupaku.png</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/cb1.png">
+          <small>Colonel's Bequest</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/cb1.png">
+          <small>Colonel's Bequest (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/cb2.png">
+          <small>Colonel's Bequest</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/cb2.png">
+          <small>Colonel's Bequest (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/indy1.png">
+          <small>Indiana Jones and the Last Crusade: The Graphics Adventure</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/indy1.png">
+          <small>Indiana Jones and the Last Crusade: The Graphics Adventure (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/keen1.png">
+          <small>Commander Keen</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/keen1.png">
+          <small>Commander Keen (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/keen2.png">
+          <small>Commander Keen</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/keen2.png">
+          <small>Commander Keen (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq1.png">
+          <small>King's Quest</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq1.png">
+          <small>King's Quest (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq3a.png">
+          <small>King's Quest III: To Heir Is Human</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq3a.png">
+          <small>King's Quest III: To Heir Is Human (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq4a.png">
+          <small>King's Quest IV: The Perils of Rosella</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq4a.png">
+          <small>King's Quest IV: The Perils of Rosella (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq4b.png">
+          <small>King's Quest IV: The Perils of Rosella</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq4b.png">
+          <small>King's Quest IV: The Perils of Rosella (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq4c.png">
+          <small>King's Quest IV: The Perils of Rosella</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq4c.png">
+          <small>King's Quest IV: The Perils of Rosella (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq5a.png">
+          <small>King's Quest V: Absence Makes the Heart Go Yonder!</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq5a.png">
+          <small>King's Quest V: Absence Makes the Heart Go Yonder! (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/kq5.png">
+          <small>King's Quest V: Absence Makes the Heart Go Yonder!</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/kq5.png">
+          <small>King's Quest V: Absence Makes the Heart Go Yonder! (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/loom1.png">
+          <small>Loom</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/loom1.png">
+          <small>Loom (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/loom2.png">
+          <small>Loom</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/loom2.png">
+          <small>Loom (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey1.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey1.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey2.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey2.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey3.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey3.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey4.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey4.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey5.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey5.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey6.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey6.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/monkey7.png">
+          <small>The Secret of Monkey Island</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/monkey7.png">
+          <small>The Secret of Monkey Island (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/qfg1.png">
+          <small>Quest for Glory II: Trial by Fire</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/qfg1.png">
+          <small>Quest for Glory II: Trial by Fire (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/quest1a.png">
+          <small>Quest for Glory I: So You Want to Be a Hero</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/quest1a.png">
+          <small>Quest for Glory I: So You Want to Be a Hero (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/quest1b.png">
+          <small>Quest for Glory I: So You Want to Be a Hero</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/quest1b.png">
+          <small>Quest for Glory I: So You Want to Be a Hero (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/quest1.png">
+          <small>Quest for Glory I: So You Want to Be a Hero</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/quest1.png">
+          <small>Quest for Glory I: So You Want to Be a Hero (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sorc1.png">
+          <small>Sorcerian</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sorc1.png">
+          <small>Sorcerian (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sq1.png">
+          <small>Space Quest II: Vohaul's Revenge [boxed]</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sq1.png">
+          <small>Space Quest II: Vohaul's Revenge [boxed] (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sq1fix.png">
+          <small>Space Quest II: Vohaul's Revenge</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sq1fix.png">
+          <small>Space Quest II: Vohaul's Revenge (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sq2a.png">
+          <small>Space Quest II: Vohaul's Revenge</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sq2a.png">
+          <small>Space Quest II: Vohaul's Revenge (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sq2b.png">
+          <small>Space Quest II: Vohaul's Revenge</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sq2b.png">
+          <small>Space Quest II: Vohaul's Revenge (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sq2.png">
+          <small>Space Quest II: Vohaul's Revenge</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sq2.png">
+          <small>Space Quest II: Vohaul's Revenge (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="original/sq3.png">
+          <small>Space Quest III: The Pirates of Pestulon</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="converted/sq3.png">
+          <small>Space Quest III: The Pirates of Pestulon (converted)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why CGA in 2023</h2>
+          <ul>
+            <li>TODO</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Tagged Words</h2>
+          <pre>
+: FOO BAR ;
+Hello there
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <br/>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/forth.js"></script>
+
+  </body>
+</html>
