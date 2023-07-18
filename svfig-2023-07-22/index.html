@@ -45,6 +45,11 @@ code {
   background-color: #555;
   font-family: 'IBMVGA8', monospace;
 }
+img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
 div {
   color: #fff;
   font-family: 'IBMVGA8', monospace;
@@ -55,6 +60,7 @@ div {
 .reveal h1 {
   font-family: 'IBMVGA8', monospace;
   font-weight: bold;
+  color: #fff;
 }
 .reveal h2 {
   font-family: 'IBMVGA8', monospace;
@@ -103,7 +109,7 @@ div {
       <div class="slides">
         <section data-transition="fade-out">
           <h2>Rediscovering <span style="color: #fff">C</span>G<span style="color: #0ff">A</span>
-              with <span style="color: #0ff">Pygmy Forth</span></h2>
+              with <span style="color: #fff">Pygmy Forth</span></h2>
           <h3>July 22, 2023</h3>
           <p>
           <small><a href="http://flagxor.com">Brad Nelson</a> /
@@ -111,6 +117,423 @@ div {
           <br/><br/>
           <small>Fonts from: https://int10h.org/oldschool-pc-fonts/download/</small>
           </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CGA</h2>
+          <ul>
+            <li>RGBI Output and Composite</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CGA Graphics Modes</h2>
+          <ul>
+            <li>80x25 16-color Text</li>
+            <li>40x25 16-color Text</li>
+            <li>320x200 4-color Graphics</li>
+            <li>640x200 2-color Graphics</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>CGA 320x200 Palettes</h2>
+          <ul style="font-size: 30px">
+            <li>Mode 4, Palette 0, Low Intensity
+                           <table bordercolor="white"><tr>
+                           <td width="30px" height="30px" style="background-color: #000"> </td>
+                           <td width="30px" style="background-color: #0a0"> </td>
+                           <td width="30px" style="background-color: #a00"> </td>
+                           <td width="30px" style="background-color: #a50"> </td>
+                           </tr></table></li>
+            <li>Mode 4, Palette 0, High Intensity
+                          <table bordercolor="white"><tr>
+                           <td width="30px" height="30px" style="background-color: #000"> </td>
+                           <td width="30px" style="background-color: #5f5"> </td>
+                           <td width="30px" style="background-color: #f55"> </td>
+                           <td width="30px" style="background-color: #ff5"> </td>
+                           </tr></table></li>
+            <li>Mode 4, Palette 1, Low Intensity
+                           <table bordercolor="white"><tr>
+                           <td width="30px" height="30px" style="background-color: #000"> </td>
+                           <td width="30px" style="background-color: #0aa"> </td>
+                           <td width="30px" style="background-color: #a0a"> </td>
+                           <td width="30px" style="background-color: #aaa"> </td>
+                           </tr></table></li>
+            <li>Mode 4, Palette 1, High Intensity
+                           <table bordercolor="white"><tr>
+                           <td width="30px" height="30px" style="background-color: #000"> </td>
+                           <td width="30px" style="background-color: #5ff"> </td>
+                           <td width="30px" style="background-color: #f5f"> </td>
+                           <td width="30px" style="background-color: #fff"> </td>
+                           </tr></table></li>
+            <li>Mode 5, Low Intensity
+                           <table bordercolor="white"><tr>
+                           <td width="30px" height="30px" style="background-color: #000"> </td>
+                           <td width="30px" style="background-color: #0aa"> </td>
+                           <td width="30px" style="background-color: #a00"> </td>
+                           <td width="30px" style="background-color: #aaa"> </td>
+                           </tr></table></li>
+            <li>Mode 5, High Intensity
+                           <table bordercolor="white"><tr>
+                           <td width="30px" height="30px" style="background-color: #000"> </td>
+                           <td width="30px" style="background-color: #5ff"> </td>
+                           <td width="30px" style="background-color: #f55"> </td>
+                           <td width="30px" style="background-color: #fff"> </td>
+                           </tr></table></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>3D8h Mode Control</h2>
+          <table style="font-size: 20px; border: solid #f5f">
+            <tr style="background-color:#555">
+              <th style="border-color: #f5f; width: 10%">7</th>
+              <th style="border-color: #f5f; width: 10%">6</th>
+              <th style="border-color: #f5f; width: 10%">5</th>
+              <th style="border-color: #f5f; width: 10%">4</th>
+              <th style="border-color: #f5f; width: 10%">3</th>
+              <th style="border-color: #f5f; width: 10%">2</th>
+              <th style="border-color: #f5f; width: 10%">1</th>
+              <th style="border-color: #f5f; width: 10%">0</th>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">1=blinking, 0=intensity</td>
+              <td style="border-color: #f5f">high-res graphics</td>
+              <td style="border-color: #f5f">1=video on, 0=video off</td>
+              <td style="border-color: #f5f">1=B&amp;W, 0=colorburst</td>
+              <td style="border-color: #f5f">graphics mode</td>
+              <td style="border-color: #f5f">high-res</td>
+            </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>BIOS Modes</h2>
+          <table style="font-size: 20px; border: solid #f5f">
+            <tr style="background-color:#555">
+              <th style="border-color: #f5f; width: 2%">4</th>
+              <th style="border-color: #f5f; border-left: solid; width: 2%">2</th>
+              <th style="border-color: #f5f; width: 2%">1</th>
+              <th style="border-color: #f5f; width: 2%">0</th>
+              <th style="border-color: #f5f; border-left: solid; width: 40%">Mode</th>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#0 - 40x25 Text (B/W)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#1 - 40x25 Text (Color)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">#2 - 80x25 Text (B/W)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">#3 - 80x25 Text (Color)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#4 - 320x200 4-color Graphics (Color)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#5 - 320x200 4-color Graphics (B&amp;W) [alt-palette]</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#6 - 640x200 2-color Graphics (B&amp;W)</td>
+            </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>All Modes</h2>
+          <table style="font-size: 20px; border: solid #f5f">
+            <tr style="background-color:#555">
+              <th style="border-color: #f5f; width: 2%">4</th>
+              <th style="border-color: #f5f; width: 2%; border-left: solid">2</th>
+              <th style="border-color: #f5f; width: 2%">1</th>
+              <th style="border-color: #f5f; width: 2%">0</th>
+              <th style="border-color: #f5f; border-left: solid; width: 40%">Mode</th>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#1 - 40x25 Text (Color)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">#3 - 80x25 Text (Color)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">X</td>
+              <td style="border-color: #f5f; border-left: solid">#4 - 320x200 4-color Graphics (Color)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">#0 - 40x25 Text (B/W)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">#2 - 80x25 Text (B/W)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">X</td>
+              <td style="border-color: #f5f; border-left: solid">#5 - 320x200 4-color Graphics (B&amp;W) [alt-palette]</td>
+            </tr>
+            <tr style="background-color: #505">
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">Same as 40x25 Text (Color)</td>
+            </tr>
+            <tr style="background-color: #505">
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">Same as 80x25 Text (Color)</td>
+            </tr>
+            <tr style="background-color: #055">
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">X</td>
+              <td style="border-color: #f5f; border-left: solid">160x200 16-color composite</td>
+            </tr>
+            <tr style="background-color: #505">
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f; border-left: solid">Same as 40x25 (B&amp;W)</td>
+            </tr>
+            <tr style="background-color: #505">
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">0</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">Same as 80x25 (B&amp;W)</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f; border-left: solid">1</td>
+              <td style="border-color: #f5f">1</td>
+              <td style="border-color: #f5f">X</td>
+              <td style="border-color: #f5f; border-left: solid">#6 - 640x200 2-color Graphics (B&amp;W)</td>
+            </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>3D9h Color Select</h2>
+          <table style="font-size: 20px; border: solid #f5f">
+            <tr style="background-color:#555">
+              <th style="border-color: #f5f; width: 10%">7</th>
+              <th style="border-color: #f5f; width: 10%">6</th>
+              <th style="border-color: #f5f; width: 10%">5</th>
+              <th style="border-color: #f5f; width: 10%">4</th>
+              <th style="border-color: #f5f; width: 10%">3</th>
+              <th style="border-color: #f5f; width: 10%">2</th>
+              <th style="border-color: #f5f; width: 10%">1</th>
+              <th style="border-color: #f5f; width: 10%">0</th>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">0=palette0, 1=palette1</td>
+              <td style="border-color: #f5f">Palette Intensity</td>
+              <td style="border-color: #f5f">Intensity</td>
+              <td style="border-color: #f5f">Red</td>
+              <td style="border-color: #f5f">Green</td>
+              <td style="border-color: #f5f">Blue</td>
+            </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>3DAh Status</h2>
+          <table style="font-size: 20px; border: solid #f5f">
+            <tr style="background-color:#555">
+              <th style="border-color: #f5f; width: 10%">7</th>
+              <th style="border-color: #f5f; width: 10%">6</th>
+              <th style="border-color: #f5f; width: 10%">5</th>
+              <th style="border-color: #f5f; width: 10%">4</th>
+              <th style="border-color: #f5f; width: 10%">3</th>
+              <th style="border-color: #f5f; width: 10%">2</th>
+              <th style="border-color: #f5f; width: 10%">1</th>
+              <th style="border-color: #f5f; width: 10%">0</th>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">unused</td>
+              <td style="border-color: #f5f">vertical retrace</td>
+              <td style="border-color: #f5f">light pen switch, 0=on, 1=off</td>
+              <td style="border-color: #f5f">light pen trigger, 3DBh clears</td>
+              <td style="border-color: #f5f">horizontal retrace</td>
+            </tr>
+          </table>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Motorola MC6845</h2>
+          <ul>
+            <li>0 - Horizontal Total (in chars)</li>
+            <li>1 - Horizontal Displayed (in chars)</li>
+            <li>2 - Horizontal Sync Position (in chars)</li>
+            <li>3 - Horizontal Sync Width (in chars)</li>
+            <li>4 - Vertical Total (in char rows)</li>
+            <li>5 - Vertical Total Adjustment (in scanlines)</li>
+            <span style="color: #5ff"><li>6 - Vertical Displayed (in char rows)</li></span>
+            <li>7 - Vertical Sync Position (in char rows)</li>
+            <li>8 - Interlace Mode</li>
+            <span style="color: #5ff"><li>9 - Max Scan Lines Addressed (in scanlines)</li></span>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Motorola MC6845</h2>
+          <ul>
+            <li>10 - Cursor start (in scanlines) + blink rate</li>
+            <li>11 - Cursor end (in scanlines)</li>
+            <li>12 - Start Address High</li>
+            <li>13 - Start Address Low</li>
+            <li>14 - Cursor Address High (R/W)</li>
+            <li>15 - Cursor Address Low (R/W)</li>
+            <li>16 - Light Pen Address High (R)</li>
+            <li>17 - Light Pen Address Low (R)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://int10h.org/blog/img/1k06_cga_composite_fringing_artifacts.png">
+          <small>https://int10h.org/blog/2015/04/cga-in-1024-colors-new-mode-illustrated/</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://upload.wikimedia.org/wikipedia/commons/f/fb/CGA_CompVsRGB_640.png">
+          <small>https://en.wikipedia.org/wiki/Composite_artifact_colors</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://upload.wikimedia.org/wikipedia/commons/5/59/CGA_CompVsRGB_Text.png">
+          <small>https://en.wikipedia.org/wiki/Composite_artifact_colors</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://4.bp.blogspot.com/-u8euRJip3vM/WEmfBOiyP6I/AAAAAAAAG5M/Puz2ctrfwl0AQv4O7iVkz17o93zEOLS4gCEw/s1600/boot_005.png">
+          <small>King's Quest (composite)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="http://www.sierrawallpaper.com/imagevwr.php?vp=200&vi=1918">
+          <small>King's Quest (EGA)</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://upload.wikimedia.org/wikipedia/commons/9/97/Sopwith-screenshot.png">
+          <small>Sopwith</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://www.myabandonware.com/media/screenshots/h/hard-hat-mack-2b/hard-hat-mack_3.gif">
+          <small>Hard Hat Mack</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://s.uvlist.net/l/y2016/11/146958.jpg">
+          <small>Montezuma's Revenge</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://www.oldgames.sk/images/oldgames/simulator/Elite/elites_002.png">
+          <small>Elite</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://img.itch.zone/aW1hZ2UvMjE2NzQ1My8xMjc4Nzk5Mi5wbmc=/original/qLfDwe.png">
+          <small>Orbit Salvager</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="http://damian.cyningstan.org.uk/data-image/182/ford-simulator">
+          <small>Ford Simulator</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://www.pcjs.org/software/pcx86/app/ibm/basic/1.00/donkey/images/screenshot.png">
+          <small>DONKEY.BAS</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://www.pixelatedarcade.com/pictures/resources/News/29/dpi2x_Kings-Quest-CGA-Canonical.png">
+          <small>King's Quest</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://cdn.mobygames.com/screenshots/1520257-california-games-dos-footbag-cga-more-color-mode.png">
+          <small>California Games</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="http://2.bp.blogspot.com/-i4v43QfL5yc/Ut3_vgG6FQI/AAAAAAAAA4Y/urkJnC2aBBA/s1600/simcity_001.png">
+          <small>Sim City</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://i.pcmag.com/imagery/lineups/0313rLoEoKYWf1Nyvniuu0L-1.fit_lim.size_1600x900.v1569492817.jpg">
+          <small>Lawn Mower</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://cdn.mobygames.com/screenshots/1620950-castle-adventure-dos-a-demonic-encounter.png">
+          <small>Castle Adventure</small>
         </section>
 
         <section data-transition="fade-out">
@@ -126,12 +549,32 @@ div {
 
         <section data-transition="fade-out">
           <img height="600" src="https://cdn.mobygames.com/screenshots/16277063-paku-paku-dos-title-and-scores.png">
-          <small>https://cdn.mobygames.com/screenshots/16277063-paku-paku-dos-title-and-scores.png</small>
+          <small>Paku Paku</small>
         </section>
 
         <section data-transition="fade-out">
           <img height="600" src="https://dosgames.com/screens/pakupaku.png">
-          <small>https://dosgames.com/screens/pakupaku.png</small>
+          <small>Paku Paku</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://int10h.org/blog/img/1k01_graffiti1k2.png">
+          <small>https://int10h.org/blog/2015/04/cga-in-1024-colors-new-mode-illustrated/</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="out1.png">
+          <small>IBM Basic V1.10 Manual</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="out2.png">
+          <small>IBM Basic V1.10 Manual</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="basicman1.png">
+          <small>IBM Basic V1.10 Manual - Appendix I: Technical Information and Tips</small>
         </section>
 
         <section data-transition="fade-out">
