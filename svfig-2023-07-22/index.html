@@ -321,6 +321,7 @@ div {
           <ul>
             <li>Limited, weird color</li>
             <li>Fairly low-res text</li>
+            <li>1:1.2 / 1:2.4 pixel ratio</li>
             <li>"Snow" due to bandwidth in all but 40x25 mode</li>
             <li>No interrupts for refresh / timed changes</li>
           </ul>
@@ -343,7 +344,7 @@ div {
             80x25 Text Only Monochrome w/Intensity,
             <br/>720x350 Text resolution (9x14), 4k</li>
             <li>Later Hercules:<br/>
-            720x348 Graphics, 64k</li>
+            720x348 1-bit Graphics, 2 pages, 64K</li>
             <li>Artifact Color</li>
           </ul>
         </section>
@@ -388,19 +389,45 @@ div {
           <table style="font-size: 20px; border: solid #f5f">
             <tr style="background-color:#555">
               <th style="border-color: #f5f; width: 20%">Address</th>
-              <th style="border-color: #f5f; width: 60%">Purpose</th>
+              <th style="border-color: #f5f; width: 20%">CGA</th>
+              <th style="border-color: #f5f; width: 20%">MDA</th>
+              <th style="border-color: #f5f; width: 20%">Hercules</th>
+              <th style="border-color: #f5f; width: 20%">EGA/VGA</th>
             </tr>
             <tr>
-              <td style="border-color: #f5f">B0000-B7FFF</td>
-              <td style="border-color: #f5f">MDA/Hercules</td>
+              <td style="border-color: #f5f">B0000-B0FFF</td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border-color: #f5f">Text Page 0</td>
+              <td style="border: 0">Text / Graphics</td>
+              <td style="border: 0; background-color: #222"> </td>
             </tr>
             <tr>
-              <td style="border-color: #f5f">B8000-BFFFF</td>
-              <td style="border-color: #f5f">CGA</td>
+              <td style="border-color: #f5f">B1000-B7FFF</td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border-color: #f5f">Text Page 0<br/>(7 x mirror)</td>
+              <td style="border: 0"> </td>
+              <td style="border: 0; background-color: #222"> </td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">B8000-BBFFF</td>
+              <td style="border-color: #f5f">4/8 text pages, graphics</td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border: 0; background-color: #020">Optional /<br/>CGA Compat</td>
+              <td style="border: 0">CGA Compat</td>
+            </tr>
+            <tr>
+              <td style="border-color: #f5f">BC000-BFFFF</td>
+              <td style="border-color: #f5f; background-color: #202">4/8 text pages, graphics (mirror)</td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border: 0; background-color: #020"> </td>
+              <td style="border: 0; background-color: #222"> </td>
             </tr>
             <tr>
               <td style="border-color: #f5f">A0000-AFFFF</td>
-              <td style="border-color: #f5f">EGA/VGA</td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border: 0; background-color: #222"> </td>
+              <td style="border-color: #f5f">Graphics/Text<br/> <br/> <br/> <br/> <br/> <br/> <br/> </td>
             </tr>
           </table>
         </section>
