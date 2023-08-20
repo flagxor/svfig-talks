@@ -95,7 +95,12 @@ Immediate - 1-8 bytes
 
 REX PREFIX
 ══════════
-0 1 0 0 W R X B
+0 1 0 0 w r x b
+- - - - - - - -
+w = width (64-bit)
+r = ModR/M extra bit
+x = SIB Index extra bit
+b = SIB or ModR/M Base extra bit
 
 : rex.W   $48 c, ;
 : ++rsp   rex.W $83 c, $c4 c, $08 c, ( add $0x8,%rsp ) ;
