@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000000';
+FOREGROUND = '#00ffcc';
+</script><pre>
+
+Trying to Meta-compile
+══════════════════════
+   August 26, 2023
+
+Meta-compilation
+════════════════
+• Building a Forth from within another Forth
+• Generate an image of the new Forth
+• As much as possible write the new Forth in Forth
+
+Meta-compiler vs Cross-compiler
+═══════════════════════════════
+• Outside Forth a meta-compiler sometimes
+  refers to lexer/parser generators like lex/yacc
+  - Forth's coinage considered odd
+• Forth meta-compilers often cannot target other
+  architectures easily
+• Frequently have leaky assumptions about things
+  like dictionary format
+• How "hermetic" is often where I get stuck
+
+Dictionaries
+════════════
+• Meta-compilers have to deal with words
+  in both target and host
+• High potential for host target collisions
+• Vocabularies can help resolve this,
+  but they add a lot of complexity
+
+Repetition
+══════════
+• IMMEDIATE words often need to be used
+  in both host and target
+• LOAD / INCLUDE source twice?
+• How to clean up?
+  - FORGET the whole thing?
+  - Trash the current system?
+
+My Goals
+════════
+• An x86-64 subroutine threaded target
+• Wrap in an ELF executable (Linux)
+• Probably use source instead of blocks
+• Avoid relying on vocabularies
+
+My "Plan"
+═════════
+• Define a start marker
+• Compile immediate / assembling words into host
+• Define an alternate : and ]
+• Compile immediate / assembling words into target
+• Compile normal words into target
+• Write out the new image
+• FORGET everything back to the marker
+
+Assembling x64
+══════════════
+• I'm too lazy to write a whole x64 assembler
+• Focus on just what's needed for the core
+• Optimize moving the stack pointer
+
+Register Assignment
+═══════════════════
+RBP - Data stack pointer
+RSP - Return stack pointer
+RBX - Top of stack
+
+Linux System Calls
+══════════════════
+RAX - Function number
+RDI, RSI, RDX, R10, R8, R9 - Arguments
+
+Call Examples
+═════════════
+RAX=60, RDI=result                         - exit
+RAX=1,  RDI=file#,  RSI=buffer,  RDX=count - write
+
+x64 Instructions
+════════════════
+Legacy    - CS: DS: LOCK REP etc.
+REX       - Register extension
+Opcode    - Sometimes multi-byte
+ModR/M    - Address mode
+SIB       - Scale / index / base
+Immediate - 1-8 bytes
+
+REX PREFIX
+══════════
+0 1 0 0 W R X B
+
+: rex.W   $48 c, ;
+: ++rsp   rex.W $83 c, $c4 c, $08 c, ( add $0x8,%rsp ) ;
+: rsp+! ( n -- ) rex.W $81 c, $c4 c, ,4 ( add $n32,%esp ) ;
+
+variable offset
+: rbp+= ( n -- ) dup negate offset +!
+                 rex.W $83 c, $c5 c, c, ( add $n,%rbp ) ;
+: rbp-= ( n -- ) dup offset +!
+                 rex.W $83 c, $ed c, c, ( sub $n,%rbp ) ;
+: offset@ ( -- n ) offset @ ;
+: offset@- ( -- n ) offset @ 8 - ;
+: balance   offset@ 0< if offset@ negate rbp-= then
+            offset@ 0> if offset@ rbp+= then ;
+: ++rbp   8 offset +! offset@ 120 >= if balance then ;
+: --rbp   -8 offset +! offset@ -120 <= if balance then ;
+
+: drop0   $31 c, $db c, ( xor %ebx,%ebx ) ;
+: cmp0   rex.W $83 c, $fb c, $00 c, ( cmp $0x0,%rbx ) ;
+: past>tos   rex.W $8b c, $5d c, $08 c, ( mov 0x8[%rbp],%rbx ) ;
+
+: nip ( a b -- b ) --rbp ;
+: dup' ( n -- n n ) ++rbp rex.W $89 c, $5d c, offset@ c,
+                    ( mov %rbx,o+0x0[%rbp] ) ;
+
+: 1+ ( n -- n ) rex.W $ff c, $c3 c, ( inc %rbx ) ;
+: 1- ( n -- n ) rex.W $ff c, $cb c, ( dec %rbx ) ;
+
+: drop ( n -- ) rex.W $8b c, $5d c, offset@ c,
+                ( mov o+0x0[%rbp],%rbx ) nip ;
+: dup ( n -- n n ) dup' ;
+: over ( n -- n n ) ++rbp rex.W $89 c, $5d c, offset@- c,
+                          ( mov %rbx,-0x8[%rbp] ) ;
+
+: rdrop ( a b -- b ) rex.W $83 c, $ec c, $08 c,
+                     ( sub $0x8,%rsp ) ;
+: push ( n -- r: n ) ++rsp rex.W $89 c, $1c c, $24 c,
+                           ( mov %rbx,[%rsp] ) drop ;
+: pop ( r: n -- n ) dup rex.W $8b c, $1c c, $24 c,
+                        ( mov [%rsp],%rbx ) rdrop ;
+
+: + ( n n -- n ) rex.W $03 c, $5d c, offset@ c,
+                 ( add o+0x0[%rbp],%rbx ) nip ;
+: - ( n n -- n ) rex.W $2b c, $5d c, offset@ c,
+                 ( sub o+0x0[%rbp],%rbx ) nip ;
+: * ( n n -- n ) rex.W $0f c, $af c, $5d c, offset@ c,
+                 ( imul o+0x0[%rbp],%rbx ) nip ;
+
+: and ( n n -- n ) rex.W $23 c, $5d c, offset@ c,
+                   ( and o+0x0[%rbp],%rbx ) nip ;
+: or ( n n -- n ) rex.W $0b c, $5d c, offset@ c,
+                  ( or o+0x0[%rbp],%rbx ) nip ;
+: xor ( n n -- n ) rex.W $33 c, $5d c, offset@ c,
+                   ( xor o+0x0[%rbp],%rbx ) nip ;
+: invert ( n -- n ) rex.W $f7 c, $d3 c, ( not %rbx ) ;
+: negate ( n -- n ) rex.W $f7 c, $db c, ( neg %rbx ) ;
+
+: 0= ( n -- n ) cmp0 drop0 $0f c, $9c c, $c3 c,
+                ( setl %bl ) negate ;
+: 0< ( n -- n ) cmp0 drop0 $0f c, $94 c, $c3 c,
+                ( sete %bl ) negate ;
+
+: exit    balance $c3 c, ;
+: nop    $90 c, ;
+
+: @ ( a -- n ) rex.W $8b c, $1b c,
+               ( mov [%rbx],%rbx ) ;
+: ! ( n a -- ) rex.W $8b c, $4d c, offset@ c,
+               ( mov o+0x0[%rbp],%rcx )
+               rex.W $89 c, $0b c,
+               ( mov %rcx,[%rbx] ) nip drop ;
+
+: c@ ( a -- ch ) rex.W $0f c, $b6 c, $1b c,
+                 ( movzbq [%rbx],%rbx )
+: c! ( ch a -- ) $8a c, $4d c, offset@ c,
+                 ( mov o+0x0[%rbp],%cl )
+                 $88 c, $0b c,
+                 ( mov %cl,[%rbx] ) ;
+
+: aliteral32u ( n -- ) dup' $bb c, ,4
+                       ( mov $n32,%ebx ) ;
+: aliteral32s ( n -- ) dup' rex.W $c7 c, $c3 c, ,4
+                       ( mov $n32, %rbx ) ;
+: aliteral64 ( n -- ) dup' rex.W $bb c, ,8
+                      ( movabs $n64,%rbx ) ;
+
+: aliteral ( n -- )
+   dup dup $ffffffff and = if
+     aliteral32u
+   else
+     dup negate $80000000 < if
+       aliteral32s
+     else
+       aliteral64
+     then
+   then ;
+
+: begin   balance here ;
+: again   balance $eb c, here 1+ - c, ;
+: ahead   balance $eb c, here 0 c, ;
+: then   balance here over 1+ - swap c! ;
+: until ( n -- ) nip balance cmp0 past>tos $74 c, here 1+ - c, ;
+: if ( n -- ) nip balance cmp0 past>tos $74 c, here 0 c, ;
+
+: syscall ( n n n n n n - n )
+   balance
+   rex.W $89 c, $d8 c, ( mov %rbx,%rax )
+   $4c c, $8b c, $4d c, $00 c, ( mov 0x0[%rbp],%r9 )
+   $4c c, $8b c, $45 c, $F8 c, ( mov -0x8[%rbp],%r8 )
+   $4c c, $8b c, $55 c, $F0 c, ( mov -0x10[%rbp],%r10 )
+   rex.W $8b c, $55 c, $E8 c, ( mov -0x18[%rbp],%rdx )
+   rex.W $8b c, $75 c, $E0 c, ( mov -0x20[%rbp],%rsi )
+   rex.W $8b c, $7d c, $D8 c, ( mov -0x28[%rbp],%rdi )
+   rex.W $83 c, $ed c, $30 c, ( sub $0x30,%rbp )
+   $0f c, 05 c, ( syscall )
+   rex.W $89 c, $c3 c, ( mov %rax,%rbx )
+;
+
+( ELF HEADER )
+$7f c, char E c, char L c, char F c,
+2 c, ( ELFCLASS64)
+1 c, ( ELFDATA2LSB )
+1 c, ( EV_CURRENT )
+3 c, ( ELFOSABI_LINUX )
+0, ( ABI version )
+0, 0, 0, 0, 0, 0, 0, ( EI_PAD )
+
+2 ,2 ( e_type = ET_EXEC )
+62 ,2 ( e_machine = EM_X86_64 )
+1 ,4 ( e_version = EV_CURRENT )
+entry-addr ,8 ( e_entry = offset to entry below )
+$40 ,8 ( e_phoff = offset to program header below )
+0 ,8 ( e_shoff, no section header )
+0 ,4 ( e_flags )
+$40 ,2 ( e_ehdrsize = size of main header )
+$38 ,2 ( e_phentsize = header size below )
+1 ,2 ( e_phnum = 1 entry below )
+0 ,2 ( e_shentsize )
+0 ,2 ( e_shnum )
+0 ,2 ( e_shstrndx )
+
+( PROGRAM HEADER )
+1 ,4 ( p_type = PT_LOAD )
+7 ,4 ( p_flags = PF_X | PF_W | PF_R )
+0 ,8 ( p_offset )
+$400000 ,8 ( p_vaddr )
+$400000 ,8 ( p_paddr )
+$100000 ,8 ( p_filesz )
+$100000 ,8 ( p_memsz )
+0 ,8 ( p_align )
+
+( START )
+init
+1 aliteral $400000 aliteral 100 aliteral
+  0 aliteral 0 aliteral 0 aliteral 1 aliteral syscall drop
+42 aliteral 0 aliteral 0 aliteral 0 aliteral
+  0 aliteral 0 aliteral 60 aliteral syscall drop
+
+That's it for now...
+
+Need a better name!
+═══════════════════
+• Was going call it "wisp",
+  but is already taken
+• Suggestions?
+
+QUESTIONS❓
+    🙏
+ Thank you!
