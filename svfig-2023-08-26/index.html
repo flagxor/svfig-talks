@@ -19,6 +19,7 @@ Meta-compilation
 
 Meta-compiler vs Cross-compiler
 ═══════════════════════════════
+• Is a Meta-compiler a Cross-compiler?
 • Outside Forth a meta-compiler sometimes
   refers to lexer/parser generators like lex/yacc
   - Forth's coinage considered odd
@@ -31,10 +32,13 @@ Meta-compiler vs Cross-compiler
 Dictionaries
 ════════════
 • Meta-compilers have to deal with words
-  in both target and host
+  in both host and target
+• Need for immediate words run on the host
 • High potential for host target collisions
 • Vocabularies can help resolve this,
   but they add a lot of complexity
+• Simpler vocabulary scheme's like Chuck's
+  FORTH + MACRO dictionaries are appealing
 
 Repetition
 ══════════
@@ -56,6 +60,7 @@ My "Plan"
 ═════════
 • Define a start marker
 • Compile immediate / assembling words into host
+• Define an alternate FIND
 • Define an alternate : and ]
 • Compile immediate / assembling words into target
 • Compile normal words into target
@@ -104,7 +109,7 @@ b = SIB or ModR/M Base extra bit
 
 : rex.W   $48 c, ;
 : ++rsp   rex.W $83 c, $c4 c, $08 c, ( add $0x8,%rsp ) ;
-: rsp+! ( n -- ) rex.W $81 c, $c4 c, ,4 ( add $n32,%esp ) ;
+: rsp+! ( n -- ) rex.W $81 c, $c4 c, ,4 ( add $n32,%rsp ) ;
 
 variable offset
 : rbp+= ( n -- ) dup negate offset +!
