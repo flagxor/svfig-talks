@@ -224,50 +224,136 @@ variable offset
    rex.W $89 c, $c3 c, ( mov %rax,%rbx )
 ;
 
-( ELF HEADER )
-$7f c, char E c, char L c, char F c,
-2 c, ( ELFCLASS64)
-1 c, ( ELFDATA2LSB )
-1 c, ( EV_CURRENT )
-3 c, ( ELFOSABI_LINUX )
-0, ( ABI version )
-0, 0, 0, 0, 0, 0, 0, ( EI_PAD )
+: elf-magic
+  $7f c, [char] E c, [char] L c, [char] F c,
+  2 c, ( ELFCLASS64)
+  1 c, ( ELFDATA2LSB )
+  1 c, ( EV_CURRENT )
+  3 c, ( ELFOSABI_LINUX )
+  0, ( ABI version )
+  0, 0, 0, 0, 0, 0, 0, ( EI_PAD )
+;
 
-2 ,2 ( e_type = ET_EXEC )
-62 ,2 ( e_machine = EM_X86_64 )
-1 ,4 ( e_version = EV_CURRENT )
-entry-addr ,8 ( e_entry = offset to entry below )
-$40 ,8 ( e_phoff = offset to program header below )
-0 ,8 ( e_shoff, no section header )
-0 ,4 ( e_flags )
-$40 ,2 ( e_ehdrsize = size of main header )
-$38 ,2 ( e_phentsize = header size below )
-1 ,2 ( e_phnum = 1 entry below )
-0 ,2 ( e_shentsize )
-0 ,2 ( e_shnum )
-0 ,2 ( e_shstrndx )
+: elf-header
+  elf-magic
+  2 ,2 ( e_type = ET_EXEC )
+  62 ,2 ( e_machine = EM_X86_64 )
+  1 ,4 ( e_version = EV_CURRENT )
+  entry-addr ,8 ( e_entry = offset to entry below )
+  $40 ,8 ( e_phoff = offset to program header below )
+  0 ,8 ( e_shoff, no section header )
+  0 ,4 ( e_flags )
+  $40 ,2 ( e_ehdrsize = size of main header )
+  $38 ,2 ( e_phentsize = header size below )
+  1 ,2 ( e_phnum = 1 entry below )
+  0 ,2 ( e_shentsize )
+  0 ,2 ( e_shnum )
+  0 ,2 ( e_shstrndx )
+;
 
-( PROGRAM HEADER )
-1 ,4 ( p_type = PT_LOAD )
-7 ,4 ( p_flags = PF_X | PF_W | PF_R )
-0 ,8 ( p_offset )
-$400000 ,8 ( p_vaddr )
-$400000 ,8 ( p_paddr )
-$100000 ,8 ( p_filesz )
-$100000 ,8 ( p_memsz )
-0 ,8 ( p_align )
+: program-header
+  1 ,4 ( p_type = PT_LOAD )
+  7 ,4 ( p_flags = PF_X | PF_W | PF_R )
+  0 ,8 ( p_offset )
+  $400000 ,8 ( p_vaddr )
+  $400000 ,8 ( p_paddr )
+  $100000 ,8 ( p_filesz )
+  $100000 ,8 ( p_memsz )
+  0 ,8 ( p_align )
+;
 
+start-image
+elf-header
+program-header
 ( START )
 init
-1 aliteral $400000 aliteral 100 aliteral
+1 aliteral $400000 aliteral 3 aliteral
   0 aliteral 0 aliteral 0 aliteral 1 aliteral syscall drop
 42 aliteral 0 aliteral 0 aliteral 0 aliteral
   0 aliteral 0 aliteral 60 aliteral syscall drop
+end-image
+bye
+
+DEMO
+
+Dictionary
+══════════
+• Needs to at least support macros + forth words
+• Conventional linked dictionary mixes code + data
+• Use pairs of (word-hash, address)
+• Use a (0, 0) marker at the top
+
+: hash ( a n -- n )
+  71 >r
+  begin dup while
+    swap dup c@ >r 1+ swap 1- r> r> 31 * + >r
+  repeat
+  2drop r>
+;
+
+: find ( a n dct -- xt )
+  >r hash r>
+  begin dup @ while
+    2dup @ = if cell+ @ nip exit then
+    2 cells -
+  repeat
+;
+
+variable regular
+variable macros
+variable current
+: +word ( nm adr -- )
+  2 cells current @ +!
+  current @ @ cell+ !
+  current @ @ !
+;
+
+create dict
+here regular !
+0 , 0 ,
+100 cells allot
+here macros !
+0 , 0 ,
+100 cells allot
+regular current !
+
+: header   bl parse hash here +word ;
+
+: >number ( a n -- n )
+  0 >r
+  begin dup while
+    swap dup c@ [char] 0 - r> base @ * + >r
+    1+ swap 1-
+  repeat
+  2drop r>
+;
+
+: ]
+  begin
+    bl parse 2dup
+    macros @ find if
+      >r 2drop r> execute
+    else
+      regular @ find if
+        >r 2drop r> $e8 here 1+ - ,4
+      else
+        >number
+      then
+    then
+  again
+;
+
+Order Challenge
+═══════════════
+• On host should use host macros,
+  but compile for target
+• So ] may have to have two versions?
+• The ordering + name clashes seem so brittle...
 
 That's it for now...
 
-Need a better name!
-═══════════════════
+Still need a better name!
+═════════════════════════
 • Was going call it "wisp",
   but is already taken
 • Suggestions?
