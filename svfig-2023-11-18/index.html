@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000000';
+FOREGROUND = '#00ff77';
+</script><pre>
+
+ Lambdas in Forth
+ ════════════════
+🚀  FORTH  DAY  🚀
+ November 18, 2023
+
+Lambda Expressions
+══════════════════
+• Practical variant on lambda calculus
+• Represent an abstract function
+• Ideally a "closure" on its environment
+
+Lambda Calculus
+═══════════════
+• Invented by Alonzo Church (1930)
+• Complete model of computation
+ 
+x - a variable 
+(λx. M) - a lambda abstraction
+(M N) - an application
+
+Lisp
+════
+• Lambda calculus inspired Lisp
+(lambda (x) (* x x ))
+
+Python: lambda x: x * x
+ 
+  Java: (x) -> x * x
+ 
+   C++: [](int x) { return x * x ; }
+ 
+  Rust: |x| -> x * x
+ 
+ Forth: ?
+
+Closure
+═══════
+• Ideally lambdas capture their environment
+• Historically dynamically, now lexically
+• Important to make lambdas most useful
+
+(define (adder n)
+  (lambda (x) (+ x n)))
+ 
+((adder 3) 4) --> 7
+
+How to do this in Forth?
+════════════════════════
+• Expand the behavior of locals
+• Add a syntax for starting a closure
+• Sort out the memory management implications
+
+: squarer [: { x } x x * :] ;
+4 squarer invoke --> 16
+
+: adder { n } [: { x } x n + :] ;
+3 adder constant x
+4 x invoke --> 7  
+
+Locals
+══════
+• Standardized, but implementation specific innards
+• µEforth and others use the return stack
+  - but other approaches possible
+• Issue: local scopes go away on word return
+• Consequence: locals need to move elsewhere
+
+Where to put the locals?
+════════════════════════
+• Can live long after return
+• Might hold address of lambdas
+• Need to know when to free them
+
+What do others do?
+══════════════════
+• Lisp - Garbage Collector
+• Python - Garbage Collector
+• Java - Garbage Collector + optimizer
+• C++ - Stack/Heap + careful lifetimes
+• Rust - Stack/Heap + careful lifetimes
+
+Garbage Collection
+══════════════════
+• Free data only when it can't be reached
+Three types:
+• Moving / copy collectors (Cheney)
+• Stationary / Mark and Sweep collectors
+• Hybrid collectors
+
+Trade-offs
+══════════
+• Careful lifetimes - Requires compile-time types
+• Garbage Collector - Requires runtime types
+• Conservative Collector - Might live leak ✅🤷
+
+Conservative Collection
+═══════════════════════
+• Boehm GC - 1988
+• Treat any value that might be a pointer to
+  a GC-ed object as if it is
+• Requires static allocation schemes
+• Allows C garbage collector
+
+Interface
+═════════
+pair ( a d -- c )
+unpair ( c -- a d )
+collect ( -- )
+pair? ( c -- f )
+
+Locals in an Environment
+════════════════════════
+• Instead of allocating stack offset, allocate IDs
+• Create an environment as a chain of pairs of (ID, value)
+
+0 value environment
+: init-local! ( id -- ) pair environment swap pair to environment ;
+: get-local ( id -- n )
+   >r environment
+   begin dup while
+     unpair unpair
+     r@ = if nip rdrop exit then
+     drop
+   repeat
+   rdrop ( zero on stack )
+;
+
+Implementing [: :]
+══════════════════
+• [: - save scope, jump over code
+• :] - exit, land from jump, bind code + environment
+
+: adder { n } [: { x } x n + :] ;
+((n-val . n-id) . xt)
+
+Filling it Out
+══════════════
+• Make TO work, setting the environment
+• Make RECURSE work, saving the environment
+
+(define (factorial n)
+  (define (fact! n)
+    (if (= n 0)
+       1
+       (* (factorial (- n 1)) n)))
+  (fact! n))
+
+: factorial { n }
+   0 { fact! }
+   [: { n }
+      n 0= if
+         1
+      else
+         n 1- fact! invoke n *
+      then
+   :] to fact!
+   n fact! invoke
+;
+
+(define (factorial2 n)
+  (define (iter product counter)
+     (if (> counter n)
+        product
+        (iter (* counter product) (+ counter 1))))
+  (iter 1 1))
+
+: factorial2 { n }
+   0 { iter }
+   [: { product counter }
+      counter n > if
+         product
+      else
+         counter product * counter 1+ iter invoke
+      then
+   :] to iter
+   1 1 iter invoke
+;
+
+: cons { a d } [: if d else a then :] ;
+: car ( c ) 0 swap invoke ;
+: cdr ( c ) 1 swap invoke ;
+
+: gcd2 { a b } b 0= if a else b a b mod recurse then ;
+: make-rat { n d }
+   n d gcd2 { g }
+   n g / d g / cons ;
+: numer ( r ) car ;
+: denom ( r ) cdr ;
+: print-rat { x } x numer . ." / " x denom . ;
+
+: add-rat { x y } x numer y denom * y numer x denom * +
+                  x denom y denom * make-rat ;
+: sub-rat { x y } x numer y denom * y numer x denom * -
+                  x denom y denom * make-rat ;
+: mul-rat { x y } x numer y numer *
+                  x denom y denom * make-rat ;
+: div-rat { x y } x numer y denom *
+                  x denom y numer * make-rat ;
+: equal-rat? { x y } x numer y denom * y numer x denom * = ;
+
+DEMO
+
+QUESTIONS❓
+    🙏
+ Thank you!
