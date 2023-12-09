@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000022';
+FOREGROUND = '#ff7700';
+</script><pre>
+
+µEforth on the pico-ice
+═══════════════════════
+   December 9, 2023
+
+pico-ice
+════════
+• Raspberry Pi Pico (RP2040) + iCE40UP5K FPGA
+• 4MB SPI Flash for CPU
+• 4MB SPI Flash for FPGA
+• 8MB low power qSPI RAM
+• Shared RGB LED
+• All RP2040 + iCE40 pins exposed
+• 2 pushbuttons (one mostly for reset)
+• FPGA clock controlled by RP2040
+• RP2040 can feed configuration to FPGA!
+
+RP2040
+══════
+• 133 MHz dual ARM Cortex-M0+
+• 264K SRAM
+• 30 GPIO pins (4 can be analog)
+• 2 UARTs
+• 2 SPI controllers
+• 2 I²C controllers
+• 16 PWM channels
+• USB 1.1 controller and PHY,
+  with host and device support
+• 8 programmed input–output (PIO)
+  state machines
+• Boots over SPI or USB
+
+iCE40UP5K
+═════════
+• 5280 LUTs
+• 1Mbit single port RAM
+• 120Kb dual port RAM
+• 8 x DSP blocks
+
+@ice40-top.png
+<img src="ice40-top.png">
+
+sysDSP
+══════
+• 8-bit x 8-bit Multiplier
+• 16-bit x 16-bit Multiplier
+• 16-bit Adder/Subtracter
+• 32-bit Adder/Subtracter
+• 16-bit Accumulator
+• 32-bit Accumulator
+• 8-bit x 8-bit Multiply-Accumulate
+• 16-bit x 16-bit Multiply-Accumulate
+
+@ice40-dsp.png
+<img src="ice40-dsp.png">
+
+@ice40-io.png
+<img src="ice40-io.png">
+
+@ice40-dpram.png
+<img src="ice40-dpram.png">
+
+@ice40-spram.png
+<img src="ice40-spram.png">
+
+Programming the pico-ice
+════════════════════════
+• pico-sdk
+• pico-ice-sdk
+• Transfer via Flash drive + UF2
+• I/O over one or more
+  virtual serial devices
+
+UF2
+═══
+• UF2 = USB Flashing Format
+• Created by Microsoft for MakeCode
+• 512 Blocks to align with FAT Flash drive blocks
+• Whole blocks arrive or not
+• Each block has:
+  - magic numbers at the beginning and at the end
+  - address where the data should be flashed
+  - up to 476 bytes of data
+
+Porting µEforth
+═══════════════
+• git submodules for SDKs
+• Add CMake build invoked by Make
+• Leave out fault handling to start
+• New builtins.h + main.cpp
+• And... it didn't run...
+
+Debugging
+═════════
+• Confirmed basic IO samples work
+• Added a "sim" variant like ESP32
+• Found failures in the startup before IO ready
+• And... it came up!
+
+Bindings
+════════
+• memory support
+• yield + ms-ticks support
+• general posix files
+• ice_cram_*
+• ice_flash_*
+• ice_fpga_*
+• ice_led_*
+• ice_spi_*
+• ice_sram_*
+
+Making it Faster
+════════════════
+• Shallow submodules
+• Init only the needed modules
+• Build only your target!
+• cmake -G Ninja
+
+Publishing
+══════════
+• Some refactoring of documentation
+• For now don't publish by default
+• Beta only for now
+
+What's Next?
+════════════
+• Expose more USB bindings
+• Add BLOCKs + use FPGA Flash for it
+• Figure out how to build directly/faster?
+• Synthesize for the FPGA in Forth!
+
+icestorm/YoSYS
+══════════════
+• Community has reverse engineered
+  the iCE40 bitstream format!
+• Built an open source verilog
+• icepack capture fairly simple config layout
+
+@ice40-plb.png
+<img src="ice40-plb.png">
+
+@ice40-viewer.png
+<img src="ice40-viewer.png">
+
+https://knielsen.github.io/ice40_viewer/ice40_viewer.html
+
+iCE40 Format
+════════════
+• icepack capture fairly simple config layout:
+    if (right_half)
+      cram_x = bank_xoff + column_width - 1 - bit_x;
+    else
+      cram_x = bank_xoff + bit_x;
+    if (top_half)
+      cram_y = bank_yoff + (15 - bit_y);
+    else
+      cram_y = bank_yoff + bit_y;
+
+.logic_tile_bitmap
+Nobrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+--orrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbbbCbbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+- ... unknown bit
+r ... routing
+b ... buffer
+l ... logic bits
+o ... ColBufCtrl
+C ... CarryInSet
+N ... NegClk
+
+Plan for Synthesis
+══════════════════
+• Keep an allocation map for LUTs + Routes
+• Reserve LUTs + routes greedily,
+  provide manual words to move allocation point
+• Group signal in link list "bus" value
+
+BUS ( bool-wire bus -- bus )
+UNBUS ( bus -- bool-wire bus )
+2LUT ( a b T -- v )
+AT ( x y -- )
+
+: AND ( a b -- v ) $8 2LUT ;
+: OR ( a b -- v ) $E 2LUT ;
+: XOR ( a b -- v ) $9 2LUT ;
+
+: HA ( a b -- s c ) 2DUP AND >R XOR R> ;
+: FA ( a b c -- s c ) HA >R HA R> OR ;
+
+: ADDER ( cin a b n -- s cout )
+   NEWBUS
+   SWAP 0 DO
+      >R UNBUS >R SWAP UNBUS >R FA
+      SWAP R> SWAP R> SWAP R> BUS
+   LOOP
+   NIP NIP SWAP
+;
+
+1 IN PIN go
+1 OUT PIN result
+8 BIT REGISTER counter
+go counter counter ADDER ON-CLOCK counter
+counter UNBUS DROP ALWAYS result
+
+DEMO
+
+QUESTIONS❓
+    🙏
+ Thank you!
