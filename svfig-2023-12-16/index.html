@@ -126,6 +126,37 @@ UF2
   - address where the data should be flashed
   - up to 476 bytes of data
 
+µEforth
+═══════
+• Indirect-threaded Forth
+• Written in C
+• Extensive use of X-Macros
+• Ports to:
+  - ESP32 (Known as ESP32forth)
+  - Linux/Posix
+  - Windows
+  - Web (via Asm.js)
+  - pico-ice?
+
+X-MACROS
+════════
+ • Use the C Preprocessor
+ • Lists of data to build code
+ • Make the caller a parameter
+
+ #define PRIMITIVE_LIST \
+   X("+", ADD, tos += *sp; --sp) \
+   Y(DROP, tos = *sp; --sp) \
+   Y(SWAP, w = tos; tos = *sp; *sp = w) \
+   Y(AND, tos = tos & *sp; --sp) \
+   Y(OR, tos = tos | *sp; --sp) \
+
+ enum {
+ #define X(sname, name, code) OP_ ## name,
+ PRIMITIVE_LIST
+ #undef X
+ };
+
 Porting µEforth
 ═══════════════
 • git submodules for SDKs
