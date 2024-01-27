@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000077';
+FOREGROUND = '#ffffff';
+</script><pre>
+
+🧹  Winter Haikus &   🧹 
+Emergency Spring Cleaning
+═════════════════════════
+ ❄  January 27, 2024  ❄
+
+Forth Haiku
+═══════════
+• Introduced in 2011
+• Small Programs in Forth
+• Colorful Pictures, Animations, Sounds
+• Pixel/Fragment Shader
+• Forth -> JavaScript -> WebGL
+• Anyone can post
+• Anyone can create a "Create a derived work"
+• Runs on the Web + Google AppEngine
+
+https://forthsalon.appspot.com/
+
+AppEngine
+═════════
+• Launched in April 7, 2008
+• Initially Python
+  - Later Go, Java, PHP, NodeJS, .NET, and Ruby
+• Designed to scale from tiny to millions
+• Free for tiny
+• Built-in Datastore, Account Handling,
+  Memcache, Web Templates, Search API
+
+Compatibility
+═════════════
+• For several years, slow incremental change
+  - Master/Slave Datastore to High Replication Datastore
+    - forthsalon -> forthsalon-hrd
+  - Changes to the python database library
+  - User account handling deprecated
+
+Compatibility...
+════════════════
+• But then this January Python2 + old runtime deprecated
+  - January 30, 2024 last day to push old version
+  - Unclear how much longer old runtimes will work
+  - Underpinnings clearly more VM-like
+• A bunch of changes required
+  - Dependencies using pip
+  - New datastore interface
+  - No more Search API
+
+Bigtable
+════════
+• NoSQL + Eventual consistency
+• Indexed on (Row:string, Column:string, Time:int64)
+• Build your own structure, store protocol buffers
+• Atomic transactions at row level
+• Highly distributed + scalable
+
+Cloud Datastore
+═══════════════
+• Make this look more like SQL
+• Entities = Rows
+• Keys and Ancestors abstracting Bigtable row keys
+• Automatic indexes kept fields by default
+• Additional indexes added in index.yaml
+• Still eventual consistency
+• Transactions limited historically small number of
+  "entity groups" (common ancestors)
+
+class Haiku(ndb.Model):
+  when = ndb.DateTimeProperty(auto_now_add=True)
+  title = ndb.StringProperty()
+  author = ndb.StringProperty()
+  code = ndb.TextProperty()
+  score = ndb.IntegerProperty()
+  rank = ndb.FloatProperty(default=0.0)
+  last_modified = ndb.DateTimeProperty(auto_now=True)
+  parent = ndb.StringProperty(default='')
+  parent_recorded = ndb.BooleanProperty(default=False)
+
+Changes
+═══════
+• Switched from Search API to searching
+  for author / title prefix
+• Added dependencies explicitly
+• Adopted new Flask framework
+• Switched to new Datastore API library
+
+❄ Winter Haikus ❄
+
+QUESTIONS❓
+    🙏
+ Thank you!
