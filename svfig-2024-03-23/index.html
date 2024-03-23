@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>You should care about colorForth!</title>
+    <meta name="description"
+          content="You should care about colorForth! - March 23, 2024">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="../common/forth.css">
+    <script src="../common/printing.js"></script>
+    <script src="../node/node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!--
+
+You should care about colorForth!
+*********************************
+Since at least 1998, each Forth Day, Chuck Moore has updated us on his
+wonderful explorations with colorForth. While it may not be obvious,
+colorForth is fundamentally simpler and more elegant than conventional Forth.
+I've gather slides and notes capturing the evolution of Chuck's thinking
+around colorForth and will attempt to recount how it has evolved over the decades.
+I'll explain why colorForth is important and speculate why it's struggled
+to gain wide adoption within the Forth community.
+
+-->
+
+    <style>
+.reveal pre {
+  background-color: #000;
+  padding: 10px;
+  font-family: courier, monospace;
+  font-size: 40px;
+}
+.reveal code {
+  color: #0f0;
+  background-color: #555;
+  font-family: courier, monospace;
+  font-size: 40px;
+}
+img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+rev {
+  foreground-color: #000;
+  background-color: #fff;
+}
+div {
+  color: #fff;
+  font-family: courier, monospace;
+}
+.define {
+  color: #f00;
+  text-decoration: underline;
+  text-decoration-skip: spaces;
+}
+.variable {
+  color: #f0f;
+  text-decoration: wavy underline;
+  text-decoration-skip: spaces;
+}
+.compile {
+  color: #0f0;
+}
+.execute {
+  color: #ff0;
+  font-weight: bold;
+}
+.executenum {
+  color: #770;
+  font-weight: bold;
+}
+.execute1 {
+  color: #000;
+  font-weight: bold;
+}
+.executenum1 {
+  color: #777;
+  font-weight: bold;
+}
+.forcecompile {
+  color: #0ff;
+  text-decoration: dotted underline;
+  text-decoration-skip: spaces;
+}
+.decorate {
+  color: #00f;
+  font-style: oblique;
+  font-weight: bold;
+}
+.comment {
+  color: #fff;
+  font-style: oblique;
+  font-weight: 100;
+}
+.comment1 {
+  color: #00f;
+  font-style: oblique;
+  font-weight: 100;
+}
+.reveal-viewport {
+  background-color: #000;
+}
+.reveal h1 {
+  font-family: courier, monospace;
+  font-weight: bold;
+  color: #ff0;
+}
+.reveal h2 {
+  font-family: courier, monospace;
+  color: #ff0;
+}
+.reveal h3 {
+  font-family: courier, monospace;
+  color: #ff0;
+}
+.reveal h4 {
+  font-family: courier, monospace;
+  color: #ff0;
+}
+.hljs-comment {
+}
+.reveal a:link {
+  color: #00f;
+}
+.reveal a:visited {
+  color: #00f;
+}
+.reveal a:hover {
+  color: #ff0;
+}
+.reveal a:active {
+  color: #ff0;
+}
+.reveal .controls {
+  color: #00f;
+}
+.reveal .progress {
+  color: #00f;
+}
+  </style>
+  </head>
+
+  <body>
+    <div style="position: fixed; bottom: 0; width: 100%">
+      <center>
+        <h2 style="color: blue" id="cc1"></h2>
+        <h2 style="" id="cc2"></h2>
+      </center>
+    </div>
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>You should care about <span class="define">color</span><span class="compile">Forth</span>!</h2>
+          <h3>July 22, 2023</h3>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          <br/><br/>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Caveats</h3>
+          <ul>
+            <li>I'm hoping to talk about <span class="define">color</span><span class="compile">Forth</span> in the large</li>
+            <li>I want to talk about the potent ideas in Chuck's explorations</li>
+            <li>I have an incomplete view of Chuck's work</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Introduction</h3>
+          <ul>
+            <li>Chuck's work has always been about "Decomplexifying"</li>
+            <li>Software and hardware is SO complex now</li>
+            <li>But kilobytes still matter, and everything is so slow</li>
+            <li>We really need to find a better way to write software!</li>
+            <li>The ideas in <span class="define">color</span><span class="compile">Forth</span> point the way</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>
+            Note about Colors
+          </h3>
+          <ul>
+            <li><span class="define">word</span> - define</li>
+            <li><span class="compile">word</span> - compile</li>
+            <li><span class="execute">word</span> - execute</li>
+            <li><span class="executenum">1234</span> - execute numbers</li>
+            <li><span class="variable">word</span> - variable</li>
+            <li><span class="forcecompile">word</span> - force compile</li>
+            <li><span class="decorate">word</span> - decorate</li>
+            <li><span class="comment">word</span> - comment</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>
+            Note about Colors
+          </h3>
+          For older slides
+          <ul style="background-color: white; color: #00f;">
+            <li><span class="define">word</span> - define</li>
+            <li><span class="compile">word</span> - compile</li>
+            <li><span class="execute1">word</span> - execute</li>
+            <li><span class="executenum1">1234</span> - execute numbers</li>
+            <li><span class="comment1">word</span> - comment</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Don't get distracted by color</h3>
+          <ul>
+            <li><span class="define">color</span><span class="compile">Forth</span>
+                isn't about syntax highlighting or a neat alternate visualization</li>
+            <li>It's not about the eclectic editor</li>
+            <li>It's informed by making Forth even simpler</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>
+            <span class="define">color</span><span class="compile">Forth</span> Chronology
+          </h3>
+          <ul>
+            <li>Precursors (1970-1997)</li>
+            <li>iTV Era (1998-20??)</li>
+            <li>GreenArrays Era (20??-2015)</li>
+            <li>uhdForth (2016-present)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Precursors</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>What is Forth?</h3>
+          In 1999 Chuck said:
+          <ul>
+            <li>Highly factored code</li>
+            <li>Definitions</li>
+            <li>Stacks (to support definitions)</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>What is a definition?</h3>
+          In 1999 Chuck said:
+          <ul>
+            <li>: SOME ... ;</li>
+            <li>an abbreviation</li>
+            <li>should never have more than 1-2 arguments</li>
+            <li>stack should never be more than 3-4 deep</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>You can write FORTRAN in any language</h3>
+          <ul>
+            <li>Forth is powerful, it lets you define any syntax</li>
+            <li>There's a temptation to borrow from other languages</li>
+            <li>locals, exceptions, structures, scopes, types</li>
+            <li>"Find the hundred words to solve you problem in one line."</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+<pre>
+DEA- FIG,
+
+I AM A FOR-- PRO------- CUR------
+EMP----- BY FOR-- INC.  I HAV- NOT
+WOR--- ON ANY FIG TYP- SYS---- AND I
+AM EXC---- BY THE VAR----- LEN---
+NAM- IDE-. PLE--- SEN- ME THE FIG
+FOR-- MOD-- SO THA- I MAY TRY IT OUT
+HER- AT FOR-- INC.
+
+FRE- THO---- 
+</pre>
+<small>Forth Dimensions Volume 2 Number 6</small>
+        </section>
+
+        <section data-transition="fade-out">
+<pre>
+DEAR FIG,
+
+I AM A FORTH PROGRAMMER CURRENTLY
+EMPLOYED BY FORTH INC.  I HAVE NOT
+WORKED ON ANY FIG TYPE SYSTEMS AND I
+AM EXCITED BY THE VARIABLE LENGTH
+NAME IDEA. PLEASE SEND ME THE FIG
+FORTH MODEL SO THAT I MAY TRY IT OUT
+HERE AT FORTH INC.
+
+FRED THORTON
+</pre>
+<small>Forth Dimensions Volume 2 Number 6</small>
+        </section>
+
+        <section data-transition="fade-out">
+<pre style="font-size: 30px">
+DEA- EDI---
+
+I AM AFR--- THA- THE LET--- IN THE LAS- ISS-- ABO--
+FOR-- INC- USI-- ONL- THR-- LET--- NAM- FIE--- HAS
+HAD THE OPP----- EFF--- FRO- WHA- THE WRI--- WAN---
+
+HIS LET--- ( LIK- THI- ONE ) SHO-- THA- SAV--- ONL-
+THR-- LET---- AND COU-- IS JUS- ABO-- OPT---- IN
+TER-- OF A TRA-- OFF BET---- SAV--- MEM--- AND
+KEE---- LEG--------
+
+YOU-- TRU--
+CHU-- MOO--
+FOR-- INC-
+
+P.S-  MR. FRE- THO---- IS NOT AN EMP----- OF
+      FOR-- INC-
+</pre>
+<small>Forth Dimensions Volume 3 Number 1</small>
+        </section>
+
+        <section data-transition="fade-out">
+<pre style="font-size: 30px">
+DEAR EDITOR
+
+I AM AFRAID THAT THE LETTER IN THE LAST ISSUE ABOUT
+FORTH INC. USING ONLY THREE LETTER NAME FIELDS HAS
+HAD THE OPPOSITE EFFECT FROM WHAT THE WRITER WANTED
+
+HIS LETTER ( LIKE THIS ONE ) SHOWS THAT SAVING ONLY
+THREE LETTERS AND COUNT IS JUST ABOUT OPTIMAL IN
+TERMS OF A TRADE OFF BETWEEN SAVING MEMORY AND
+KEEPING LEGIBILITY.
+
+YOURS TRULY
+CHUCK MOORE
+FORTH INC.
+
+P.S.  MR. FRED THORTON IS NOT AN EMPLOYEE OF
+      FORTH INC.
+</pre>
+<small>Forth Dimensions Volume 3 Number 1</small>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Why was standardizing Forth hard?</h3>
+          <ul>
+            <li>Forth is more complex than it seems</li>
+            <li>Dictionary: links, vocabulary hooks, variable length entries</li>
+            <li>You can't even define Forth dictionary entries statically in C!</li>
+            <li>Fig-Forth had 221 words, not including internals</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>1993</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen3.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen4.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen5.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen6.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen7.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen8.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen9.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen10.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/presentation_1993/screen11.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h1>iTV Era</h1>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Early <span class="define">color</span><span class="compile">Forth</span></h3>
+          <ul>
+            <li>6 Colored spaces: <span style="background-color: white"><span class="define">define</span>, <span class="compile">compile</span>, <span class="execute1">execute</span>, <span class="executenum1">excute number</span>, <span class="comment1">comment</span></span> preceed words</li>
+            <li>4 x 3 "stack" of word colors</li>
+            <li>Interpret / compile is table dispatch</li>
+            <li><span class="define">square</span> <span class="compile">dup * ;</span></li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Why is this simpler?</h3>
+          <ul>
+            <li>Compilation and interpretation is more uniform</li>
+            <li>How to parse: number / lookup is explicit</li>
+            <li>Ambivalence about IMMEDIATE words</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_1999/screen4.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <pre style="background-color: white">
+      <span class="comment1">FRAME</span> <span class="execute1">EMPTY VARIABL
+      E</span> <span class="define">BUF</span> <span class="define">W</span> <span class="define">H</span> <span class="execute1">:</span> <span class="define">ROW</span> <span class="compile">A!</span> <span class="executenum1">1
+      59</span> <span class="compile">BEGIN @+ IF + ; T
+      HEN DROP NEXT</span> <span class="executenum1">0</span> <span class="compile">;</span> <span class="define">RO</span>
+      <span class="define">WS</span> <span class="compile">DUP</span> <span class="execute1">BUF</span> <span class="compile">! ROW IF
+      DROP DROP ; THEN DRO
+      P -1</span>  <span class="execute1">H</span> <span class="compile">+! DUP A + R
+      OWS ;</span> <span class="executenum1">448</span> <span class="execute1">H ! VGA</span> <span class="executenum1">0</span>
+      <span class="execute1">OVER ROWS</span> <span class="executenum1">-1280</span> <span class="execute1">SWAP</span>
+      <span class="executenum1">640 447</span> <span class="execute1">* + ROWS</span>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>
+      <span class="comment">FRAME</span> <span class="execute">EMPTY VARIABL
+      E</span> <span class="define">BUF</span> <span class="define">W</span> <span class="define">H</span> <span class="execute">:</span> <span class="define">ROW</span> <span class="compile">A!</span> <span class="executenum">1
+      59</span> <span class="compile">BEGIN @+ IF + ; T
+      HEN DROP NEXT</span> <span class="executenum">0</span> <span class="compile">;</span> <span class="define">RO</span>
+      <span class="define">WS</span> <span class="compile">DUP</span> <span class="execute">BUF</span> <span class="compile">! ROW IF
+      DROP DROP ; THEN DRO
+      P -1</span>  <span class="execute">H</span> <span class="compile">+! DUP A + R
+      OWS ;</span> <span class="executenum">448</span> <span class="execute">H ! VGA</span> <span class="executenum">0</span>
+      <span class="execute">OVER ROWS</span> <span class="executenum">-1280</span> <span class="execute">SWAP</span>
+      <span class="executenum">640 447</span> <span class="execute">* + ROWS</span>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>
+<span class="comment">FRAME</span> <span class="execute">EMPTY
+VARIABLE</span> <span class="define">BUF</span> <span class="define">W</span> <span class="define">H</span> <span class="execute">:</span>
+<span class="define">ROW</span> <span class="compile">A!</span> <span class="executenum">159</span> <span class="compile">BEGIN @+ IF + ; THEN DROP NEXT</span> <span class="executenum">0</span> <span class="compile">;</span>
+<span class="define">ROWS</span> <span class="compile">DUP</span> <span class="execute">BUF</span> <span class="compile">! ROW IF DROP DROP ; THEN
+     DROP -1</span>  <span class="execute">H</span> <span class="compile">+! DUP A + ROWS ;</span>
+<span class="executenum">448</span> <span class="execute">H ! VGA</span> <span class="executenum">0</span>
+<span class="execute">OVER ROWS</span> <span class="executenum">-1280</span> <span class="execute">SWAP</span>
+<span class="executenum">640 447</span> <span class="execute">* + ROWS</span>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_1998/slide1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_1998/slide2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_1998/slide3.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_1998/slide4.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_1998/slide5.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Address Registers</h3>
+          <ul>
+            <li>A! - Store to A</li>
+            <li>A - Get value of A</li>
+            <li>@+ - Read from A and increment</li>
+            <li>!+ - Store to A and increment</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Less Greedy Conditionals</h3>
+          <ul>
+            <li>IF doesn't consume its argument</li>
+            <li>Avoids DUPs</li>
+            <li>-IF - Tests sign bit</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Simpler flow control</h3>
+          <ul>
+            <li>DO .. LOOP - 2 parameters and just too complicated</li>
+            <li>FOR .. NEXT - 1 parameter, good for hardware</li>
+            <li>BEGIN .. UNTIL - variable num params</li>
+            <li>WORD: ... IF ... WORD ; THEN ... ; - seems to be adequate</li>
+            <li>Needs recursive definitions, no smudge</li>
+            <li>Tail recursion</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>GreenArrays Era</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_2009/slide1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_2009/slide5.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Howerd Oakford</h2>
+          <ul>
+            <li>Howerd worked hard to make colorForth easier to run and more accessible</li>
+            <li>https://www.inventio.co.uk/cf2023/index.html</li>
+            <li>Thanks Howerd!</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Example: Fibonacci Numbers</h3>
+<pre>
+<span class="define">fib</span> <span class="comment">( n--n )</span> <span class="compile">push 1 dup pop -2 +</span>
+<span class="define">f</span> <span class="comment">( x...x )</span> <span class="compile">-if drop nip ; then
+            push swap over + pop -1 + f ;
+<span class="execute">8 fib</span>
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Example: Fibonacci Numbers</h3>
+<pre>
+: fib ( n -- n ) &gt;r 1 1 r&gt;
+   1- for swap over + next drop nip ;
+8 fib
+</pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Pre-parsed Words</h2>
+          <img src="preparsed.png" height="550">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Shannon Coded Words</h2>
+          <img src="chars.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why is this awesome?</h2>
+          <ul>
+            <li>One word = one machine word</li>
+            <li>Dispatch is now even more trivial, mask and call</li>
+            <li>Parse numbers at edit time</li>
+            <li>Dictionary is two arrays</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>The compiler / interpreter</h2>
+          <pre>
+: eval ( a n -- )
+   for
+     dup @ dup untag execute 1+
+   next drop ;
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Parts of the system</h2>
+          <ul>
+            <li>dispatcher</li>
+            <li>dispatch word per color: number unpacks, define adds to dict, compile adds a call, execute calls</li>
+            <li>editor happens beforehand</li>
+            <li>seed the dictionary with basic words</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why aren't we all doing this?</h2>
+          <ul>
+            <li>Chuck's implementation doesn't work where we want it</li>
+            <li>Which conventions do we adopt?</li>
+            <li>Which source conventions do we adopt?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Quirks of "standard" colorForth</h3>
+          <ul>
+            <li>Limitations on name encoding</li>
+            <li>Two vocabularies only (forth + macro)</li>
+            <li>Definitions drop through</li>
+            <li>Literal on execute to compile</li>
+            <li>No standard loops</li>
+            <li>IF preserves stack</li>
+            <li>-IF in place of 0< IF</li>
+            <li>No ELSE</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>MORE Quirks of "standard" colorForth</h3>
+          <ul>
+            <li>&gt;R R&gt; become push pop</li>
+            <li>A! A @+ etc.</li>
+            <li>@ ! use indexes instead of addresses</li>
+            <li>Requires special editor</li>
+            <li>Loss of CREATE DOES&rt;</li>
+            <li>Unclarity around allocation</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why have I been stuck?</h2>
+          <ul>
+            <li>My RainbowForth was too complex</li>
+            <li>I got stuck on trying to match colorForth conventions</li>
+            <li>How to sensibly interface with "normal" things?</li>
+            <li>Source control, github</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Why have I been stuck?</h2>
+          <ul>
+            <li>Subroutine threading is hard</li>
+            <li>Color constrains what kind of environment</li>
+            <li>Is it a Turing Tar Pit?</li>
+            <li>Macro vocabulary or not?</li>
+            <li>Can it be even simpler? No compiler, just an editor</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>uhdForth Era</h2>
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_2017/slide1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="https://github.com/flagxor/chuck/raw/main/forth_day_2017/slide2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="uhdforth0.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="uhdforth1.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img height="600" src="uhdforth2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>What is Chuck grappling with?</h2>
+          <ul>
+            <li>Running on Windows</li>
+            <li>Avoiding non-explicit macros</li>
+            <li>Wants to touch the machine code</li>
+            <li>Keeps vacilating on if source is needed</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>How can we take this somewhere?</h2>
+          <ul>
+            <li>Pick a source format + build something?</li>
+            <li>Pick a target? ESP32-colorForth?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>What's great with it?</h2>
+          <ul>
+            <li>Editors really are easy to write</li>
+            <li>Forth interpreters are harder, less in Forth</li>
+            <li>Strings are messy, we haven't found a great vocabulary for them</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Proposal</h2>
+          <ul>
+            <li>Try to write <span class="define">simple</span> <span class="compile">easy short definititions ;</span></li>
+            <li>Think about how to live without: vocabularies, locals, strings, files, unicode, complexity, CREATE DOES&gt;, objects</li>
+            <li>Come back with something useful</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <br/>
+          <a href="https://www.flagxor.com/">flagxor.com</a><br/>
+          <a href="https://github.com/flagxor/svfig-talks">slides</a><br/>
+          </p>
+          <h1>&#x2698;</h1>
+          <h2>Thank you</h2>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/math/math.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/forth.js"></script>
+
+  </body>
+</html>
