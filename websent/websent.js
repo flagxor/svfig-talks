@@ -5,6 +5,7 @@ var BACKGROUND = '#fff';
 var USABLE = 0.75;
 var LINE_SPACING = 1.4;
 var FONT = 'dejavu sans, roboto, ubuntu';
+var COLORFORTH = false;
 var WebSent;
 
 (function() {
@@ -15,7 +16,31 @@ var activeElement = null;
 var holder = null;
 var touchStartX = 0;
 var touchLastX = 0;
+var colorMode = 0;
 var refresh = false;
+
+function SetColorStyle(op) {
+  var elements = document.getElementsByClassName('cf');
+  for (var i = 0; i < elements.length; ++i) {
+    op(elements[i]);
+  }
+}
+
+function ColorIt(line) {
+  if (!COLORFORTH || line[0] == '|') {
+    return line;
+  }
+  line = line.replace(/(^|[ ])[:] /g, '$1</span><span style="color: #ff0000"><span class="cf">: </span>');
+  line = line.replace(/(^|[ ])[\]] /g, '$1</span><span style="color: #00ff00"><span class="cf">] </span>');
+  line = line.replace(/(^|[ ])[{] /g, '$1</span><span style="color: #00ffff"><span class="cf">{ </span>');
+  line = line.replace(/(^|[ ])[\[] /g, '$1</span><span style="color: #ffff00"><span class="cf">[ </span>');
+  line = line.replace(/(^|[ ])[(] /g, '$1</span><span style="color: #ffffff"><span class="cf">( </span>');
+  line = line.replace(/(^|[ ])[~] /g, '$1</span><span style="color: #ff00ff"><span class="cf">~ </span>');
+  line = line.replace(/(^|[ ])[%] /g, '$1</span><span style="color: #0000ff"><span class="cf">&lt; </span>');
+  line = line.replace(/(^|[ ])[\^] /g, '$1</span><span style="color: #777777"><span class="cf">&gt; </span>');
+  line = line.replace(/[\`]/g, '<span class="cf">\`</span>');
+  return '<span>' + line + '</span>';
+}
 
 function Load(data) {
   var lines = data.split('\n');
@@ -26,14 +51,16 @@ function Load(data) {
       pages.push(page);
       page = [];
     } else {
-      page.push(lines[i]);
+      if (page.length == 0 && pages.length == 0) {
+        document.title = lines[i];
+      }
+      page.push(ColorIt(lines[i]));
     }
   }
   if (page.length) {
     pages.push(page);
   }
   // Setup overall document.
-  document.title = pages[0][0];
   document.body.style.backgroundColor = BACKGROUND;
   holder = document.createElement('div');
   holder.style.backgroundColor = BACKGROUND;
@@ -78,6 +105,14 @@ function Resize() {
   Goto(activeSlide);
 }
 
+function RefreshColor() {
+  if (colorMode == 0) {
+    SetColorStyle(function(t) { t.style.display = ''; });
+  } else {
+    SetColorStyle(function(t) { t.style.display = 'none'; });
+  } 
+}
+
 function Goto(n) {
   n = Math.max(0, Math.min(n, slides.length - 1));
   if (n === activeSlide && !refresh) {
@@ -118,6 +153,7 @@ function Goto(n) {
   e.height = mid;
   e.style.left = (window.innerWidth - e.offsetWidth)/ 2 + 'px';
   e.style.top = (window.innerHeight - e.offsetHeight)/ 2 + 'px';
+  RefreshColor();
 }
 
 window.addEventListener('load', function() {
@@ -144,16 +180,21 @@ window.addEventListener('keydown', function(e) {
   if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
     return;
   }
-  if ([36].indexOf(e.keyCode) >= 0) {  // home
+  if (e.code == 'Home' || e.code == 'Digit0') {
     Goto(0);
-  } else if ([35].indexOf(e.keyCode) >= 0) {  // end
+  } else if (e.code == 'End' || e.code == 'Digit9') {
     Goto(slides.length - 1);
-  } else if ([37, 72, 75, 37, 38, 80, 33, 8].indexOf(e.keyCode) >= 0) {
+  } else if (['ArrowLeft', 'ArrowUp', 'PageUp',
+              'Backspace', 'KeyH', 'KeyK', 'KeyP'].indexOf(e.code) >= 0) {
     Goto(activeSlide - 1);
-  } else if ([39, 13, 40, 74, 76, 34, 78, 32].indexOf(e.keyCode) >= 0) {
+  } else if (['ArrowRight', 'ArrowDown', 'PageDown',
+              'Enter', 'Space', 'KeyJ', 'KeyL', 'KeyN'].indexOf(e.code) >= 0) {
     Goto(activeSlide + 1);
-  } else if ([70].indexOf(e.keyCode) >= 0) {  // fullscreen
+  } else if (e.code == 'KeyF') {
     holder.requestFullscreen();
+  } else if (e.code == 'Equal') {
+    colorMode = 1 - colorMode ;
+    RefreshColor();
   }
   e.preventDefault();
 });

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000000';
+FOREGROUND = '#ffffff';
+COLORFORTH = true;
+</script><pre>
+
+Bootstrapping : color ] Forth
+┄───────────────────────────┄
+      [ May 24, 2024
+
+Why : color ] Forth ( ?
+┄─────────────────────┄
+• Dialect of Forth invented
+  by Chuck Moore circa 1999
+• Many sub-variants,
+  all use color "tags" to dispatch
+• Emphasis on making Forth even simpler!
+
+Color Conventions
+┄───────────────┄
+: define     [ execute
+] compile    { postpone
+( comment    ~ variable
+% tag        ^ gray
+
+An Example
+┄────────┄
+: square ] dup * ;
+: cube ] dup square * ;
+[ 2 cube .
+  ==> 8
+
+High Level Plan
+┄─────────────┄
+• Keep it simple
+  ◦ Really understand it
+• Make sure it's usable as more than a toy
+  ◦ Could I write an eww like browser in it?
+• Write mostly Forth ASAP
+• Names are hard : cf ( for now
+
+Language Goals
+┄────────────┄
+• Runnable on Windows, but keep the complexity out!
+• Decide register conventions in Forth
+• Use x32 addressing (32-bit addresses, 64-bit data)
+• Retain as many of Chuck's quirks as bearable:
+  ◦ : - ] invert
+  ◦ : or ] xor
+  ◦ : if ] dup if
+  ◦ : -if ] dup 0&lt; if
+  ◦ : push ] &gt;r
+  ◦ : pop ] r&gt;
+  ◦ @ ! etc. use word sized indexing
+  ◦ Use A register, @+ !+
+  ◦ Do literals on [ immediate ] to green
+
+Chucks Steps (I think)
+┄────────────────────┄
+• Write editor + core in ASM
+• Build up rest of the system
+
+My Steps
+┄──────┄
+• Devise a text syntax (to allow git + vim)
+• Write a converter
+• Write a Vim syntax plugin
+• Bootstrap from "minimal colorForth"
+• Write the rest in colorForth
+
+: color ] Forth "words"
+┄─────────────────────┄
+STRINGS:
+  wwww wwww wwww wwww wwww wwww wwww tttt
+NUMBERS:
+  nnnn nnnn nnnn nnnn nnnn nnnn nnnH tttt
+H = hex/decimal
+t = tag
+n = number bits, to be sign extended
+w = word bits "shannon encoded"
+
+Tag  Syntax Element      Color
+┄─┄  ┄────────────┄      ┄───┄
+ 15  Commented Number    #White / $White
+ 14  Display Macro       % Blue
+ 13  Compiler Feedback   ^ Grey
+ 12  Variable            ~ Magenta
+ 
+ 11  COMMENT (caps)      (^^ (White) Obsolete
+ 10  Comment             (^ (White) Obsolete
+  9  comment (lower)     White
+  8  Interpreted Number  [ #Yellow $Yellow
+ 
+  7  Compile macro call  { Cyan
+  6  Compile number      ] #Green / $Green
+  5  Compile big number  ] Green ( unsupported )
+  4  Compile forth word  ] Green
+ 
+  3  Define forth word   : Red
+  2  Interp big number   [ Yellow ( unsupported )
+  1  Interp forth word   [ Yellow
+  0  Word extension      ( color of preceding word )
+
+|     0 000    0      10 000 s  8    1100 000 d 16
+|     0 001 r  1      10 001 m  9    1100 001 v 17
+|     0 010 t  2      10 010 c 10    1100 010 p 18
+|     0 011 o  3      10 011 y 11    1100 011 b 19
+|     0 100 e  4      10 100 l 12    1100 100 h 20
+|     0 101 a  5      10 101 g 13    1100 101 x 21
+|     0 110 n  6      10 110 f 14    1100 110 u 22
+|     0 111 i  7      10 111 w 15    1100 111 q 23
+|  
+|  1101 000 0 24    1110 000 8 32    1111 000 ; 40
+|  1101 001 1 25    1110 001 9 33    1111 001 ' 41
+|  1101 010 2 26    1110 010 j 34    1111 010 ! 42
+|  1101 011 3 27    1110 011 - 35    1111 011 + 43
+|  1101 100 4 28    1110 100 k 36    1111 100 @ 44
+|  1101 101 5 29    1110 101 . 37    1111 101 * 45
+|  1101 110 6 30    1110 110 z 38    1111 110 , 46
+|  1101 111 7 31    1110 111 / 39    1111 111 ? 47
+
+Text Conventions
+┄──────────────┄
+: define     [ execute
+] compile    { postpone
+( comment    ~ variable
+% tag        ^ gray
+┄─────────────────────┄
+#decimal  $hex  &screen
+Separ`ate Long`ish words
+
+Converter
+┄───────┄
+• 234 lines of Python
+• More complex than I'd like
+• Forward and backward
+  ◦ To allow for check-in with Git
+
+|  usage: colorize [-h] [-d] [filename]
+|  
+|  Convert back and forth from colorForth encoding
+|  
+|  positional arguments:
+|    filename      filename to process OR - for stdin
+|  
+|  optional arguments:
+|    -h, --help    show this help message and exit
+|    -d, --decode  decode instead of encode
+
+VIM
+┄─┄
+• Vi-improved
+• Developed by Bram Moolenaar
+• Supports regular expression
+  based syntax highlighting
+
+ftdetect/colorforth.vim
+┄─────────────────────┄
+| autocmd BufRead,BufNewFile *.cfs set filetype=colorforth
+
+syntax/colorforth.vim
+┄───────────────────┄
+| syntax match Comment /[(][^]* [ `a-z0-9_\-./;'!+@*,?]\+/
+| highlight Comment ctermfg=white guifg=#ffffff
+|
+| syntax match Variable /[~] [ `a-z0-9_\-./;'!+@*,?]\+/
+| highlight Variable ctermfg=13 guifg=#ff00ff
+|
+| syntax match Define /: [ `a-z0-9_\-./;'!+@*,?]\+/
+| highlight Define ctermfg=1 guifg=#ff0000
+|
+| syntax match Execute /[\[] [ #$`a-z0-9_\-./;'!+@*,?]\+/
+| highlight Execute ctermfg=11 guifg=#ffff00
+
+syntax/colorforth.vim (cont)
+┄──────────────────────────┄
+|  syntax match Compile /[\]] [ #$`a-z0-9_\-./;'!+@*,?]\+/
+|  highlight Compile ctermfg=10 guifg=#00ff00
+|
+|  syntax match Postpone /[{] [ `a-z0-9_\-./;'!+@*,?]\+/
+|  highlight Postpone ctermfg=6 guifg=#00ffff
+|
+|  syntax match Blue /[<] [ `a-z0-9_\-./;'!+@*,?]\+/
+|  highlight Blue ctermfg=4 guifg=#0000ff
+|
+|  syntax match Gray /[>] [ `a-z0-9_\-./;'!+@*,?]\+/
+|  highlight Gray ctermfg=8 guifg=#777777
+|
+|  syntax match Block /[@] [0-9]\+/
+|  highlight Block ctermfg=7 guifg=#cccccc
+
+Bootstrapping
+┄───────────┄
+• Start with C-interpreted [ execute ( words
+• Make machine code [ execute ( words
+  work via : c2f ( thunk
+• Make ] compiled ( words
+  work via : ,compile ( thunk
+• Make ] compiled numbers ( words
+  work via : literal ( thunk
+• Build up core words and macros
+• Implement color words and dispatch
+• Transition into machine code interpreter
+
+Only executable bootstrap words:
+[ 1, 2, 3, load forth macro
+[ Numbers
+For Debugging:
+[ here .
+
+      case 1: /* execute */
+        addr = find(name, FORTH_DICT);
+        if (addr) {
+          CALL(addr);
+        } else {
+          switch (name) {
+            case 0xd3f80000: /* 1, */ *HP++ = *SP++; break;
+            case 0xd5f80000: /* 2, */ *HP2++ = *SP++; break;
+            case 0xd7f80000: /* 3, */ *HP2++ = *SP; *HP++ = *SP++ >> 16; break;
+            case 0xa1ae0000: /* load */ if (load(*SP++)) return 1; break;
+            case 0xb1896400: /* forth */ DICT = &FORTH_DICT; break;
+            case 0x8ac84c00: /* macro */ DICT = &MACRO_DICT; break;
+            case 0xc8828000: /* here */ *--SP = (uint64_t) HP; break;
+            case 0xea000000: /* . */ PrintNumber(*SP++); break;
+            default: break;
+          }
+        }
+        break;
+
+&0
+ ( colorf`orth bootst`rappi`ng
+% cr [ #1 load #2 load #3 load #4 load
+% cr [ #5 load #6 load #7 load #8 load
+% cr ( rax - tos
+% cr ( rsi - stack pointe`r
+% cr ( rdi - heap pointe`r
+% cr ( r8 - interna`l vars - parked sp
+% cr ( r8 +8 - parked hp
+% cr ( r8 +16 - active dictio`nary
+% cr ( r8 +24 - forth dictio`nary
+% cr ( r8 +32 - macro dictio`nary
+% cr ( r8 +40 - entryp`oint
+% cr ( r8 +48 - last call
+% cr ( rcx - temp
+% cr ( rdx - temp
+
+Memory Map
+┄────────┄
+$8000000     - BASE
+$80000FF     - Data Stack ↑
+$8000100 (0) - Parked Data Stack Pointer
+$8000108 (1) - Parked Heap Pointer
+$8000110 (2) - Pointer to active vocabulary
+$8000118 (3) - Pointer to end of FORTH dictionary
+$8000120 (4) - Pointer to end of MACRO dictionary
+$8000128 (5) - Entrypoint after bootstrap
+$8000130 (6) - Source pointer (after bootstrap)
+$8000138 (7) - NOPE (notfound) (after bootstrap)
+$8000140 (8) - PrintNumber C-function
+$8000148 (9) - RESERVED
+$8000200     - Forth Dictionary
+$8010000     - Macro Dictionary
+$8020000     - Heap
+$8100000     - Loaded Blocks
+
+#define HEAP_SIZE (1024 * 1024 * 1024)
+#define HEAP_BASE 0x8000000
+#define VARS ((uint32_t **) (HEAP_BASE + 0x100))
+#define SP (*(uint64_t **) &VARS[0])
+#define HP (*(uint8_t **) &VARS[1])
+#define HP2 (*(uint16_t **) &VARS[1])
+#define DICT (*(uint32_t ***) &VARS[2])
+#define FORTH_DICT (VARS[3])
+#define MACRO_DICT (VARS[4])
+#define ENTRYPOINT (VARS[5])
+#define SET_HOOK(i, v) (VARS[i]) = (void *) v;
+#define BLOCK_BASE ((int32_t *) (HEAP_BASE + 0x100000))
+#define FORTH_START ((uint32_t *) (HEAP_BASE + 0x208))
+#define MACRO_START ((uint32_t *) (HEAP_BASE + 0x10008))
+#define SP_START ((uint64_t *) (HEAP_BASE + 0xf8))
+#define HP_START ((uint8_t *) (HEAP_BASE + 0x20000))
+
+#define C2F 0x96ab0000  /* c2f */
+#define CALL(addr) *--SP = (uint64_t) (addr); \
+                   ((thunk_t) find(C2F, FORTH_DICT))(&SP);
+
+&1
+: c2f
+% cr [ $fc 1, ( cld
+% cr [ $56 1, ( push rsi
+% cr [ $57 1, ( push rdi
+% cr [ $c88949 3, ( mov rcx r8
+% cr [ $308b49 3, ( mov @r8 rsi
+% cr [ $788b49 3, $8 1, ( mov @r8 +8 rdi
+% cr [ $ad48 2, ( lodsq
+% cr [ $c28948 3, ( mov rax rdx
+% cr [ $ad48 2, ( lodsq
+% cr [ $d2ff 2, ( call rdx
+% cr [ $768d48 3, $f8 1, ( lea @rsi -8 rsi
+% cr [ $68948 3, ( mov rax @rsi
+% cr [ $308949 3, ( mov rsi @r8
+% cr [ $788949 3, $8 1, ( mov rdi @r8 +8
+% cr [ $5f 1, ( pop rdi
+% cr [ $5e 1, ( pop rsi
+% cr [ $c3 1, ( ret
+% cr ( now can execu`te words
+
+#define LITERAL 0xa3920ad0  /* literal */
+#define COMPILE 0xfd238e20  /* ,comp`ile */
+#define VARIABLE 0xc2a2ea00  /* varia`ble */
+#define CALL_FIND(name) CALL(find((name), FORTH_DICT));
+#define CALL_COMPILE(val) *--SP = (uint64_t) (val); \
+                          CALL_FIND(COMPILE);
+#define CALL_LITERAL(val) *--SP = (uint64_t) (val); \
+                          CALL_FIND(LITERAL);
+
+Dictionary
+┄────────┄
+0, addr, word, addr, word, addr, word
+                                   ↑
+0, addr, word, addr, word        MDICT
+                       ↑
+                      FDICT 
+                       ↑
+                      DICT
+
+static void *find(int32_t goal, uint32_t *start) {
+  while (*start) {
+    if (goal == (int32_t) (*start)) {
+      --start;
+      return (void *) (uint64_t) *start;
+    }
+    start -= 2;
+  }
+  return 0;
+}
+
+&2
+: 1,,
+% cr [ $50 1, ( push rax
+% cr ( push rax , mov ?? al , stosb pop rax
+% cr [ $b866 2, $b050 2, ( mov $b050 ax
+% cr [ $ab66 2, ( stosw
+% cr [ $58 1, ( pop rax
+% cr [ $aa 1, ( stosb
+% cr [ $b866 2, $58aa 2, ( mov $58aa ax
+% cr [ $ab66 2, ( stosw
+% cr [ $ad48 2, ( lodsq
+% cr [ $c3 1, ( ret
+% cr [ macro
+
+: ;
+% cr [ $49 1, $30783b 3, ( cmp @r8+`48 rdi
+% cr [ $75 1, $4 1, ( jne +4
+% cr [ $fb47c6 3, $e9 1, ( movb $e9 @rdi -5
+% cr [ $c3 1,, ( ret [ $c3 1, ( ret
+: , [ $ab 1,, ( stosd [ $48 1,, $ad 1,, ( lodsq ] ;
+% cr [ forth
+: ,comp`ile
+% cr [ $e8 1,, ( call ?
+% cr [ $f82948 3, ( sub rdi rax
+% cr [ $e88348 3, $4 1, ( sub $4 rax ] ,
+% cr [ $788949 3, $30 1, ( mov rdi @r8 +48 - mark call ] ;
+% cr ( now can compi`le words
+
+static int load(int32_t block) {
+  int32_t *ip = BLOCK_BASE + block * 256;
+  int32_t count = 256;
+  while (count) {
+    int32_t ir = *ip++;
+    --count;
+    int32_t tag = ir & 0xf;
+    int32_t name = ir & ~0xf;
+    void *addr;
+    switch (tag) {
+      case 1: /* execute */
+        /* NEXT SLIDE ... */
+        break;
+      case 3: /* define */ *++(*DICT) = (uint32_t) (uint64_t) HP;
+                           *++(*DICT) = name; break;
+      case 4: /* compile */ addr = find(name, MACRO_DICT);
+                            if (addr) { CALL(addr); }
+                            else { CALL_COMPILE(find(name, FORTH_DICT)); } break;
+      case 6: /* compile# */ CALL_LITERAL(ir >> 5); break;
+      case 7: /* postpone */ CALL_COMPILE(find(name, MACRO_DICT)); break;
+      case 8: /* execute# */ *--SP = (ir >> 5); break;
+      case 12: /* variable */ *--SP = ir; CALL_FIND(VARIABLE); break;
+      default: break;
+    }
+  }
+  return 0;
+}
+
+&3
+[ macro
+: rexw [ $48 1,, ( rexw ] ;
+: nipd`up { rexw [ $89 1,, $6 1,, ( mov rax @rsi ] ;
+: dup { rexw [ $8d 1,, $76 1,, $f8 1,, ( lea @rsi -8 rsi { nipd`up ] ;
+% cr [ forth
+: literal { dup rexw [ $c7 1,, $c0 1,, ] , ;
+% cr ( now can compi`le litera`ls
+% cr ( ---
+% cr [ macro
+: drop { rexw [ $ad 1,, ] ;
+: 1, [ $aa 1,, ( stosb { drop ] ;
+: 2, ] $66 1, $ab 1, ( stosw { drop ] ;
+: 3, { , rexw ] $cfff 2, ( dec rdi ] ;
+: ,2 ] $ab48 2, ( stosq { drop ] ;
+: here { dup ] $f88948 3, ( mov rdi rax ] ;
+: allot ] $c70148 3, ( add rax rdi { drop ] ;
+
+&4
+[ macro
+: nip { rexw ] $8768d 3, ( lea @rsi +8 rsi ] ;
+: over { dup rexw ] $8468b 3, ( mov @rsi +8 rax ] ;
+: aside ] $c18948 3, ( mov rax rcx ] ;
+: swap { aside ] $68b48 3, ( mov @rsi rax ] $e8948 3, ( mov rcx @rsi ] ;
+: push ] $50 1, ( push rax { drop ] ;
+: pop { dup ] $58 1, ( pop rax ] ;
+
+: @r { pop ] $50 1 ( push rax ] ;
+: 0 { dup ] $c031 2, ( xor eax,e`ax ] ;
+: @' ] $6348 3, ( movsx dword @rax rax ] ;
+: 2@' ] $8b48 3, ( mov @rax rax ] ;
+: c@ { rexw ] $b60f 3, ( movz`x byte @rax rax ] ;
+: @ { rexw ] $850463 3, 0 , ( movsx dword @rax *4 rax ] ;
+: 2@ { rexw ] $85048b 3, 0 , ( mov @rax *4 rax ] ;
+: !' { aside drop ] $189 2, ( mov eax @rcx { drop ] ;
+: 2!' { aside drop ] $18948 3, ( mov rax @rcx { drop ] ;
+: c! { aside drop ] $188 2, ( mov al @rcx { drop ] ;
+: ! { aside drop ] $8d0489 3, 0 , ( mov eax @rcx *4 { drop ] ;
+: 2! { aside drop rexw ] $8d0489 3, 0 , ( mov rax @rcx *4 { drop ] ;
+: +! { aside drop ] $8d0401 3, 0 , ( add rax @rcx *4 { drop ] ;
+
+: a! ] $c28948 3, ( mov rax rdx { drop ] ;
+: a { dup ] $d08948 3, ( mov rdx rax ] ;
+: a+ ] $c2ff48 3, ( inc rdx ] ;
+: @+ { dup rexw ] $950463 3, 0 , ( movsx dword @rdx *4 rax { a+ ] ;
+: !+ ] $950489 3, 0 , ( mov eax @rdx *4 { a+ drop ] ;
+
+&5
+[ macro
+: 1+ ] $c0ff48 3, ( inc rax ] ;
+: 1- ] $c8ff48 3, ( dec rax ] ;
+: 2* ] $e0d148 3, ( shl rax ] ;
+: 2/ ] $f8d148 3, ( sar rax ] ;
+: - ] $d0f748 3, ( not rax ] ;
+: + ] $60348 3, ( add @rsi rax { nip ] ;
+: and ] $62348 3, ( and @rsi rax { nip ] ;
+: or ] $63348 3, ( xor @rsi rax { nip ] ;
+: * { rexw ] $6af0f 3, ( imul @rsi rax { nip ] ;
+: */ { aside drop ] $2ef748 3, ( imulq @rsi ] $39f748 3, ( idiv`q @rcx { nip ] ;
+: shl { aside drop ] $e0d348 3, ( shl cl rax ] ;
+: sar { aside drop ] $f8d348 3, ( sar cl rax ] ;
+: shr { aside drop ] $e8d348 3, ( shr cl rax ] ;
+
+: if { rexw ] $f883 3, $74 1, here 0 1, ;
+: -if { rexw ] $f883 3, $79 1, here 0 1, ;
+: then ] here over - + swap c! ;
+: execu`te { aside drop ] $d1ff 2, ( call rcx ] ;
+: sysva`r { dup ] $c0894c 3, ( mov r8 rax ] ;
+: 2dup { over over ] ;
+: 2drop { drop drop ] ;
+: negate { - 1+ ] ;
+
+&6
+[ forth
+: 1, ] 1, ; : , ] , ; : ,2 ] ,2 ;
+: here ] here ; : allot ] allot ;
+: sys ] sys ;
+: nip ] nip ; : dup ] dup ;
+: drop ] drop ; : over ] over ; : swap ] swap ;
+: 0 ] 0 ; : @ ] @ ; : ! ] ! ;
+: 1+ ] 1+ ; : 1- ] 1- ; : 2* ] 2* ; : 2/ ] 2/ ;
+: 4* ] 2* 2* ; : 4/ ] 2/ 2/ ; : + ] + ;
+: - ] - ; : and ] and ; : or ] or ; : * ] * ; : */ ] */ ;
+: shl ] shl ; : shr ] shr ; : sar ] sar ;
+: execu`te ] execu`te ;
+: varia`ble ] ;
+: ' ] pop dup #5 + push 1+ dup @' + #4 + ;
+
+&7
+: sys ] 2* sysva`r 4/ + ;
+: dict ] #2 sys ;
+: fdict ] #3 sys @ 4/ ;
+: mdict ] #4 sys @ 4/ ;
+: entryp`oint ] #5 sys ;
+: thence ] #6 sys ;
+: @nope ] #7 sys ;
+: @tbl ] #16 + sys ;
+: forth ] #3 sys 4* dict ! ;
+: macro ] #4 sys 4* dict ! ;
+: ?rex ] dup #8 and if $41 1, then drop #7 and ;
+: ,psh ] ?rex $50 + 1, ;
+: ,pop ] ?rex $58 + 1, ;
+: ,mov ] dup #3 shr $48 + 1, $89 1, #7 and $c0 + 1, ;
+
+% cr [ macro
+: int3 ] $cc 1, ( int3 ] ;
+: invoke ] #2 ,psh #7 ,psh #8 ,psh #9 ,psh #10 ,psh #11 ,psh
+% cr ] #0 ,psh { drop ] #9 ,mov { drop ] #8 ,mov { drop ] #2 ,mov { drop ] #1 ,mov #0 ,pop
+% cr ] #6 ,psh $d0ff 2, ( call rax ] #6 ,pop
+% cr ] #11 ,pop #10 ,pop #9 ,pop #8 ,pop #7 ,pop #2 ,pop ;
+% cr [ forth
+% cr
+: . ] #0 #0 #0 #8 sys @ invoke drop ;
+: ? ] dup . ;
+: yeep ] #999999 . ;
+: go ] ;
+: init ] ' go entryp`oint ! ' yeep @nope ! ; [ init
+: fill ] push push a! pop pop swap
+: fll ] if over !+ 1- fll ; then 2drop ;
+
+&8
+: nope ] @nope @ execu`te ;
+: ,dict ] #4 dict @ 4/ +! dict @ 4/ @ 4/ ! ;
+: nah? ( wd-w`df ] 2dup @ if or #15 - and ; then nip ;
+: find ] nah? if drop 1- 1- find ; then drop nip 1- @ ;
+: define ] here ,dict ,dict ;
+: comp ] dup push mdict find if pop drop execu`te ; then
+% cr ] pop fdict find if ,comp`ile ; then nope ;
+: *comp ] #5 sar literal ;
+: exec ] fdict find if execu`te ; then nope ;
+: *exec ] #5 sar ;
+: post ] mdict find if ,comp`ile ; then nope ;
+: var ] define thence @ literal { ; ] ;
+: none ] drop ;
+
+: ,t ] over @tbl ! 1+ ;
+: init ] #0
+% cr ] ' none ,t ' exec ,t ' none ,t ' define ,t
+% cr ] ' comp ,t ' none ,t ' *comp ,t ' post ,t
+% cr ] ' *exec ,t ' none ,t ' none ,t ' none ,t
+% cr ] ' var ,t ' none ,t ' none ,t ' none ,t
+% cr ] drop ;
+% cr [ init
+
+: 2col ] #15 and @tbl @ ;
+: 1eval ] thence @ push dup 2col execu`te pop thence ! ;
+: eval ] if push dup push @ 1eval pop 1+ pop 1- eval ; then drop drop ;
+: block ] #256 * #0 sys #-64 + $40000 + + ;
+: load ] block #256 eval ;
+: thru ] 2dup 1- or if drop push dup push load pop 1+ pop thru ; then 2drop ;
+% cr [ #9 load
+
+&9
+ ( now in main interp`reter.
+% cr [ #10 load
+ 
+&10
+: squar`e ] dup * ;
+: cube ] dup squar`e * ;
+: displ`ay ] $2400000 ;
+: row ] #320 * displ`ay + ;
+: red ] $ff0000 ;
+: orange ] $ffcc00 ;
+: yellow ] $ffff00 ;
+: green ] $ff00 ;
+: blue ] $ff ;
+: test ] #5 row #100 red fill
+% cr ] #10 row #120 orange fill
+% cr ] #15 row #140 yellow fill
+% cr ] #20 row #160 green fill
+% cr ] #25 row #180 blue fill ;
+% cr [ test
+
+Size
+┄──┄
+• 256 lines of C
+• 234 lines of Python (converter)
+• 259 lines of colorForth
+•  74 lines of Makefile
+
+What's Left?
+┄──────────┄
+• Integrate with Win32 I/O Bridge
+• Write an editor!
+• Make it simpler
+  ◦ Machine word indexing is nice,
+    but clashes with bootstraping from C
+  ◦ Drop words I'm not using
+  ◦ Should I have started in ASM?
+
+DEMO
+
+QUESTIONS❓
+    🙏
+ Thank you!
