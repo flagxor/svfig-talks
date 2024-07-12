@@ -216,11 +216,11 @@ Registers
 • RSI - stack pointer
 • RDI - code heap pointer
 • R8 - internal vars - parked sp
-  • R8 +8 - parked hp
-  • R8 +16 - active dictionary
-  • R8 +24 - forth dictionary
-  • R8 +32 - macro dictionary
-  • RCX - temp
+  ◦ R8 +8 - parked hp
+  ◦ R8 +16 - active dictionary
+  ◦ R8 +24 - forth dictionary
+  ◦ R8 +32 - macro dictionary
+  ◦ RCX - temp
 • RDX - "a" register
 
 Memory Map
@@ -259,6 +259,25 @@ Dictionary
                       FDICT 
                        ↑
                       DICT
+
+Editor
+┄────┄
+• Modal - ispired by mix of vi and Chuck's
+• Word at a time entry
+• Color toggle, search
+• Clipboard is a stack!
+
+? 1 2 3 4 5 6 7 8 9 0 - + BACK
+   q w e r t y u i o p @ ! *
+    a s d f g h j k l ; ' ENTER
+     z x c v b n m , . /
+          SPACE
+
+░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ✀
+  🌈 ░🏳️‍🌈 % r ~ t [ y ( u : i ] o { p ( ░ ░ ░
+    ░ ░ ░🔴🔍← ↓ ↑ → ░ ░ ESC
+     z ✀🗐⎘ ░ ░⇇ ❏🔵⇉ ░
+          ESC
 
 Variables
 ┄───────┄
