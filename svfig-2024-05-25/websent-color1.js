@@ -19,57 +19,10 @@ var touchLastX = 0;
 var colorMode = 0;
 var refresh = false;
 
-const PALETTES = [
-  {
-    'cf_define': 'color: #7777ff; font-size: 120%;',
-    'cf_pacman': 'color: #e69f00;',
-    'cf_execute': 'color: #f0e442; font-weight: 900;',
-    'cf_compile': 'color: #0000cc;',
-    'cf_postpone': 'color: #777700; font-style: oblique;',
-    'cf_tag': 'color: #ffffff; font-style: oblique;',
-    'cf_variable': 'color: #7777ff; font-size: 120%; font-style: oblique;',
-    'cf_comment': 'color: #ffffff;',
-  },
-  {
-    'cf_define': 'color: #d55e00; font-weight: 900;',
-    'cf_pacman': 'color: #e69f00;',
-    'cf_execute': 'color: #f0e442;',
-    'cf_compile': 'color: #009e73;',
-    'cf_postpone': 'color: #56b4e9; font-style: oblique;',
-    'cf_tag': 'color: #0072b2;',
-    'cf_variable': 'color: #cc79a7; font-weight: 900;',
-    'cf_comment': 'color: #ffffff;',
-  },
-  {
-    'cf_define': 'color: #ff0000;',
-    'cf_pacman': 'color: #e69f00;',
-    'cf_execute': 'color: #ffff00;',
-    'cf_compile': 'color: #00ff00;',
-    'cf_postpone': 'color: #00ffff;',
-    'cf_tag': 'color: #0000ff;',
-    'cf_variable': 'color: #ff00ff;',
-    'cf_comment': 'color: #ffffff;',
-  },
-  {
-    'cf_define': 'color: #ffffff; font-size: 120%;',
-    'cf_pacman': 'color: #e69f00;',
-    'cf_execute': 'color: #ffffff; font-weight: 700;',
-    'cf_compile': 'color: #777777;',
-    'cf_postpone': 'color: #777777; font-style: oblique;',
-    'cf_tag': 'color: #ffffff; font-style: oblique;',
-    'cf_variable': 'color: #ffffff; font-size: 120%; font-style: oblique;',
-    'cf_comment': 'color: #ffffff;',
-  },
-];
-
-
-function SetColorStyle(mode) {
-  var scheme = PALETTES[mode];
-  for (var k in scheme) {
-    var elements = document.getElementsByClassName(k);
-    for (var i = 0; i < elements.length; ++i) {
-      elements[i].style = scheme[k];
-    }
+function SetColorStyle(op) {
+  var elements = document.getElementsByClassName('cf');
+  for (var i = 0; i < elements.length; ++i) {
+    op(elements[i]);
   }
 }
 
@@ -77,13 +30,15 @@ function ColorIt(line) {
   if (!COLORFORTH || line[0] == '|') {
     return line;
   }
-  line = line.replace(/(^|[ ])[:] /g, '$1</span><span class="cf_define">');
-  line = line.replace(/(^|[ ])[\]] /g, '$1</span><span class="cf_compile">');
-  line = line.replace(/(^|[ ])[{] /g, '$1</span><span class="cf_postpone">');
-  line = line.replace(/(^|[ ])[\[] /g, '$1</span><span class="cf_execute">');
-  line = line.replace(/(^|[ ])[(] /g, '$1</span><span class="cf_comment">');
-  line = line.replace(/(^|[ ])[~] /g, '$1</span><span class="cf_variable">');
-  line = line.replace(/(^|[ ])[%] /g, '$1</span><span class="cf_tag">');
+  line = line.replace(/(^|[ ])[:] /g, '$1</span><span style="color: #ff0000"><span class="cf">: </span>');
+  line = line.replace(/(^|[ ])[\]] /g, '$1</span><span style="color: #00ff00"><span class="cf">] </span>');
+  line = line.replace(/(^|[ ])[{] /g, '$1</span><span style="color: #00ffff"><span class="cf">{ </span>');
+  line = line.replace(/(^|[ ])[\[] /g, '$1</span><span style="color: #ffff00"><span class="cf">[ </span>');
+  line = line.replace(/(^|[ ])[(] /g, '$1</span><span style="color: #ffffff"><span class="cf">( </span>');
+  line = line.replace(/(^|[ ])[~] /g, '$1</span><span style="color: #ff00ff"><span class="cf">~ </span>');
+  line = line.replace(/(^|[ ])[%] /g, '$1</span><span style="color: #0000ff"><span class="cf">&lt; </span>');
+  line = line.replace(/(^|[ ])[\^] /g, '$1</span><span style="color: #777777"><span class="cf">&gt; </span>');
+  line = line.replace(/[\`]/g, '<span class="cf">\`</span>');
   return '<span>' + line + '</span>';
 }
 
@@ -151,7 +106,11 @@ function Resize() {
 }
 
 function RefreshColor() {
-  SetColorStyle(colorMode);
+  if (colorMode == 0) {
+    SetColorStyle(function(t) { t.style.display = ''; });
+  } else {
+    SetColorStyle(function(t) { t.style.display = 'none'; });
+  } 
 }
 
 function Goto(n) {
@@ -234,7 +193,7 @@ window.addEventListener('keydown', function(e) {
   } else if (e.code == 'KeyF') {
     holder.requestFullscreen();
   } else if (e.code == 'Equal') {
-    colorMode = (colorMode + 1) % PALETTES.length;
+    colorMode = 1 - colorMode ;
     RefreshColor();
   }
   e.preventDefault();

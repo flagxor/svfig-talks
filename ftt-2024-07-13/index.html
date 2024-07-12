@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000000';
+FOREGROUND = '#ffffff';
+COLORFORTH = true;
+</script><pre>
+
+x86-64 : color ] Forth
+┄────────────────────┄
+   [ May 24, 2024
+
+Why : color ] Forth ( ?
+┄─────────────────────┄
+• Dialect of Forth invented
+  by Chuck Moore circa 1999
+• Many sub-variants,
+  all use color "tags" to dispatch
+• Emphasis on making Forth even simpler!
+
+Color Conventions
+┄───────────────┄
+   : define
+   [ execute
+   ] compile
+   { postpone
+   % tag
+   ~ variable
+   ( comment
+
+An Example
+┄────────┄
+: square ] dup * ;
+: cube ] dup square * ;
+[ 2 cube .
+  ==> 8
+
+Design Approach
+┄─────────────┄
+• Keep it simple
+  ◦ Really understand it
+• Make sure it's usable as more than a toy
+  ◦ Could I write an eww like browser in it?
+• Write mostly Forth ASAP
+• Names are hard : cf ( for now
+
+System Goals
+┄──────────┄
+• Runnable on Windows, but keep the complexity out!
+• Design with an eye to make it standalone with UEFI boot
+• Defer register convention decisions to Forth
+• Use x32 addressing (32-bit addresses, 64-bit data)
+
+Language Goals
+┄────────────┄
+• Try to use Chuck's quirks as bearable:
+  ◦ : - ] invert
+  ◦ : or ] xor
+  ◦ : if ( use x86 zero flag, no stack effect
+  ◦ : -if ( use x86 sign flag, no stack effect
+  ◦ : push ] &gt;r : pop ] r&gt;
+  ◦ : @ ! ( etc. use word sized indexing
+  ◦ Use A register, : @+ !+
+  ◦ Emit literals on [ immediate ] to green
+
+How Chuck Built his : color ] Forth ( I think
+┄─────────────────────────────────────┄
+• Write editor + core in ASM
+• Build up rest of the system
+
+My Steps
+┄──────┄
+• Devise a text syntax (to allow git + vim)
+• Write a converter (in and out)
+• Write a Vim syntax plugin
+• Bootstrap from "minimal colorForth"
+• Write the rest in colorForth
+• Provide "syscalls"
+• Write an editor
+
+: color ] Forth ( "words"
+┄───────────────────┄
+STRINGS:
+  wwww wwww wwww wwww wwww wwww wwww tttt
+NUMBERS:
+  nnnn nnnn nnnn nnnn nnnn nnnn nnnH tttt
+H = hex/decimal
+t = tag
+n = number bits, to be sign extended
+w = word bits "shannon encoded"
+
+Text Conventions
+┄──────────────┄
+&nbsp;: define   : define
+&nbsp;[ execute  [ execute
+&nbsp;] compile  ] compile
+&nbsp;{ postpone { postpone
+&nbsp;&lt; tag      % tag
+&nbsp;~ variable ~ variable
+&nbsp;( comment  ( comment
+┄─────────────────────┄
+#decimal  $hex  &amp;screen
+&nbsp;% word-sized-value
+Separ`ate Long`ish words
+
+Tag  Syntax Element      Color
+┄─┄  ┄────────────┄      ┄───┄
+ 15  Commented Number    #White / $White
+ 14  Display Macro       % Blue
+ 13  Compiler Feedback   ^ Grey
+ 12  Variable            ~ Magenta
+ 
+ 11  COMMENT (caps)      (^^ (White) Obsolete
+ 10  Comment             (^ (White) Obsolete
+  9  comment (lower)     White
+  8  Interpreted Number  [ #Yellow $Yellow
+ 
+  7  Compile macro call  { Cyan
+  6  Compile number      ] #Green / $Green
+  5  Compile big number  ] Green (unsupported)
+  4  Compile forth word  ] Green
+ 
+  3  Define forth word   : Red
+  2  Interp big number   [ Yellow (unsupported)
+  1  Interp forth word   [ Yellow
+  0  Word extension      ( color of preceding word )
+
+|     0 000    0      10 000 s  8    1100 000 d 16
+|     0 001 r  1      10 001 m  9    1100 001 v 17
+|     0 010 t  2      10 010 c 10    1100 010 p 18
+|     0 011 o  3      10 011 y 11    1100 011 b 19
+|     0 100 e  4      10 100 l 12    1100 100 h 20
+|     0 101 a  5      10 101 g 13    1100 101 x 21
+|     0 110 n  6      10 110 f 14    1100 110 u 22
+|     0 111 i  7      10 111 w 15    1100 111 q 23
+|  
+|  1101 000 0 24    1110 000 8 32    1111 000 ; 40
+|  1101 001 1 25    1110 001 9 33    1111 001 ' 41
+|  1101 010 2 26    1110 010 j 34    1111 010 ! 42
+|  1101 011 3 27    1110 011 - 35    1111 011 + 43
+|  1101 100 4 28    1110 100 k 36    1111 100 @ 44
+|  1101 101 5 29    1110 101 . 37    1111 101 * 45
+|  1101 110 6 30    1110 110 z 38    1111 110 , 46
+|  1101 111 7 31    1110 111 / 39    1111 111 ? 47
+
+Converter
+┄───────┄
+• 253 lines of Python
+• More complex than I'd like!
+• Supports Chuck and Howerd's images
+• Forward and backward conversion
+  ◦ To allow for check-in with Git
+
+|  usage: colorize [-h] [-d] [filename]
+|  
+|  Convert back and forth from colorForth encoding
+|  
+|  positional arguments:
+|    filename      filename to process OR - for stdin
+|  
+|  optional arguments:
+|    -h, --help    show this help message and exit
+|    -d, --decode  decode instead of encode
+
+VIM Coloring
+┄──────────┄
+• Vi-improved (my usual text editor)
+• Developed by Bram Moolenaar
+• Supports regular expression
+  based syntax highlighting
+• Look for the formatting tags and color!
+
+Bootstrapping
+┄───────────┄
+• Start with C-interpreted [ execute ( words
+• Make machine code [ execute ( words
+  work via : c2forth ( thunk
+• Make ] compiled ( words
+  work via : ,compile ( thunk
+• Make ] compiled numbers ( words
+  work via : literal ( thunk
+• Build up core words and macros
+• Implement color words and dispatch
+• Transition into machine code interpreter
+
+Only executable bootstrap words:
+[ 1, 2, 3, load thru forth macro
+[ Numbers
+For Debugging:
+[ here .
+
+      case 1: /* execute */
+        addr = find(name, FORTH_DICT);
+        if (addr) {
+          CALL(addr);
+        } else {
+          switch (name) {
+            case 0xd3f80000: /* 1, */ *HP++ = *SP++; break;
+            case 0xd5f80000: /* 2, */ *HP2++ = *SP++; break;
+            case 0xd7f80000: /* 3, */ *HP2++ = *SP; *HP++ = *SP++ >> 16; break;
+            case 0xa1ae0000: /* load */ if (load(*SP++)) return 1; break;
+            case 0xb1896400: /* forth */ DICT = &FORTH_DICT; break;
+            case 0x8ac84c00: /* macro */ DICT = &MACRO_DICT; break;
+            case 0xc8828000: /* here */ *--SP = (uint64_t) HP; break;
+            case 0xea000000: /* . */ PrintNumber(*SP++); break;
+            default: break;
+          }
+        }
+        break;
+
+Registers
+┄───────┄
+• RAX - tos
+• RSI - stack pointer
+• RDI - code heap pointer
+• R8 - internal vars - parked sp
+  • R8 +8 - parked hp
+  • R8 +16 - active dictionary
+  • R8 +24 - forth dictionary
+  • R8 +32 - macro dictionary
+  • RCX - temp
+• RDX - "a" register
+
+Memory Map
+┄────────┄
+$8000000      - BASE
+$80000FF      - Data Stack ↑
+$8000100 (0)  - Parked Data Stack Pointer
+$8000108 (1)  - Parked Heap Pointer
+$8000110 (2)  - Pointer to active vocabulary
+$8000118 (3)  - Pointer to end of FORTH dictionary
+$8000120 (4)  - Pointer to end of MACRO dictionary
+$8000128 (5)  - RESERVED
+$8000130 (6)  - lastc (last color) (after bootstrap)
+$8000138 (7)  - @nope (notfound) (after bootstrap)
+$8000140 (8)  - RESERVED
+$8000148 (9)  - Sleep
+$8000150 (10) - PostMessage
+$8000158 (11) - PrintNumber
+$8000160 (12) - PopEvent
+$8000168 (13) - Write
+$8000170 (14) - Read
+$8000178 (15) - ShellCommand
+$8000300      - Macro Vocabulary
+$8010000      - Forth Vocabulary
+$8020000      - Heap
+$8100000      - Loaded Blocks
+$9000000      - IO Area
+$9000100      - Screen
+
+Dictionary
+┄────────┄
+0, addr, word, addr, word, addr, word
+                                   ↑
+0, addr, word, addr, word        MDICT
+                       ↑
+                      FDICT 
+                       ↑
+                      DICT
+
+Variables
+┄───────┄
+• Magenta Variables ~ foo ( &nbsp;%0
+  ◦ Place variable in the source block
+  ◦ Makes moving things in editor break
+• Code Variables : foo [ here 0 , ] ;
+  ◦ Places variables in a separate data heap
+  ◦ Allows a resetable default
+
+Flag Conditionals
+┄───────────────┄
+• HARD to get them to stick in your head
+• Sometimes nice when they leave the stack alone
+• But hard to compose several
+
+] x @ 3 or drop if ( x isn't 3 ] then
+] x @ ? if ( x is non-zero ] then
+] x @ ? -if ( x is negate ] then
+] x @ dup 3 or drop if
+   ] dup 4 or drop if
+     ( x isn't 3 or 4
+   ] then
+] then drop
+] x @ -3 + -if ( x-3 is negative, gotcha ] then
+] x @ 3 cmp ifl ( x (signed) less than 3 ] then
+
+  DEMO +
+QUESTIONS❓
+    🙏
+ Thank you!
