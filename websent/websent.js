@@ -24,7 +24,7 @@ const PALETTES = [
     'cf_define': 'color: #7777ff; font-size: 120%;',
     'cf_pacman': 'color: #e69f00;',
     'cf_execute': 'color: #f0e442; font-weight: 900;',
-    'cf_compile': 'color: #0000cc;',
+    'cf_compile': 'color: #0000ff;',
     'cf_postpone': 'color: #777700; font-style: oblique;',
     'cf_tag': 'color: #ffffff; font-style: oblique;',
     'cf_variable': 'color: #7777ff; font-size: 120%; font-style: oblique;',
