@@ -24,8 +24,8 @@ Finding Better Colors
 
 Showing Numbers
 ┄─────────────┄
-Hex: ff00ff<sub>h</sub>
-Decimal: 123<sub>d</sub>
+Hex: $ff00ff
+Decimal: #123
 
 cf x86-64
 ┄───────┄
@@ -152,16 +152,17 @@ Bootstrapping Font
 • 4x6 / 5x6 pixel characters
 • 4 x 6 + 1 (wide) = 25 bit characters
 • 48 character set
-█...    .....
-█...    █...█
-███.    .█.█.
-█..█    ..█..
-█..█    .█.█.
-███.    █...█
+█...  8         .....  0
+█...  8         █...█  1
+███.  e         .█.█.  a
+█..█  9         ..█..  4
+█..█  9         .█.█.  a
+███.  e         █...█  1
+$88e99e         $101a4a1
 
 Variables
 ┄───────┄
-• Magenta Variables ~ foo ( &nbsp;0<sub>d</sub>
+• Magenta Variables ~ foo ( &nbsp;#0
   ◦ Place variable in the source block
   ◦ Makes moving things in editor break
 • Code Variables : foo [ here 0 , ] ;
@@ -219,7 +220,7 @@ Working with (x, y) values on the stack
  : abs ] ? -if negate then ;
 
  ( curve drawing
- : rsize ] 20<sub>d</sub> ;
+ : rsize ] #20 ;
  : spans [ here height @ rsize * allot ] ;
  : 2sort ] 2dup min push max pop ;
  : rmark ] ? if push dup push @ 2sort @r ! pop 1+ pop 1- rmark ; then 2drop drop ;
@@ -234,7 +235,7 @@ Working with (x, y) values on the stack
  ] @r dup 1+ @ swap @ negate + #1 box then pop #2 + pop 1- loop ; then 2drop drop ;
  : stroke ] height @ : loop ] ? if 1- dup rstroke loop ; then drop ;
 
- : pels ] push 20<sub>d</sub> shl pop ; : /pels ] push 20<sub>d</sub> sar pop ;
+ : pels ] push #20 shl pop ; : /pels ] push #20 sar pop ;
  : ydiff ] nip negate + abs nip ;
  : average ] + 1+ 2/ ;
  : mid ] rot average push average pop ;
@@ -243,7 +244,11 @@ Working with (x, y) values on the stack
  ] 4dup mid 2swap 2push 2dup 2push line 2pop 2pop line ;
  : lineto ] 2push @at pels 2pop 2dup at pels line ;
 
- : 'bezier ] 2swap 2push 4dup ydiff #-3 + ? drop
+ : square ] dup * ;
+ : vsub ] negate rot + push negate + pop ;
+ : dist2 ] vsub /pels square swap square + ;
+
+ : 'bezier ] 2swap 2push 4dup dist2 #-9 + ? drop
  ] -if 2pop 2drop line ; then
  ] 2pop 2swap 2dup 2push 2push 2dup 2pop mid
   ] 2dup 2push 2push 2push 2dup 2pop mid

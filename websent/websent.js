@@ -94,6 +94,8 @@ function ColorIt(line) {
   line = line.replace(/(^|[ ])[(] /g, '</span>$1<span class="cf_comment">');
   line = line.replace(/(^|[ ])[~] /g, '</span>$1<span class="cf_variable">');
   line = line.replace(/(^|[ ])[%] /g, '</span>$1<span class="cf_tag">');
+  line = line.replace(/[#]([0-9]+)/g, '$1<sub>d</sub>');
+  line = line.replace(/[$]([0-9a-fA-F]+)/g, '$1<sub>h</sub>');
   return '<span>' + line + '</span>';
 }
 
