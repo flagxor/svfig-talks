@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#000000';
+FOREGROUND = '#ffffff';
+COLORFORTH = true;
+</script><pre>
+
+More : Colors ( - More ] Forth
+┄──────────────────────┄
+     [ July 25, 2024
+
+Finding Better Colors
+┄───────────────────┄
+       : define
+       [ execute
+       ] compile
+       { postpone
+       % tag
+       ~ variable
+       ( comment
+
+Showing Numbers
+┄─────────────┄
+Hex: ff00ff<sub>h</sub>
+Decimal: 123<sub>d</sub>
+
+cf x86-64
+┄───────┄
+• 64-bit data + return stack.
+• 32-bit addresses and value by default.
+• C "harness" to boot + provide I/O
+• Windows and now Linux support
+
+Language Goals
+┄────────────┄
+• Try to use Chuck's quirks:
+  ◦ : - ] invert
+  ◦ : or ] xor
+  ◦ : if ( use x86 zero flag, no stack effect
+  ◦ : -if ( use x86 sign flag, no stack effect
+  ◦ : push ] &gt;r : pop ] r&gt;
+  ◦ : @ (  : ! ( etc. use word sized indexing
+  ◦ Use A register, : @+ (  : !+
+  ◦ Emit literals on [ immediate ] to green
+
+Why colorForth?
+┄─────────────┄
+• Forth is about naming some things... ] variable
+  • But implying other things. ] rot + push + pop
+  • It is both mnemonic and pithy.
+• Color is [ joyful!
+• It's even : SIMPLER ( than conventional Forth.
+  • Interpret/compile is just a dispatch table!
+
+create colors
+' none ,  ' exec , ' none ,  ' define ,
+' comp ,  ' none , ' *comp , ' defer ,
+' *exec , ' none , ' none ,  ' none ,
+' var ,   ' none , ' none ,  ' none ,
+ 
+:&nbsp;interpret (&nbsp;a n -- )
+  0 do
+    dup @ dup $f and cells color + @ execute
+    cell+
+  loop
+;
+
+ ( dictionary loop and utils
+ : nope ] @nope @ execute ;
+ : ,dict ] #4 vocab @ 4/ +! vocab @ 4/ @ 4/ ! ;
+ : ?cnot ] lastc @ $f0 and or drop ;
+ : ?lit ] $10 ?cnot if $80 ?cnot if ; then then push literal pop ;
+ : nah? ( wd-wdf ] 2dup @ ? if or #15 - and ; then nip ? ;
+ : find ] nah? if drop 1- 1- find ; then drop nip 1- @ ? ;
+ ( implementation of all color tags
+ : define ] chere ,dict ,dict ;
+ : comp ] ?lit dup push mvocab find if rdrop execute ; then
+ ] drop pop dup fvocab find if ,compile drop ; then drop nope ;
+ : *comp ] ?lit #5 sar literal ;
+ : exec ] dup push fvocab find if rdrop execute ; then drop pop nope ;
+ : *exec ] #5 sar ;
+ : post ] dup mvocab find if ,compile drop ; then drop nope ;
+ : var ] define pop pop pop 1+ dup literal push push push { ; ] ;
+ : none ] drop ;
+
+ ( tag dispatch table
+ : ,t ] over @tbl ! 1+ ;
+ : init ] #0
+ ] ' none ,t ' exec ,t ' none ,t ' define ,t
+ ] ' comp ,t ' none ,t ' *comp ,t ' post ,t
+ ] ' *exec ,t ' none ,t ' none ,t ' none ,t
+ ] ' var ,t ' none ,t ' none ,t ' none ,t
+ ] drop ;
+ [ init
+ : 1eval ] @ dup #15 and lastc @
+  ] #4 shl over or lastc ! @tbl @ execute ;
+ : eval ] over + : loop ] cmp
+  ] ifl push dup push 1eval pop 1+ pop loop ; then 2drop ;
+ ( interpreter ends here
+ : block ] #256 * #0 sys #-128 + $40000 + + ;
+ : load ] block #256 eval ;
+ : thru ] 2dup #2 + or drop
+  ] if push dup push load pop #2 + pop thru ; then drop ;
+
+Registers
+┄───────┄
+• RAX - tos
+• RSI - stack pointer
+• RDI - code heap pointer
+• R8 - internal vars - parked sp
+  ◦ R8 +8 - parked hp
+  ◦ R8 +16 - active dictionary
+  ◦ R8 +24 - forth dictionary
+  ◦ R8 +32 - macro dictionary
+  ◦ RCX - temp
+• RDX - "a" register
+
+Dictionary
+┄────────┄
+0, addr, word, addr, word, addr, word
+                                   ↑
+0, addr, word, addr, word        MDICT
+                       ↑
+                      FDICT 
+                       ↑
+                      DICT
+
+Editor
+┄────┄
+• Modal - ispired by mix of vi and Chuck's
+• Word at a time entry
+• Color toggle, search
+• Clipboard is a stack!
+
+? 1 2 3 4 5 6 7 8 9 0 - + BACK
+   q w e r t y u i o p @ ! *
+    a s d f g h j k l ; ' ENTER
+     z x c v b n m , . /
+          SPACE
+
+░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ✀
+ 🌈⚾🏳️‍🌈 % r ~ t [ y ( u : i ] o { p ( ░ ░ ░
+    ░ ░ ░🔴🔍← ↓ ↑ → ░ ░ ESC
+     ░ ✀🗐⎘ ░⇇ ❏🔵⇉ ░
+          ESC
+
+Bootstrapping Font
+┄────────────────┄
+• 4x6 / 5x6 pixel characters
+• 4 x 6 + 1 (wide) = 25 bit characters
+• 48 character set
+█...    .....
+█...    █...█
+███.    .█.█.
+█..█    ..█..
+█..█    .█.█.
+███.    █...█
+
+Variables
+┄───────┄
+• Magenta Variables ~ foo ( &nbsp;0<sub>d</sub>
+  ◦ Place variable in the source block
+  ◦ Makes moving things in editor break
+• Code Variables : foo [ here 0 , ] ;
+  ◦ Places variables in a separate data heap
+  ◦ Allows a resetable default
+
+Flag Conditionals
+┄───────────────┄
+• HARD to get them to stick in your head
+• Sometimes nice when they leave the stack alone
+• But hard to compose several
+
+] x @ 3 or drop if ( x isn't 3 ] then
+] x @ ? if ( x is non-zero ] then
+] x @ ? -if ( x is negate ] then
+] x @ dup 3 or drop if
+   ] dup 4 or drop if
+     ( x isn't 3 or 4
+   ] then
+] then drop
+] x @ -3 + -if ( x-3 is negative, gotcha ] then
+] x @ 3 cmp ifl ( x (signed) less than 3 ] then
+
+Graphics
+┄──────┄
+• Want to draw pretty pictures.
+• Want a better [ scalable ( font.
+• Lines, clipping, Bézier curves.
+
+ ( basic box drawing
+ : width [ here #1024 , ] ;  : height [ here #768 , ] ;
+ : color [ here 0 , ] ;  : x [ here 0 , ] ;  : y [ here 0 , ] ;
+ : display ] $2400100 ;
+ : row ] width @ * display + ;
+ : at ] y ! x ! ;  : +at ] y +! x +! ;  : @at ] x @ y @ ;
+ : hline ] push x @ y @ row + pop color @ fill ;
+ : rbox ] ? if push dup hline #1 y +! pop 1- rbox ; then 2drop ;
+ : box ] dup push rbox pop negate y +! ;
+ : screen ] #0 #0 at width @ height @ box ;
+
+ ( graphics stack implementation
+ : gstack [ here #100 allot ] ;  : gp [ here gstack , ] ;
+ : gpush ] gp @ ! #1 gp +! ;
+ : gpop ] #-1 gp +! gp @ @ ;
+ : +grf ] x @ gpush y @ gpush color @ gpush ;
+ : -grf ] gpop color ! gpop y ! gpop x ! ;
+
+Working with (x, y) values on the stack
+┄─────────────────────────────────────┄
+ : rot ] push swap pop swap ;  : -rot ] swap push swap pop ;
+ : 2swap ] rot push rot pop ;
+ : 2over ] push push 2dup pop pop 2swap ;
+ : 4dup ] 2over 2over ;   : 4drop ] 2drop 2drop ;
+ : 2push ] pop -rot push push push ;  : 2pop ] pop pop pop rot push ;
+ : abs ] ? -if negate then ;
+
+ ( curve drawing
+ : rsize ] 20<sub>d</sub> ;
+ : spans [ here height @ rsize * allot ] ;
+ : 2sort ] 2dup min push max pop ;
+ : rmark ] ? if push dup push @ 2sort @r ! pop 1+ pop 1- rmark ; then 2drop drop ;
+ : mark ] ? -if 2drop ; then
+ ] dup height @ negate + ? drop -if rsize * spans + rsize rmark ; then 2drop ;
+ : rclear ] ? -if drop ; then 0 over mark width @ over mark 1- rclear ;
+ : clear ] spans height @ rsize * #-1 #33 shr fill height @ rclear ;
+ : ?inwidth ] ? -if 0 ? 2drop ; then
+ ] dup width @ negate + ? drop -if ; then 0 ? 2drop ;
+ : rstroke ] dup rsize * spans + 1+ rsize 2/ 1-
+ : loop ] ? if push dup push @ ?inwidth if dup drop over at
+ ] @r dup 1+ @ swap @ negate + #1 box then pop #2 + pop 1- loop ; then 2drop drop ;
+ : stroke ] height @ : loop ] ? if 1- dup rstroke loop ; then drop ;
+
+ : pels ] push 20<sub>d</sub> shl pop ; : /pels ] push 20<sub>d</sub> sar pop ;
+ : ydiff ] nip negate + abs nip ;
+ : average ] + 1+ 2/ ;
+ : mid ] rot average push average pop ;
+ : line ] 4dup ydiff 1- ? -if drop 4drop ; then
+ ] 1- ? drop -if mid /pels mark ; then
+ ] 4dup mid 2swap 2push 2dup 2push line 2pop 2pop line ;
+ : lineto ] 2push @at pels 2pop 2dup at pels line ;
+
+ : 'bezier ] 2swap 2push 4dup ydiff #-3 + ? drop
+ ] -if 2pop 2drop line ; then
+ ] 2pop 2swap 2dup 2push 2push 2dup 2pop mid
+  ] 2dup 2push 2push 2push 2dup 2pop mid
+  ] 2dup 2pop mid 2dup 2push 'bezier 2pop 2pop 2pop 'bezier ;
+ : bezier ] 2push 2push @at pels 2pop pels 2pop 2dup at pels 'bezier ;
+
+  DEMO +
+QUESTIONS❓
+    🙏
+ Thank you!

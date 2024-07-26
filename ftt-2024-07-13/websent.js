@@ -21,16 +21,6 @@ var refresh = false;
 
 const PALETTES = [
   {
-    'cf_define': 'color: #000000; background-color: #ff0000;',
-    'cf_pacman': 'color: #e69f00;',
-    'cf_execute': 'color: #ffff00;',
-    'cf_compile': 'color: #00ff00;',
-    'cf_postpone': 'color: #00ffff;',
-    'cf_tag': 'color: #000000; background-color: #0000ff;',
-    'cf_variable': 'color: #000000; background-color: #ff00ff;',
-    'cf_comment': 'color: #ffffff;',
-  },
-  {
     'cf_define': 'color: #7777ff; font-size: 120%;',
     'cf_pacman': 'color: #e69f00;',
     'cf_execute': 'color: #f0e442; font-weight: 900;',
@@ -87,13 +77,13 @@ function ColorIt(line) {
   if (!COLORFORTH || line[0] == '|') {
     return line;
   }
-  line = line.replace(/(^|[ ])[:] /g, '</span>$1<span class="cf_define">');
-  line = line.replace(/(^|[ ])[\]] /g, '</span>$1<span class="cf_compile">');
-  line = line.replace(/(^|[ ])[{] /g, '</span>$1<span class="cf_postpone">');
-  line = line.replace(/(^|[ ])[\[] /g, '</span>$1<span class="cf_execute">');
-  line = line.replace(/(^|[ ])[(] /g, '</span>$1<span class="cf_comment">');
-  line = line.replace(/(^|[ ])[~] /g, '</span>$1<span class="cf_variable">');
-  line = line.replace(/(^|[ ])[%] /g, '</span>$1<span class="cf_tag">');
+  line = line.replace(/(^|[ ])[:] /g, '$1</span><span class="cf_define">');
+  line = line.replace(/(^|[ ])[\]] /g, '$1</span><span class="cf_compile">');
+  line = line.replace(/(^|[ ])[{] /g, '$1</span><span class="cf_postpone">');
+  line = line.replace(/(^|[ ])[\[] /g, '$1</span><span class="cf_execute">');
+  line = line.replace(/(^|[ ])[(] /g, '$1</span><span class="cf_comment">');
+  line = line.replace(/(^|[ ])[~] /g, '$1</span><span class="cf_variable">');
+  line = line.replace(/(^|[ ])[%] /g, '$1</span><span class="cf_tag">');
   return '<span>' + line + '</span>';
 }
 
