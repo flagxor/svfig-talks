@@ -84,7 +84,7 @@ function SetColorStyle(mode) {
 }
 
 function ColorIt(line) {
-  if (!COLORFORTH || line[0] == '|') {
+  if (!COLORFORTH || line[0] == '|' || line[0] == '@') {
     return line;
   }
   line = line.replace(/(^|[ ])[:] /g, '</span>$1<span class="cf_define">');
