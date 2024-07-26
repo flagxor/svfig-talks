@@ -235,6 +235,9 @@ Working with (x, y) values on the stack
  ] @r dup 1+ @ swap @ negate + #1 box then pop #2 + pop 1- loop ; then 2drop drop ;
  : stroke ] height @ : loop ] ? if 1- dup rstroke loop ; then drop ;
 
+@bezier1.png
+<img src="bezier1.png">
+
  : pels ] push #20 shl pop ; : /pels ] push #20 sar pop ;
  : ydiff ] nip negate + abs nip ;
  : average ] + 1+ 2/ ;
