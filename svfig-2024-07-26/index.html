@@ -170,6 +170,13 @@ Variables
   ◦ Places variables in a separate data heap
   ◦ Allows a resetable default
 
+No Loops, so far...
+┄─────────────────┄
+• Tail call can replace loops.
+• Chuck has endorsed this in some talks.
+• But his colorForth uses FOR..NEXT a good bit.
+: count ] ? if dup . 1- count ; then drop ;
+
 Flag Conditionals
 ┄───────────────┄
 • HARD to get them to stick in your head
@@ -332,6 +339,7 @@ What's Next?
 • Confront the pain points
   • Chuck's conditionals are tricky
   • 256 words per page is tight, maybe good?
+  • Loops?
 • UEFI?
 • Get back to FPGA synthesizer? + visualize?
 
