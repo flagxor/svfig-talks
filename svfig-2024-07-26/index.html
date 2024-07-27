@@ -33,6 +33,7 @@ cf x86-64
 • 32-bit addresses and value by default.
 • C "harness" to boot + provide I/O
 • Windows and now Linux support
+• Maybe UEFI Boot next?
 
 Language Goals
 ┄────────────┄
@@ -279,6 +280,16 @@ Spans
  ] @r dup 1+ @ swap @ negate + #1 box then pop #2 + pop 1- loop ; then 2drop drop ;
  : stroke ] height @ : loop ] ? if 1- dup rstroke loop ; then drop ;
 
+Bézier Curves
+┄───────────┄
+• Polynomial curve in the plane.
+• Endpoints on the curve,
+  control points form bounding polygon.
+• Affine transformation of endpoints,
+  transforms curve equivalently.
+• Parametric subdivision is just interpolation.
+  • 1/2 works out to use + and 2/
+
 @bezier1.png
 <img src="bezier1.png">
 
@@ -301,6 +312,28 @@ Spans
   ] 2dup 2push 2push 2push 2dup 2pop mid
   ] 2dup 2pop mid 2dup 2push 'bezier 2pop 2pop 2pop 'bezier ;
  : bezier ] 2push 2push @at pels 2pop pels 2pop 2dup at pels 'bezier ;
+
+Curve Editor
+┄──────────┄
+• Edit curves in source.
+• Store points in packed format.
+  op * 2^20 + x * 2^10 + y
+• Use keyboard and mouse.
+
+What's Next?
+┄──────────┄
+• More Graphics
+  • Use curve editor to create fonts.
+  • Enhance graphics state
+    to include scaling transforms.
+• More Stability
+  • Consider catching stack faults?
+  • Or wrap around stack?
+• Confront the pain points
+  • Chuck's conditionals are tricky
+  • 256 words per page is tight, maybe good?
+• UEFI?
+• Get back to FPGA synthesizer? + visualize?
 
   DEMO +
 QUESTIONS❓
