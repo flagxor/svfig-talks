@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.2;
+BACKGROUND = '#00cccc';
+FOREGROUND = '#000000';
+</script><pre>
+
+A WebSerial Terminal for Esp32forth
+┄─────────────────────────────────┄
+        September 14, 2024
+
+WebSerial
+┄───────┄
+• New API for reading/writing to:
+  - serial devices
+  - USB serial devices
+  - Bluetooth serial devices
+• Currently Chrome only
+• Methods to "pair" with a device
+• Methods for asynchronous I/O
+
+Request a Device
+┄──────────────┄
+navigator.serial.requestPort()
+-> Promise for a SerialPort
+
+Getting Devices
+┄─────────────┄
+navigator.serial.getPorts()
+-> Promise for an array of SerialPort
+
+Read / Write
+┄──────────┄
+• Await a port "opening"
+• Get a Reader / Writer
+• Asynchronously read / write ArrayBuffers
+
+r~
+context.serial_buffer = [];
+context.ports = [];
+context.port = null;
+context.serial_writer = null;
+
+async function RouteSerial(port) {
+  await port.open({
+    baudRate: 115200,
+  });
+  if (port.writable) {
+    context.serial_writer = port.writable.getWriter();
+  }
+  while (port.readable) {
+    const reader = port.readable.getReader();
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          reader.releaseLock();
+          break;
+        }
+        for (var i = 0; i < value.length; ++i) {
+          context.serial_buffer.push(value[i]);
+        }
+      }
+    } catch (error) {
+    }
+  }
+}
+
+context.UpdateSerial = function() {
+  navigator.serial.getPorts().then((ports) => {
+    context.ports = ports;
+    if (context.ports.length > 0) {
+      context.port = context.ports[0];
+    } else {
+      context.port = null;
+    }
+    context.serial_writer = null;
+    if (context.port) {
+      RouteSerial(context.port);
+    }
+  });
+};
+
+if (!globalObj.write && navigator && navigator.serial) {
+  navigator.serial.addEventListener("connect", (e) => {
+    context.UpdateSerial();
+  });
+  navigator.serial.addEventListener("disconnect", (e) => {
+    context.UpdateSerial();
+  });
+  context.UpdateSerial();
+}
+~ jseval
+
+JSWORD: pairserial { -- }
+  navigator.serial
+    .requestPort()
+    .then((port) => {
+      context.UpdateSerial();
+    })
+    .catch((e) => {
+      console.log('No serial port selected.');
+      context.UpdateSerial();
+    });
+~
+
+JSWORD: serial-key-raw { -- n }
+  if (context.serial_buffer.length) {
+    return context.serial_buffer.shift();
+  } else {
+    return -1;
+  }
+~
+
+JSWORD: serial-type { a n -- }
+  if (!context.port || !context.serial_writer) {
+    return;
+  }
+  context.serial_writer.write(u8.slice(a, a + n));
+~
+
+: serial
+  begin
+    pause
+    begin serial-key-raw dup 0< 0= while emit repeat drop
+    begin key? while key >r rp@ 1 serial-type rdrop repeat
+  again
+;
+
+&lt;script src="ueforth.js">&lt;/script>
+&lt;script type="text/forth">
+: y/n ( -- f ) key [char] y = ;
+web
+: go
+  ." SERIAL TERMINAL" cr
+  ." Pair (y/n) ? " y/n if pairserial then
+  serial
+;
+forth
+go
+&lt;/script>
+
+https://eforth.appspot.com/serial
+ 🚀                         🚀
+             DEMO +
+          QUESTIONS❓
+              🙏
+           Thank you!
