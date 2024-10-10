@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<style>
+@font-face {
+    font-family: 'APL';
+    src: url('apl.ttf') format('truetype');
+}
+</style>
+<script src="../websent/websent.js"></script><script>
+FONT = "APL, courier";
+USABLE = 0.9;
+LINE_SPACING = 1;
+BACKGROUND = '#ddccaa';
+FOREGROUND = '#000000';
+// <p><a href="svfig-2024-10-26/">Getting CoSy with APL and K</a> - October 26, 2024<br/>
+</script><pre>
+
+Getting CoSy with APL and K
+---------------------------
+     October 26, 2024
+
+┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬─────────┐
+│    │ ¨  │ ¯  │ <  │ ≤  │ =  │ ≥  │ >  │ ≠  │ ∨  │ ∧  │ -  │ ÷  │  BACK   │
+│    │ 1  │ 2  │ 3  │ 4  │ 5  │ 6  │ 7  │ 8  │ 9  │ 0  │ +  │ ×  │  SPACE  │
+│    └──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬┬┴─────────┤
+│ TAB   │ ?  │ ⍵  │ ∊  │ ⍴  │ ~  │ ↑  │ ↓  │ ⍳  │ ○  │ *  │ →  ││          │
+│       │ Q  │ W  │ E  │ R  │ T  │ Y  │ U  │ I  │ O  │ P  │ ←  ││          │
+├───────┴┬───┴┬───┴┬───┴┬───┴┬───┴┬───┴┬───┴┬───┴┬───┴┬───┴┬───┴┤  RETURN  │
+│ LOCK   │ ⍺  │ ⌈  │ ⌊  │ _  │ ∇  │ ∆  │ ∘  │ '  │ ⎕  │ (  │ )  │          │
+│        │ A  │ S  │ D  │ F  │ G  │ H  │ J  │ K  │ L  │ [  │ ]  │          │
+├────────┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──┬─┴──────────┤
+│   SHIFT   │ ⊂  │ ⊃  │ ∩  │ ∪  │ ⊥  │ ⊤  │ |  │ ;  │ :  │ \  │   SHIFT    │
+│           │ Z  │ X  │ C  │ V  │ B  │ N  │ M  │ ,  │ .  │ /  │            │
+└───────────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────────────┘
+
+○ + * = ⍟
+∩ + ∘ = ⍝
+/ + - = ⌿
+∆ + | = ⍋
+÷ + ⎕ = ⌹
+\ + ○ = ⍉
+
++-×÷⌈⌊*⍟|!○~∨∧⍱⍲<≤=≥>≠.≡≢
+⍴,⍪⍳↑↓?⍒⍋⍉⌽⊖∊⊥⊤⍎⍕⌹⊂⊃∪∩⍷⌷∘
+→←⎕⍞/⌿\⍀¨⍣⍨#⊆⍥⍠⍤⌸⍸()[];⍝⋄
+:⍬∇⍺⍵⍶⍹ᐵᑈ⍡⍁⌾⍢⍫⍛⍧⊇⍮⍭⍦⍇⍈⍐⍗=
+
+    Monadic       Dyadic
+    -------       ------
++   Conjugate     Add
+-   Negation      Subtract
+×   Signum        Multiply
+÷   Reciprocal    Divide
+
+    Monadic       Dyadic
+    -------       ------
+⌊   Floor         Minimum
+⌈   Ceiling       Maximum
+|   Magnitude     Residue
+*   Exponential   Exponentiation
+⍟   Nat Log       Logarithm
+○   Pi times      Trigonomy
+!   Factorial     Binomial
+?   Roll          Deal
+
+    Monadic       Dyadic
+    -------       ------
+~   Not
+∧                 And
+∨                 Or
+⍲                 Nand
+⍱                 Nor
+
+    Monadic       Dyadic
+    -------       ------
+<                 Less
+≤                 Not greater
+=                 Equal
+≥                 Not less
+>                 Greater
+≠                 Not equal
+
+    Monadic       Dyadic
+    -------       ------
+⍳   Index         Index of
+⍴   Size          Reshape
+,   Ravel         Catenate
+[]                Indexing
+↑                 Take
+↓                 Drop
+
+    Monadic       Dyadic
+    -------       ------
+⍋   Ascending
+⍒   Descending
+/                 Compress
+⌽   Reverse       Rotate
+⊖   Reverse       Rotate
+⍉   Transpose
+∊                 Membership
+⊥                 Decode
+⊤                 Encode
+⌹   Mat Inverse
+
+/    Reduce (last axis)
+⌿    Reduce (first axis)
+\    Sand (last axis)
+⍀    Scan (first axis)
+∘.F  Outer Product
+F.G  Inner Product
+[]   Axis
+
+Important Characteristics of Notation
+-------------------------------------
+⍟ Ease of expressing constructs
+  arising in problems
+⍟ Suggestivity
+⍟ Ability to subordinate detail
+⍟ Economy
+⍟ Amenability to formal proofs
+
+Ease of expressing constructs
+    arising in problems
+
+      ⍳5
+1 2 3 4 5
+      +\⍳5
+1 3 6 10 15
+    ∘
+   ∘ ∘
+  ∘ ∘ ∘
+ ∘ ∘ ∘ ∘
+∘ ∘ ∘ ∘ ∘
+
+      3 4 ⍴ 5
+5 5 5 5
+5 5 5 5
+5 5 5 5
+
+Suggestivity
+
+2×3 ←→ 6
+2*3 ←→ 8
++/M⍴N ←→ N×M
+×/M⍴N ←→ N*M
++\M⍴N ←→ N×⍳M
+×\M⍴N ←→ N*⍳M
+
+Ability to subordinate detail
+
+COLUMNS ← 64
+ROWS ← 16
+BYTES ← COLUMNS × ROWS
+      ⍳5
+1 2 3 4 5
+      ⌽ 1 7 7 6
+6 7 7 1
+      1 2 3 , 4 5 6
+1 2 3 4 5 6
+      (⍳5),(⌽⍳5)
+1 2 3 4 5 5 4 3 2 1
+
+Economy
+-------
+⍟ Large number of ideas
+  in a small vocabulary
+⍟ All operators alike,
+  no rules of precedence
+
+Amenability to formal proofs
+
+LEMMA
+-----
+    ⎕  ⎕⎕⎕⎕⎕
+    ⎕⎕  ⎕⎕⎕⎕
+    ⎕⎕⎕  ⎕⎕⎕
+    ⎕⎕⎕⎕  ⎕⎕
+    ⎕⎕⎕⎕⎕  ⎕
+1 2 3 4 5 + 5 4 3 2 1
+   ←→ 6 6 6 6 6
+(⍳N)+(⌽⍳N) ←→ (N+1)⍴N
+
+Gauss's Formula
+---------------
++/⍳N
+         ⍝ + is associative
+         ⍝ and commutative
++/⌽⍳N
+         ⍝ (X + X) ÷ 2 ←→ X
+((+/⍳N) + (+/⌽⍳N)) ÷ 2
+         ⍝ + is associative
+         ⍝ and commutative
+(+/((⍳N) + (⌽⍳N))) ÷ 2
+         ⍝ by Lemma
+(+/((N+1)⍴N)) ÷ 2
+         ⍝ definition of
+         ⍝ multiplication
+((N+1) × N) ÷ 2
+
+  DEMO +
+QUESTIONS❓
+    🙏
+ Thank you!
