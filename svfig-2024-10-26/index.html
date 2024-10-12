@@ -170,14 +170,26 @@ Large Symbol Set
 F.G  Inner Product
 []   Axis
 
-Important Characteristics of Notation
--------------------------------------
-⍟ Ease of expressing constructs
-  arising in problems
-⍟ Suggestivity
-⍟ Ability to subordinate detail
-⍟ Economy
-⍟ Amenability to formal proofs
+Circlular Operator ○
+--------------------
+                       0○x = sqrt(1-x^2)
+¯1○x = arcsin x        1○x = sin x
+¯2○x = arccos x        2○x = cos x
+¯3○x = arctan x        3○x = tan x
+¯4○x = sqrt(x*2-1)     4○x = sqrt(1+x^2)
+¯5○x = arcsinh x       5○x = sinh x
+¯6○x = arccosh x       6○x = cosh x
+¯7○x = arctanh x       7○x = tanh x
+
+Notation as a Tool of Thought 
+-----------------------------
+Important Characteristics of Notation:
+  ⍟ Ease of expressing constructs
+    arising in problems
+  ⍟ Suggestivity
+  ⍟ Ability to subordinate detail
+  ⍟ Economy
+  ⍟ Amenability to formal proofs
 
 Ease of expressing constructs
     arising in problems
@@ -259,40 +271,18 @@ Gauss's Formula
          ⍝ multiplication
 ((N+1) × N) ÷ 2
 
-Children of APL
----------------
-⍟ J - Iverson and Robert Hui (1990s)
-  - ASCII to address concern
-  - Focus on tacit point free style
-  - Exploration of Focus on tacit point free style
-  - Values and operators
-    become nouns, verbs, and adverbs
-
-APL  J     APL  J     APL  J     APL  J
----  -     ---  -     ---  -     ---  -
-+    +     ~    -.    ⍳    i.    ∊    e.
--    -     ∧    *.    ⍴    $     ⊥    #.
-×    *     ∨    +.    ,    ,     ⊤    #:
-÷    %     ⍲    *:    []   {     ⌹    %.
-⌊    <.    ⍱    +:    ↑    {.    /    /
-⌈    >.    <    &lt;     ↓    }.    ⌿    ??
-|    |     ≤    &lt;:    ⍋    /:    \    \
-*    ^     =    =     ⍒    \:    ⍀    ??
-⍟    ^.    ≥    >:    ⌽    |.    ∘.F  F/
-○    o.    >    >     ⊖    ??    F.G  F/ . G
-!    !     ≠    ~:    ⍉    |:
-?    ?
-
-Children of APL
----------------
-⍟ K - Arthur Whitney (1993+)
-  - ASCII, but focused on single characters
-  - Only the most important operators
-  - Kx, multiple incompatible generations
-  - Borrow from Scheme: lists of lists
-  - Even the C code is terse!
+Children of APL - J
+-------------------
+⍟ Iverson and Robert Hui (1990s)
+⍟ ASCII to address concern
+⍟ Focus on tacit point free style
+⍟ Exploration of Focus on tacit point free style
+⍟ Values and operators
+  become nouns, verbs, and adverbs
+⍟ Arthur Whitney's famously terse implementation
 
 Incunabulum - An Implementation of J
+https://www.jsoftware.com/ioj/iojATW.htm
  
 typedef char C;typedef long I;
 typedef struct a{I t,r,d[3],p[2];}*A;
@@ -336,8 +326,128 @@ I *wd(s)C *s;{I a,n=strlen(s),*e=ma(n+1);C c;
  DO(n,e[i]=(a=noun(c=s[i]))?a:(a=verb(c))?a:c);e[n]=0;R e;}
  
 main(){C s[99];while(gets(s))pr(ex(wd(s)));}
+
+APL  J     APL  J     APL  J     APL  J
+---  -     ---  -     ---  -     ---  -
++    +     ~    -.    ⍳    i.    ∊    e.
+-    -     ∧    *.    ⍴    $     ⊥    #.
+×    *     ∨    +.    ,    ,     ⊤    #:
+÷    %     ⍲    *:    []   {     ⌹    %.
+⌊    <.    ⍱    +:    ↑    {.    /    /
+⌈    >.    <    &lt;     ↓    }.    ⌿    ??
+|    |     ≤    &lt;:    ⍋    /:    \    \
+*    ^     =    =     ⍒    \:    ⍀    ??
+⍟    ^.    ≥    >:    ⌽    |.    ∘.F  F/
+○    o.    >    >     ⊖    ??    F.G  F/ . G
+!    !     ≠    ~:    ⍉    |:
+?    ?
+
+Children of APL - K
+-------------------
+⍟ Arthur Whitney (1993+)
+⍟ ASCII, but focused on single characters
+⍟ Only the most important operators
+⍟ Kx, multiple incompatible generations
+⍟ Borrow from Scheme: lists of lists
+
+APL     K3        APL     K3       APL      K3
+---     --        ---     --       ---      --
+⍉ +     +         ~ ='    ~        ?        _draw
+-       -         x ⍳     @        ⌈        _ceiling
+⊃ ×     *         x ⍣     ?        ⌊        _floor
+÷       %         ⌊ x     _        1○       _sin
+| > ∨   |         x ,     ,        2○       _cos
+⍳ < ∧   &         ≢ ⍴     #        3○       _tan
+⍴ *     ^         ⍕ ⍎     $        ⍟        _log
+⍳ ⌽     !         .       .        *        _exp
+⍋ <     <         / ⍝     /        ....
+⍒ >     >         \       \
+x =     =         ¨       '
+x       /:        []      []
+x       \:
+
+Type   Rank  Dimensions  Raveled Data
+----   ----  ----------  ------------
+Num    3     2  3  4     0 1 2 3 4 5...
  
-https://www.jsoftware.com/ioj/iojATW.htm
+Boxing? Depth?
+
+Array Models
+------------
+⍟ APL and others supports nested arrays
+  - APL1 had a "flat box model"
+  - APL2 introduced the "nested box model"
+⍟ J continues using multidimensional arrays
+⍟ K switches to nested 1D arrays
+
+CoSy
+----
+⍟ Bob Armstrong (20??)
+⍟ Translate K's idioms to Forth
+⍟ Vocabulary built on top of Reva Forth
+⍟ Typed 1D arrays
+  - Integer / Character / Float / Box
+  - Looks like wants to support more?
+⍟ Vocabulary inspired by mix of K + APL names
+
+Reva Forth
+----------
+⍟ Bob Armstrong (20??)
+⍟ Case Sensitive
+⍟ { ... } allows inline :noname
+⍟ X86 Forth
+⍟ GUI seems to be unavailable online?
+
+i( 1 2 3 4 )i          -- list of integer
+f( 1 2 3 4)f           -- list of float
+`( list of strings )`  -- list of strings
+
+123 _i        -- list of one integer
+123.4 _f      -- list of one float
+" hi" _str    -- list of one string
+
++i        -- dyadic add
+-i        -- dyadic subtract
+*i        -- dyadic multiply
+/i        -- dyadic divide
+modi      -- dyadic modulus
+\/ mini   -- dyadic minimum
+/\ maxi   -- dyadic maximum
+ori       -- dyadic bitwise or
+andi      -- dyadic bitwise and
+=i        -- dyadic equal
+<>i       -- dyadic not equal
+<i        -- dyadic less
+>i        -- dyadic greater
+0<>i      -- monadic not equal
+0<i       -- monadic less than zero
+0>i       -- monadic greater than zero
+I>M       -- Iverson to Moore logic 1 vs -1
+M>I       -- Moore to Iverson logic 1 vs -1
+absi      -- monadic absolute value
+-0+i      -- monadic sign
+
+lst       -- print a list
+,I        -- catenate (integers)
+,L        -- catenate as lists (like lisp cons)
+'m        -- monadic each
+'L        -- dyadic each left
+'R        -- dyadic each left
+each      -- dyadic each
+^+        -- dyadic add (seems to assume int?)
+^=        -- dyadic equal (seems to assume int?)
+./        -- dyadic reduce (like APL /)
+.\        -- dyadic scan (like APL \)
++/        -- like APL +/
++\        -- like APL +\
+':        -- apply between pairs
+
+reverse   -- monadic flip
+rotate    -- flip at nth position
+sublist   -- extract subrange of list
+memb      -- check for membership
+where     -- locate an item in a list
+flip      -- transpose
 
   DEMO +
 QUESTIONS❓
