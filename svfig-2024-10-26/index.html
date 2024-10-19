@@ -322,6 +322,31 @@ dfns
 ⍝ Compute Pythagorean Theorem
 pythagorean←{((⍺*2)+(⍵*2))*÷2}
 
+dfns
+----
+⍝ Compute Factorial
+fact←{0=⍵:1
+      ⍵×∇⍵-1}
+
+∇ D←F9 E;F;I;K
+  F←(,(E='⍵')∘.≠5↑1)/,E,(⌽4,⍴E)⍴'  Y9  '
+  F←(,(F='⍺')∘.≠5↑1)/,F,(⌽4,⍴F)⍴'  X9  '
+  F←1↓⍴D←(0,+/¯6,I)↓(-(3×I)++\I←':'=F)⌽F,(⌽6,⍴F)⍴''
+  D←3⌽C9[1+(1+'⍺'∊E),I,0;],⍉D[;1,(I←2↓⍳F),2]
+  K←K+2×K<1⌽K←I∧K∊(>⌿1 0⌽'←⎕'∘.=E)/K←+\~I←E∊A9
+  F←(0,1+⍴E)⌈⍴D←D,(F,⍴E)↑⍉0 ¯2↓K⌽' ',E,[1.5]';'
+  D←(F↑D),[1]F[2] '⍝',E
+∇
+                   A9             
+C9                 --             
+--                 012345678         FIX        
+Z9←                9ABCDEFGH         ---
+Y9Z9←              IJKLMNOPQ         0⍴⎕FX F9 ⍞
+Y9Z9←X9            RSTUVWXYZ
+)/3→(0=1+,         ⒶⒷⒸⒹⒺⒻⒼⒽⒾ
+→0,0⍴Z9←           ⒿⓀⓁⓂⓃⓄⓅⓆⓇ
+                   ⓈⓉⓊⓋⓌⓍⓎⓏ⎕
+
 Children of APL - J
 -------------------
 ⍟ Iverson and Robert Hui (1990s)
@@ -468,10 +493,10 @@ ori       -- dyadic bitwise or
 andi      -- dyadic bitwise and
 =i        -- dyadic equal
 <>i       -- dyadic not equal
-<i        -- dyadic less
+&lt;i        -- dyadic less
 >i        -- dyadic greater
 0<>i      -- monadic not equal
-0<i       -- monadic less than zero
+0&lt;i       -- monadic less than zero
 0>i       -- monadic greater than zero
 I>M       -- Iverson to Moore logic 1 vs -1
 M>I       -- Moore to Iverson logic 1 vs -1
