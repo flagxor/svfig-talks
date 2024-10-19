@@ -80,6 +80,7 @@ History
   and Matlab, etc.
 ⍟ Used instead of BASIC in two microcomputers:
   - MCM/70 - 8008 2-8K RAM (1974)
+    https://blazorcanvas20210704221924.azurewebsites.net/mcmpoc
   - VideoBrain APL/S - F8 1KB RAM (1977)
 ⍟ Praised by John Backus in his famous Turing lecture:
   Can programming be liberated from the von Neumann style?
@@ -204,6 +205,10 @@ Circlular Operator ○
 ¯6○x = arccosh x       6○x = cosh x
 ¯7○x = arctanh x       7○x = tanh x
 
+No order of operations, binds right:
+  2×3+5 = 2×(3+5) = 16   (not 11)
+  2+3×5 = 2+(3×5) = 17
+
 Notation as a Tool of Thought 
 -----------------------------
 Important Characteristics of Notation:
@@ -293,6 +298,29 @@ Gauss's Formula
          ⍝ definition of
          ⍝ multiplication
 ((N+1) × N) ÷ 2
+
+tradfns
+-------
+∇ C←A PYHTAGOREAN B
+  ⍝ Compute Pythagorean Theorem
+  C←((A*2)+(B*2))*÷2
+∇
+     3 PYTHAGOREAN 4
+5
+
+tradfns (locals)
+----------------
+∇ C←A PYTHAGOREAN B;T;R
+  ⍝ Compute Pythagorean Theorem
+  T←A*2
+  R←B*2
+  C←(T+R)*÷2
+∇
+
+dfns
+----
+⍝ Compute Pythagorean Theorem
+pythagorean←{((⍺*2)+(⍵*2))*÷2}
 
 Children of APL - J
 -------------------
