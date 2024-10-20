@@ -121,10 +121,13 @@ Overstrike
 
 Large Symbol Set
 ----------------
-+-×÷⌈⌊*⍟|!○~∨∧⍱⍲<≤=≥>≠.≡≢
-⍴,⍪⍳↑↓?⍒⍋⍉⌽⊖∊⊥⊤⍎⍕⌹⊂⊃∪∩⍷⌷∘
-→←⎕⍞/⌿\⍀¨⍣⍨#⊆⍥⍠⍤⌸⍸()[];⍝⋄
-:⍬∇⍺⍵⍶⍹ᐵᑈ⍡⍁⌾⍢⍫⍛⍧⊇⍮⍭⍦⍇⍈⍐⍗=
++-×÷⌈⌊*⍟|!○~∨∧⍱⍲<≤=≥>≠.⋔⍦∵
+⍴,⍪⍳↑↓?⍒⍋⍉⌽⊖∊⊥⊤⍎⍕⌹⊂⊃∪∩⍷⌷∘⍑
+→←⎕⍞/⌿\⍀¨⍣⍨⊆⍥⍠⍤⌸⍸()[];⍝±∓⍊
+:⍬∇⍺⍵⍶⍹ᐵᑈ⍡⍁⌾⍢⍫⍛⍧⊇⍮⍭⍇⍈⍐⍗=⍅⍆
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ
+     ⌻⌼⍁⍂⍃⍄⍌⍍⍓⍔⍯⍰⍏⍖⍘'
 
     Monadic       Dyadic
     -------       ------
@@ -132,6 +135,23 @@ Large Symbol Set
 -   Negation      Subtract
 ×   Signum        Multiply
 ÷   Reciprocal    Divide
+
+    Monadic       Dyadic
+    -------       ------
+<                 Less
+≤                 Not greater
+=                 Equal
+≥                 Not less
+>                 Greater
+≠                 Not equal
+
+    Monadic       Dyadic
+    -------       ------
+~   Not
+∧                 And
+∨                 Or
+⍲                 Nand
+⍱                 Nor
 
     Monadic       Dyadic
     -------       ------
@@ -144,22 +164,16 @@ Large Symbol Set
 !   Factorial     Binomial
 ?   Roll          Deal
 
-    Monadic       Dyadic
-    -------       ------
-~   Not
-∧                 And
-∨                 Or
-⍲                 Nand
-⍱                 Nor
-
-    Monadic       Dyadic
-    -------       ------
-<                 Less
-≤                 Not greater
-=                 Equal
-≥                 Not less
->                 Greater
-≠                 Not equal
+Circlular Operator ○
+--------------------
+                       0○x = sqrt(1-x^2)
+¯1○x = arcsin x        1○x = sin x
+¯2○x = arccos x        2○x = cos x
+¯3○x = arctan x        3○x = tan x
+¯4○x = sqrt(x*2-1)     4○x = sqrt(1+x^2)
+¯5○x = arcsinh x       5○x = sinh x
+¯6○x = arccosh x       6○x = cosh x
+¯7○x = arctanh x       7○x = tanh x
 
     Monadic       Dyadic
     -------       ------
@@ -193,17 +207,6 @@ Large Symbol Set
 ∘.F  Outer Product
 F.G  Inner Product
 []   Axis
-
-Circlular Operator ○
---------------------
-                       0○x = sqrt(1-x^2)
-¯1○x = arcsin x        1○x = sin x
-¯2○x = arccos x        2○x = cos x
-¯3○x = arctan x        3○x = tan x
-¯4○x = sqrt(x*2-1)     4○x = sqrt(1+x^2)
-¯5○x = arcsinh x       5○x = sinh x
-¯6○x = arccosh x       6○x = cosh x
-¯7○x = arctanh x       7○x = tanh x
 
 No order of operations, binds right:
   2×3+5 = 2×(3+5) = 16   (not 11)
@@ -301,7 +304,7 @@ Gauss's Formula
 
 tradfns
 -------
-∇ C←A PYHTAGOREAN B
+∇ C←A PYTHAGOREAN B
   ⍝ Compute Pythagorean Theorem
   C←((A*2)+(B*2))*÷2
 ∇
@@ -526,6 +529,8 @@ sublist   -- extract subrange of list
 memb      -- check for membership
 where     -- locate an item in a list
 flip      -- transpose
+
+https://cosyapl.storage.googleapis.com/cosy.html
 
   DEMO +
 QUESTIONS❓
