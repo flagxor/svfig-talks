@@ -43,8 +43,10 @@ What is APL?
 What does it look like?
 -----------------------
 ⍟ Denser than Forth!
+⍟ Special character set
+⍟ Infix notation (but not regular order of operations)
 ⍟ Potentially very write only
-⍟ The game of life:
+⍟ The game of life in APL:
   life ← {⊃1 ⍵ ∨.∧ 3 4 = +/ +⌿ ¯1 0 1 ∘.⊖ ¯1 0 1 ⌽¨ ⊂⍵}
 
 CO-DFNS SOURCE by Aaron W. Hsu
@@ -189,8 +191,8 @@ Circlular Operator ○
 ⍋   Ascending
 ⍒   Descending
 /                 Compress
-⌽   Reverse       Rotate
-⊖   Reverse       Rotate
+⌽   Reverse L     Rotate L
+⊖   Reverse F     Rotate F
 ⍉   Transpose
 
     Monadic       Dyadic
@@ -199,14 +201,17 @@ Circlular Operator ○
 ⊥                 Decode
 ⊤                 Encode
 ⌹   Mat Inverse
+--------
+[]  Axis
 
-/    Reduce (last axis)
-⌿    Reduce (first axis)
-\    Scan (last axis)
-⍀    Scan (first axis)
+Operators
+---------
+F/    Reduce (last axis)
+F⌿    Reduce (first axis)
+F\    Scan (last axis)
+F⍀    Scan (first axis)
 ∘.F  Outer Product
 F.G  Inner Product
-[]   Axis
 
 No order of operations, binds right:
   2×3+5 = 2×(3+5) = 16   (not 11)
@@ -283,7 +288,7 @@ LEMMA
     ⎕⎕⎕⎕⎕  ⎕
 1 2 3 4 5 + 5 4 3 2 1
    ←→ 6 6 6 6 6
-(⍳N)+(⌽⍳N) ←→ (N+1)⍴N
+(⍳N)+(⌽⍳N) ←→ N⍴(N+1)
 
 Gauss's Formula
 ---------------
@@ -297,7 +302,7 @@ Gauss's Formula
          ⍝ and commutative
 (+/((⍳N) + (⌽⍳N))) ÷ 2
          ⍝ by Lemma
-(+/((N+1)⍴N)) ÷ 2
+(+/(N⍴(N+1))) ÷ 2
          ⍝ definition of
          ⍝ multiplication
 ((N+1) × N) ÷ 2
@@ -425,9 +430,11 @@ Children of APL - K
 -------------------
 ⍟ Arthur Whitney (1993+)
 ⍟ ASCII, but focused on single characters
-⍟ Only the most important operators
+  - Only the most important operators
 ⍟ Kx, multiple incompatible generations
-⍟ Borrow from Scheme: lists of lists
+⍟ Borrow from Scheme:
+  - lists of lists
+  - more function manipulators
 
 APL     K3        APL     K3       APL      K3
 ---     --        ---     --       ---      --
@@ -461,21 +468,20 @@ Array Models
 
 CoSy
 ----
-⍟ Bob Armstrong (20??)
+⍟ Created by Bob Armstrong
 ⍟ Translate K's idioms to Forth
 ⍟ Vocabulary built on top of Reva Forth
 ⍟ Typed 1D arrays
   - Integer / Character / Float / Box
-  - Looks like wants to support more?
 ⍟ Vocabulary inspired by mix of K + APL names
 
 Reva Forth
 ----------
-⍟ Bob Armstrong (20??)
+⍟ Created by Ron Aaron
 ⍟ Case Sensitive
 ⍟ { ... } allows inline :noname
 ⍟ X86 Forth
-⍟ GUI seems to be unavailable online?
+⍟ GUI / Tui
 
 i( 1 2 3 4 )i          -- list of integer
 f( 1 2 3 4)f           -- list of float
@@ -484,6 +490,7 @@ f( 1 2 3 4)f           -- list of float
 123 _i        -- list of one integer
 123.4 _f      -- list of one float
 " hi" _str    -- list of one string
+` hi          -- single word string
 
 +i        -- dyadic add
 -i        -- dyadic subtract
@@ -530,7 +537,44 @@ memb      -- check for membership
 where     -- locate an item in a list
 flip      -- transpose
 
-https://cosyapl.storage.googleapis.com/cosy.html
+Array Languages and Forth
+-------------------------
+⍟ Both Forth and Array Languages:
+  - Try to be tacit / point-free
+  - Notorious for being write-only
+  - Strive to have a minimal core
+⍟ But Array Languages:
+  - Favor idioms over abstraction
+  - Have memory safety
+  - Have an unclear approach to stateful programs
+  - Map the problem to the language,
+    not the reverse
+
+"It is better to have 100 functions operate on one data structure
+ than to have 10 functions operate on 10 data structures."
+ -- Alan Perlis - Epigrams on Programming (1982)
+
+Possible Lessons?
+-----------------
+⍟ APL and friends can be really small
+  - Are we missing out on a safer more powerful base?
+  - Powerful operators need fewer arguments
+⍟ Are DSLs a distraction?
+⍟ Is Math the way?
+  - What kind of suggestivity does Forth have?
+
+Putting CoSy on the Web
+-----------------------
+⍟ Wine - started by Bob Amstadt and Eric Youngdale
+  - Windows on Linux
+⍟ Boxedwine - James Bryant
+  - Wine on a 32-bit Linux emulator
+⍟ Emscripten - Alon Zakai
+  - C/C++/LLVM to Asm.js and WebAssembly
+⍟ WebAssembly
+  - Fast, low level code for the web
+⍟ In sum: CoSy on Wine on Boxedwine on WebAssembly
+  https://cosyapl.storage.googleapis.com/cosy.html
 
   DEMO +
 QUESTIONS❓
