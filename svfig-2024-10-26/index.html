@@ -81,7 +81,7 @@ History
 ⍟ Filled a hole eventually subsumed by spreadsheets
   and Matlab, etc.
 ⍟ Used instead of BASIC in two microcomputers:
-  - MCM/70 - 8008 2-8K RAM (1974)
+  - MCM/70 - Intel 8008 2-8K RAM, 32K ROM (1974)
     https://blazorcanvas20210704221924.azurewebsites.net/mcmpoc
   - VideoBrain APL/S - F8 1KB RAM (1977)
 ⍟ Praised by John Backus in his famous Turing lecture:
@@ -494,6 +494,33 @@ Reva Forth
 ⍟ X86 Forth
 ⍟ GUI / Tui
 
+alias: --aa       dup
+alias: a--        drop
+alias: --ba       swap
+alias: --aba      over
+alias: --b        nip
+alias: --bab      tuck
+alias: --bca      rot
+alias: --c       _2nip
+alias: --cab      -rot
+
+: --aaa   dup dup ;
+: --aab   over swap ;
+: --aaba  over swap over ;
+: --aabc  2 pick -rot ;
+: --aacb  --aabc swap ;
+: --abaa  over dup ;
+: --abba  2dup swap ;
+: --abca  2 pick ;
+: --abac  2 pick swap ;
+: --acab  2 pick rot ;
+: --acdb  2swap rot ;
+: --abcda 3 pick ;
+: --abcab 2 pick 2 pick ;
+: --bab   dup -rot ;
+: --bba   tuck swap ;
+: --bc    rot drop ;
+
 i( 1 2 3 4 )i          -- list of integer
 f( 1 2 3 4)f           -- list of float
 `( list of strings )`  -- list of strings
@@ -586,6 +613,11 @@ Possible Lessons?
   - Are we missing out on a safer more powerful base?
   - Powerful operators need fewer arguments
 ⍟ Are DSLs a distraction?
+⍟ Should we use more symbols?
+⍟ Should we find more Forth idioms?
+⍟ --cba with Recognizers?
+⍟ More infix? Maybe with Recognizers?
+⍟ Could we avoid loops and conditionals too?
 ⍟ Is Math the way?
   - What kind of suggestivity does Forth have?
 
