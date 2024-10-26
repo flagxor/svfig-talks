@@ -452,6 +452,17 @@ x =     =         ¨       '
 x       /:        []      []
 x       \:
 
+Polymorphism
+------------
+⍟ Binary, Integer, Real, and Complex are implicit
+  - Some ops assume binary: ~ ∧ ∨
+  - Others are type preserving: + - x
+  - Others selectively convert:
+     ÷ (int to real)
+     = < > (float/int to binary)
+     * (float/int to complex)
+⍟ Boxed values and strings... coexist
+
 Type   Rank  Dimensions  Raveled Data
 ----   ----  ----------  ------------
 Num    3     2  3  4     0 1 2 3 4 5...
