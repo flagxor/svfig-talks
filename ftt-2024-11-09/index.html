@@ -13,8 +13,8 @@ Recognizers in ESP32forth
 
 Motivation
 ┄────────┄
-• You create do amazing
-   DSLs (Domain Specific Languages) in Forth!
+• Forth is really good at creating
+   DSLs (Domain Specific Languages).
 • Nearly everything can be redefined,
    including numbers:
      : 42 ." everything" ;
@@ -39,7 +39,7 @@ Forth Recognizers
 Terminology
 ┄─────────┄
 Recognizer = Word given the chance to handle parsing
-             ( a n -- rectype )
+             ( a n -- .. rectype )
 Recognizer Sequence / Stack = Ordered set of recognizers
              [ n xt0 xt1 xt2 ... ]
 Recognizer Type = Dispatch table returned by a recognizer
@@ -304,6 +304,8 @@ Complex Numbers
   0 value foo
   123 ->foo
 • Make sure it works in definitions and postponed.
+  : bar   55 ->foo ;
+  : baz   postpone ->foo ;
 
 : ->ex   execute ;
 : ->,   >r aliteral r> , ;
