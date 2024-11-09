@@ -19,8 +19,8 @@ Motivation
    including numbers:
      : 42 ." everything" ;
 • But...
-  ◦ Strings in Forth have a weird extra space.
   ◦ There's no easy way to add new kinds of numbers.
+  ◦ Strings in Forth have a weird extra space.
   ◦ There's no way for words to implicitly exist
     based on other words.
 
@@ -31,15 +31,19 @@ Forth Recognizers
   ◦ Change what happens while parsing + interpreting
   ◦ Compose set of "recognizers" of different types
   ◦ Extend literals, add strings, and more
-• Homologous to changing colorForth color dispatch
 • I learned about them from Leon Wagner's Forth Day talk
+• Homologous to changing colorForth color dispatch
+• Available, but not documented in ESP32forth
 • Caveat: I'm ignorant of the standards process
 
 Terminology
 ┄─────────┄
 Recognizer = Word given the chance to handle parsing
+             ( a n -- rectype )
 Recognizer Sequence / Stack = Ordered set of recognizers
+             [ n xt0 xt1 xt2 ... ]
 Recognizer Type = Dispatch table returned by a recognizer
+             [ xt0 xt1 xt2 ]
 
 Recognizer Types
 ┄──────────────┄
@@ -49,7 +53,7 @@ RECTYPE: ( xt-interpret
            "name" -- )
 
          |     STATE @ 2+
-         |  
+         |
     0    |    1    |     2
 ─────────┼─────────┼──────────
 POSTPONE | COMPILE | INTERPRET
@@ -137,8 +141,8 @@ create RECSTACK 0 , BL 2/ ( 16 ) cells allot
 ;
 ' REC-FNUM +RECOGNIZER
 
-Effect on uEforth
-┄───────────────┄
+Effect on ESP32forth
+┄──────────────────┄
 • PROs:
   ◦ Allows removing int/float parsing from core
     - In theory, can be done in Forth
@@ -283,7 +287,7 @@ Complex Numbers
 : iparts? { a n -- 0 | a n a n -1 }
   a n [char] i find-char dup 0= if exit then { m }
   m 1+ n 1- m a - -
-  a m a - 
+  a m a -
   -1
 ;
 : rec-z ( a n -- z addr1 | addr2 )
