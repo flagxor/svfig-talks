@@ -132,6 +132,185 @@ But in Forth?
 • Forth lets us build new types + stacks
 • Build an APL / CoSy style ARRAYS vocabulary?
 
+Arrays are all you need?
+════════════════════════
+• Wisdom of APL:
+  - Offers dense chunks of like typed values
+  - Fall back to MIXED references to other arrays
+• Makes things uniform
+• Supports a pattern to promote types as needed
+• Dictionaries...
+
+128 constant stack-depth
+ 
+( Stack for arrays )
+create astack    stack-depth cells allot
+variable ap    astack ap !
+: apush ( a -- ) cell ap +! ap @ ! ;
+: apop ( -- a ) ap @ @  cell negate ap +! ;
+: top ( -- a ) ap @ @ ;
+: under ( -- a ) ap @ cell - @ ;
+ 
+( Secondary stack for arrays )
+create arstack   stack-depth cells allot
+variable arp   arstack arp !
+: >a   apop   cell arp +! arp @ ! ;
+: a>   arp @ @  cell negate arp +! apush ;
+
+┌─────────────────┬──────┬───────────┬─────...
+│ Reference Count │ Size │    Type   │ Data 
+└─────────────────┴──────┴───────────┴─────...
+ 
+┌─────────────────┬──────┬─────────────┬─────────────────...
+│ Reference Count │ Size │ 0 (MIXED)   │ Array0, Array1, ...
+└─────────────────┴──────┴─────────────┴─────────────────...
+  
+┌─────────────────┬──────┬─────────────┬─────────────────...
+│ Reference Count │ Size │ 1 (STRING)  │ Char0, Char1,   ...
+└─────────────────┴──────┴─────────────┴─────────────────...
+ 
+┌─────────────────┬──────┬─────────────┬─────────────────...
+│ Reference Count │ Size │ 2 (INTEGER) │ Int0, Int1, Int2...
+└─────────────────┴──────┴─────────────┴─────────────────...
+  
+┌─────────────────┬──────┬─────────────┬─────────────────...
+│ Reference Count │ Size │ 3 (REAL)    │ Float0, Float1  ...
+└─────────────────┴──────┴─────────────┴─────────────────...
+
+( Array types )
+0 constant MIXED
+1 constant STRING
+2 constant INTEGER
+3 constant REAL
+create array-sizes   cell , 1 , cell , 4 ,
+: >esize ( type -- n ) cells array-sizes + @ ;
+ 
+( ref n type ^data... )
+3 cells constant header-size
+: >type ( a -- a ) -1 cells + ;
+: >count ( a -- a ) -2 cells + ;
+: >ref ( a -- a ) -3 cells + ;
+
+( Size of array data in bytes )
+: bytes ( a -- n ) dup >type @ >esize swap >count @ * ;
+( To string / array )
+: range ( a -- a n ) dup >count @ ;
+  
+( Create an uninitialized array )
+: array ( n type -- a )
+   2dup >esize * header-size + allocate throw header-size + apush
+   top >type !   top >count !   0 top >ref ! ;
+
+( Reference counting for arrays )
+: ref ( a -- ) 1 over >ref +! ;
+: unref ( a -- )
+   dup 0= if drop exit then
+   -1 over >ref +!
+   dup >ref @ 0&lt; if
+     dup >type @ MIXED = if
+       dup dup >count @ 0 ?do
+         dup @ recurse cell+
+       loop
+       drop 
+     then
+     header-size - free throw exit
+   then drop ;
+
+( Stack manipulation )
+: adrop ( a: a -- ) apop unref ;
+: a2drop ( a: a a -- ) adrop adrop ;
+: anip ( a: a b -- b ) apop apop unref apush ;
+: adup ( a: a -- a a ) top ref apush ;
+: aswap ( a: a b -- b a ) apop apop swap apush apush ;
+: aover ( a: a b -- a b a ) apop apop ref dup apush swap apush apush ;
+: a2dup ( a: a b -- a b a b ) aover aover ;
+  
+( Index into the top of the stack )
+: a@ ( n a: a -- a: a ) cells top + @ ref adrop apush ;
+
+( Raw array creation words )
+: empty ( -- a: a ) 0 MIXED array ;
+: box ( a: a -- a ) apop 1 MIXED array top ! ;
+: _s ( a n -- a: a ) dup STRING array top swap cmove ;
+: _c ( ch -- a: a ) 1 STRING array top c! ;
+: _i ( n -- a: a ) 1 INTEGER array top ! ;
+: _f ( f: n -- a: a ) 1 REAL array top sf! ;
+: _s"   postpone s" state @ if postpone _s else _s then ; immediate
+  
+: aconstant   create apop , does> @ ref apush ;
+  
+( Building arrays on the stack. )
+: [[   ap @ ;
+: ]]   ap @ swap - cell/ empty for aft aswap box aswap ,c then next ;
+
+( Convert integer array to floats )
+: n>f
+   top >count @ REAL array
+   under top range 0 ?do over @ s>f dup sf! sfloat+ >r cell+ r> loop 2drop anip ;
+  
+( Force integers to real. )
+: binuminal
+   top >type @ INTEGER = under >type @ REAL = and if n>f then
+   under >type @ INTEGER = top >type @ REAL = and if apop n>f apush then
+;
+
+0 value layer
+: lst ( a -- )
+   layer spaces
+   dup >type @ case
+     MIXED of
+       ." [" cr
+       2 +to layer
+       dup >count @ 0 ?do
+         dup @ recurse cell+ cr
+       loop
+       drop
+       -2 +to layer
+       layer spaces ." ]"
+     endof
+     STRING of dup >count @ type endof
+     INTEGER of dup >count @ 0 ?do dup @ . cell+ loop drop endof
+     REAL of dup >count @ 0 ?do dup sf@ f. sfloat+ loop drop endof
+   endcase
+;
+: a. ( a -- ) top lst adrop ;
+
+: catenate ( a: a a -- a ) ( catenate )
+  binuminal
+  top >type @ under >type @ = if
+    under >count @ top >count @ + top >type @ array apop >r
+    under r@ under bytes cmove
+    top r@ under bytes + top bytes cmove
+    under under bytes 0 fill
+    top top bytes 0 fill
+    r> apush anip anip
+    exit
+  then
+  top >type @ MIXED = if apop box apush recurse exit then
+  under >type @ MIXED = if box recurse exit then
+  apop apop 2 MIXED array top cell+ ! top !
+;
+: ,c   catenate ;
+
+That's enough for JSON!
+
+Parsing JSON
+════════════
+• Recursive descent parser
+  - Code mirrors grammar
+• Single character lookahead
+
+defer getchar
+-1 value token
+: skip   getchar to token ;
+ 
+variable insource
+variable inlength
+: in ( a n -- ) inlength ! insource ! skip ;
+: ingetchar ( -- n )
+   inlength @ 0= if -1 exit then
+   insource @ c@ 1 insource +! -1 inlength +! ;
+' ingetchar is getchar
 
                        ╭──string──╮
                        │          │
@@ -311,15 +490,100 @@ number
   dup if 10e s>f f** s>f f* _f else drop _i then
 ;
 
+: json> ( a -- a ) top range in &lt;value> anip ;
 
-⌠              ⌠
-│    Hello     │
-⌡              ⌡
+What about printing JSON?
 
-┌───────────────────┐
-│      TESTING      │
-│                   │
-└───────────────────┘
+: butlast? ( n -- f ) top >count @ 1- &lt;> ;
+: escaped ( a n -- a: a )
+  _s" "
+  0 ?do
+    dup i + c@
+    case
+      [char] " of _s" \" ,c [char] " _c ,c endof
+      [char] / of _s" \/" ,c endof
+      [char] \ of _s" \\" ,c endof
+      8 of _s" \b" ,c endof
+      12 of _s" \f" ,c endof
+      nl of _s" \n" ,c endof
+      13 of _s" \r" ,c endof
+      9 of _s" \t" ,c endof
+      dup _c ,c
+    endcase
+  loop
+  drop
+;
+
+: >json ( a: a -- a )
+  top >type @ case
+    MIXED of
+      top >count @ 1 > if top @ DICT top adrop = else 0 then if
+        _s" {" >a top >count @ 1 ?do
+          adup i a@ 0 a@ recurse _s" :" ,c a> aswap ,c >a
+          adup i a@ 1 a@ recurse a> aswap ,c >a
+          i butlast? if a> _s" ," ,c >a then
+        loop a> _s" }" ,c
+      else
+        _s" [" >a top >count @ 0 ?do
+          adup i a@ recurse a> aswap ,c >a
+          i butlast? if a> _s" ," ,c >a then
+        loop a> _s" ]" ,c
+      then
+    endof
+    STRING of [char] " _c >a top range a> escaped ,c [char] " _c ,c endof
+    INTEGER of
+      _s" " >a
+      top >count @ 0 ?do
+        top i cells + @ &lt;# #s #> a> _s"  " ,c _s ,c >a
+      loop a> endof
+    REAL of
+      _s" " >a top >count @ 0 ?do
+        top i sfloats + sf@ &lt;# #fs #> a> _s" " ,c _s ,c >a
+      loop a> endof
+  endcase
+  anip
+;
+
+Dictionaries
+════════════
+• Need to represent key, value pairs
+• Need to be able to tell them apart
+  - Use address equality!
+• Ideally, fast, but meh
+
+[
+  "DICTIONARY"
+  [key1, value1]
+  [key2, value2]
+  ...
+]
+
+s" DICTIONARY" _s aconstant DICT
+: {{   [[ DICT ;
+: }}   ]] ;
+
+( Dictionary lookup )
+: as= ( a: a a -- f )
+  top >type @ STRING &lt;> if a2drop 0 exit then
+  under >type @ STRING &lt;> if a2drop 0 exit then
+  top range under range str= a2drop
+;
+: dict@ ( a: a key -- value )
+  aswap
+  top >count @ 1 ?do
+    a2dup i a@ 0 a@ as= if i a@ 1 a@ anip unloop exit then
+  loop
+  a2drop
+  _s" "
+;
+
+Gemini API
+══════════
+• Transport
+  - REST API (Representational State Transfer)
+  - Send JSON, Get JSON
+• Features
+  - 
 
   DEMO &
 QUESTIONS❓
