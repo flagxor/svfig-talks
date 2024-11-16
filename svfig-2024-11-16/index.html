@@ -47,8 +47,8 @@ ESP32 Family
 HTTPS
 ═════
 • Hypertext Transfer Protocol Secure
-• Transport Layer Security (formerly SSL)
-• Encrypt communication with a symmetric cipher
+• Wrap TCP connect with Transport Layer Security
+• Encrypts communication with a symmetric cipher
   (usually AES)
 • Key exchange and chain of trust with asymmetric cipher
   (usually Elliptic Curve Diffie-Hellman, historically RSA)
@@ -113,13 +113,13 @@ JSON
 ════
 • JavaScript Object Notation
 • Simple types:
-  - double (covers int32 range also)
-  - string
-  - boolean (true, false)
+  - Float64 (covers int32 range also)
+  - String
+  - Boolean (true, false)
   - null
 • Complex types:
-  - array [items...]
-  - object/dictionary { key:value... }
+  - Array [items...]
+  - Object / Dictionary { key: value, ... }
 • Good format for protocol messages
   - Human readable, reasonably compact
   - Self describing
@@ -157,25 +157,26 @@ variable arp   arstack arp !
 : >a   apop   cell arp +! arp @ ! ;
 : a>   arp @ @  cell negate arp +! apush ;
 
-┌─────────────────┬──────┬───────────┬─────...
-│ Reference Count │ Size │    Type   │ Data 
-└─────────────────┴──────┴───────────┴─────...
- 
-┌─────────────────┬──────┬─────────────┬─────────────────...
-│ Reference Count │ Size │ 0 (MIXED)   │ Array0, Array1, ...
-└─────────────────┴──────┴─────────────┴─────────────────...
-  
-┌─────────────────┬──────┬─────────────┬─────────────────...
-│ Reference Count │ Size │ 1 (STRING)  │ Char0, Char1,   ...
-└─────────────────┴──────┴─────────────┴─────────────────...
- 
-┌─────────────────┬──────┬─────────────┬─────────────────...
-│ Reference Count │ Size │ 2 (INTEGER) │ Int0, Int1, Int2...
-└─────────────────┴──────┴─────────────┴─────────────────...
-  
-┌─────────────────┬──────┬─────────────┬─────────────────...
-│ Reference Count │ Size │ 3 (REAL)    │ Float0, Float1  ...
-└─────────────────┴──────┴─────────────┴─────────────────...
+┌─────────────────┬──────┬─────────────┬───────···
+│ Reference Count │ Size │     Type    │ Data  ···
+└─────────────────┴──────┴─────────────┴───────···
+                                        ^ 
+┌─────────────────┬──────┬─────────────┬─────────────────···
+│ Reference Count │ Size │ 0 (MIXED)   │ Array0, Array1, ···
+└─────────────────┴──────┴─────────────┴─────────────────···
+                                        ^
+┌─────────────────┬──────┬─────────────┬─────────────────···
+│ Reference Count │ Size │ 1 (STRING)  │ Char0, Char1,   ···
+└─────────────────┴──────┴─────────────┴─────────────────···
+                                        ^ 
+┌─────────────────┬──────┬─────────────┬─────────────────···
+│ Reference Count │ Size │ 2 (INTEGER) │ Int0, Int1, Int2···
+└─────────────────┴──────┴─────────────┴─────────────────···
+                                        ^ 
+┌─────────────────┬──────┬─────────────┬─────────────────···
+│ Reference Count │ Size │ 3 (REAL)    │ Float0, Float1  ···
+└─────────────────┴──────┴─────────────┴─────────────────···
+                                        ^
 
 ( Array types )
 0 constant MIXED
@@ -327,7 +328,7 @@ value                  ├──object──┤
                        ╰──'null'──╯
 
 defer &lt;value>
-....
+  ....
 :noname
    &lt;whitespace>
    token case
@@ -583,7 +584,149 @@ Gemini API
   - REST API (Representational State Transfer)
   - Send JSON, Get JSON
 • Features
-  - 
+  - Fine-tuning for a task
+  - Structured Output
+  - Grounding with Google Search
+  - Function calling
+  - Document, Audio, and Image input
+  - Image output
+  - System Intructions (who to reply as)
+  - Long context windows (>99.7% recall up to 1M tokens)
+
+POST to:
+  https://generativelanguage.googleapis.com/v1beta/models
+        /gemini-1.5-flash:generateContent?key=GOOGLE_API_KEY
+This:
+{
+  "contents": [
+    {
+      "parts":[
+         {"text": "Write a story about a magic backpack."}
+      ]
+    }
+  ]
+}
+
+Result
+══════
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+────────▶  "text": "Lila had always been a dreamer. ...."
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0,
+      "safetyRatings": [
+        {
+          "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "probability": "NEGLIGIBLE"
+        },
+        {
+          "category": "HARM_CATEGORY_HATE_SPEECH",
+          "probability": "NEGLIGIBLE"
+        },
+        {
+          "category": "HARM_CATEGORY_HARASSMENT",
+          "probability": "NEGLIGIBLE"
+        },
+        {
+          "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+          "probability": "NEGLIGIBLE"
+        }
+      ]
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 8,
+    "candidatesTokenCount": 570,
+    "totalTokenCount": 578
+  },
+  "modelVersion": "gemini-1.5-flash-001"
+}
+
+Parts
+═════
+{
+  "contents": [
+    {"role":"user", "parts":[{
+      "text": "Hello"
+    }]},
+    {"role": "model", "parts":[{
+       "text": "Great to meet you. What would you like to know?"
+    }]},
+    {"role":"user", "parts":[{
+       "text": "I have two dogs in my house. How many paws are in my house?"}]},
+  ]
+}
+
+Parameters
+══════════
+{
+  ...
+  "safetySettings": [
+    {
+      "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+      "threshold": "BLOCK_ONLY_HIGH"
+    }
+  ],
+  "generationConfig": {
+    "stopSequences": [
+      "Title"
+    ],
+    "temperature": 1.0,
+    "maxOutputTokens": 800,
+    "topP": 0.8,
+    "topK": 10
+  }
+}
+
+also HTTPClient
+NetworkClientSecure.new constant nclient
+cacert top adrop nclient NetworkClientSecure.setCACert
+ 
+: doquery ( a -- n )
+  HTTPClient.new { session }
+  url top adrop nclient session HTTPClient.beginNC 0= throw
+  1 session HTTPClient.setFollowRedirects
+  10 session HTTPClient.setRedirectLimit
+  0 session HTTPClient.setReuse
+  z" POST" top session HTTPClient.sendRequest adrop 200 <> throw
+  session HTTPClient.getStreamPtr { result }
+  begin result NetworkClient.available while
+    pad 1024 result NetworkClient.available min result NetworkClient.readBytes
+    pad swap type
+  repeat
+  session HTTPClient.delete
+;
+
+: askit { a n -- a }
+   {{
+     [[ _s" contents" [[
+       {{
+         [[ _s" parts" [[
+           {{
+             [[ _s" text" a n _s ]]
+           }}
+         ]] ]]
+       }}
+     ]] ]]
+   }}
+;
+ 
+: reply-text ( a: a -- a )
+  json> _s" candidates" dict@ 0 a@ _s" content" dict@ _s" parts" dict@ 0 a@ _s" text" dict@
+;
+ 
+: ask
+  nl parse askit >json doquery
+  top 3 + top >count @ 3 - _s anip reply-text a. cr
+;
 
   DEMO &
 QUESTIONS❓
