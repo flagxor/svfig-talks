@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WWWBasic + Bringing Nike System Game to the Web</title>
+    <meta name="description"
+    content="WWWBasic + Bringing Nike System Game to the Web - July 28, 2018">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/beige.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!-- 
+      <link rel="stylesheet" href="../reveal.js/plugin/highlight/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+<style>
+pre {
+  background-color: #cef;
+  padding: 20px;
+}
+</style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>Ed's Nike Launch Simulator</h2>
+          <h4>Decemeber 21, 2024</h4>
+          <p>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Ed Thelen</h3>
+          <img src="https://ed-thelen.org/Ed_10.jpeg">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="nike.png">
+          June 23, 2018
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="tu95.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="system.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="game.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="plan_position_indicator.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="target_designation.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="vertical_plotting_board.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="xytarget.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="ttr_mtr.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="control_panel.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="fire.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="game2.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <pre style="font-size: 0.4em">
+From: ed ed-thelen.org
+Sent: Saturday, December 2, 2023 10:16 AM
+To: Randy Thelen
+Subject: World too complicated !!!!
+ 
+At least for my worn-out mind -
+    or maybe since I'm in comfortable circumstances
+     maybe a lack of fear/drive/motivation to strive -
+
+https://ed-thelen.org/NikeSimulation.html#SimBrowser
+
+I wrote the game in FreeBasic,
+   which was Intel only -
+<b>While talking about this to the Forth group
+    Brad Nelson suddenly quit listening and
+    started scribbling - just a bit distracting -
+Just for fun he started making a
+   FreeBasic  to JavaScript translator
+So, instead of sending the compiled FreeBasic
+  I sent the FreeBasic text and Brad's translator
+  to the on line user.
+</b>
+(The translator time is so short (say a second or two)
+    that the user does not notice the pause)
+
+The JavaScript was not as fast as the compiled FreeBasic
+    so I had to remove the (not needed) simulated
+   Target Tracking and Missile Tracking radar displays.
+(for purposes of the game they were just frills)
+
+-Pops
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>
+From: Randy Thelen
+Sent: Sunday, December 3, 2023 11:05 PM
+To: ed ed-thelen.org
+Subject: Re: World too complicated !!!!
+ 
+Thank you!
+
+Super interesting.
+
+Your friend built a compiler, library and interpreter for your program.
+It’s kind of amazing!!
+
+You should really thank him.  It was no small programming task on his
+part to cough up that system.  It’s a pretty massive program.
+
+In total, he generated nearly 3,300 lines of code.
+
+— Randy
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>
+From: ed ed-thelen.org
+Sent: Monday, December 4, 2023, 12:29 PM
+To: Brad Nelson
+CC: Randy Thelen
+Subject: Fw: World too complicated !!!!
+
+Thank you for your FreeBasic to JavaScript converter
+    again ;--))  
+
+ https://ed-thelen.org/nike-fromBradNelsonSept26.html
+
+-Ed Thelen
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>
+From: Brad Nelson
+Sent: Tuesday, December 5, 2023, 9:43 PM
+To: ed ed-thelen.org
+CC: Randy Thelen
+Subject: Re: Fw: World too complicated !!!!
+
+Hi Ed,
+
+You're most welcome!
+
+And by the way the way, it's a small world. About a year ago,
+I was curious about how the IBM 1401 instruction set worked
+and my Internet searches let me to what I quickly realized
+was your website.
+
+So thank you for all your efforts preserving history!
+
+-BradN
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Ed's Simulator</h3>
+          <ul>
+            <p>~3,100 lines of FreeBASIC</p>
+            <p><b>Goal:</b> Run it as-is</p>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>FreeBASIC Quirks</h3>
+          <ul>
+            <li>Arrays, Integer, Double, Single, Strings</li>
+            <li>Structured IF/ELSEIF/ELSE/END IF</li>
+            <li>SELECT CASE, DO LOOP</li>
+            <li>CONST, {} Initialization</li>
+            <li>Labels, GOTO, GOSUB, RETURN</li>
+            <li>1280x1024 Mode 21</li>
+            <li>LINE, PSET, CIRCLE</li>
+            <li>GETMOUSE</li>
+            <li>LOCATE, PRINT, PRINT USING</li>
+            <li>+=, -=, ATAN2</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Approach</h3>
+          <ul>
+            <li>Parse upfront</li>
+            <li>Simple tokenizer</li>
+            <li>Recursive descent parser</li>
+            <li>Allocate variables in TypedArrays</li>
+            <li>Emit JavaScript code, flush on labels/line numbers</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Separate .BAS)</h3>
+          <pre><code data-trim>
+---- foo.html ----
+
+&lt;!DOCTYPE html>
+<script src="wwwbasic.js"></script>
+<script type="text/basic" src="foo.bas"></script>
+
+---- foo.bas ----
+
+PRINT "Hello World!"
+FOR i = 1 to 10
+  PRINT "Counting "; i
+NEXT i
+</script>
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Inline)</h3>
+          <pre><code data-trim>
+&lt;!DOCTYPE html>
+<script src="wwwbasic.js"></script>
+<script type="text/basic">
+
+PRINT "Hello World!"
+FOR i = 1 to 10
+  PRINT "Counting "; i
+NEXT i
+
+</script>
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Usage (Inline)</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/hello_world.html" width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3 style="text-transform: none">µEforth (Inline)</h3>
+          <pre><code data-trim>
+&lt;!DOCTYPE html>
+<script src="https://eforth.appspot.com/ueforth.js"></script>
+<script type="text/forth">
+
+: RUN   ." Hello World!" CR
+        11 1 DO ." Counting " I . CR LOOP ;
+RUN BYE
+
+<script src="https://eforth.appspot.com/ueforth.js"></script>
+
+</script>
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3 style="text-transform: none">µEforth (Inline)</h3>
+          <iframe src="forth_sample.html" width=600 height=300></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <pre><code data-trim>
+SCREEN 21
+FOR i = 1 to 40
+  FOR j = 1 to 30
+    CIRCLE (i * 30, j * 30), _
+    10, i * 6 * 65536 + j * 6 * 256,,,,F
+  NEXT j
+NEXT i
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/circles.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <pre><code data-trim>
+SCREEN 21
+FOR i = 1 to 1000
+  x1 = INT(RND() * 1280)
+  y1 = INT(RND() * 1024)
+  x2 = INT(RND() * 1280)
+  y2 = INT(RND() * 1024)
+  c = INT(RND() * 256 * 256 * 256)
+  LINE (x1, y1)-(x2, y2), c
+NEXT i
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Graphics</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/lines.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Mouse</h3>
+          <pre><code data-trim>
+SCREEN 21
+GETMOUSE x, y, nw, nb
+' Wait for mouse events.
+DO
+  GETMOUSE nx, ny, nw, nb
+LOOP WHILE x = nx and y = ny
+x = nx : y = ny
+' Draw a green line following the mouse.
+Again:
+  GETMOUSE nx, ny, nw, nb
+  LINE (x, y)-(nx, ny), 256 * 255
+  x = nx : y = ny
+GOTO Again
+          </code></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Mouse</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/mouse.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Donkey</h3>
+          <iframe src="https://google.github.io/wwwbasic/examples/donkey.html"
+            width=800 height=600></iframe>
+        </section>
+
+        <section data-transition="fade-out">
+          <img src="hn.png">
+        </section>
+
+        <section data-transition="fade-out">
+          <p>
+          <a href="nike.html">Ed's Original Simulator</a><br/><br/>
+          <img src="https://ed-thelen.org/Ed_Van.jpeg" height="200"><br/>
+          <a href="https://ed-thelen.org/nike-fromBradNelsonSept26.html">Simulator</a>
+          and <a href="https://ed-thelen.org/NikeSimulation.html">Details</a> on Ed's Site</a>
+          </p>
+          <h2>Thank you</h2>
+        </section>
+
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/nonforth.js"></script>
+
+  </body>
+</html>

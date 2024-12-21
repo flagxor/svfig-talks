@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<script src="https://google.github.io/wwwbasic/wwwbasic.js"></script>
+<script type="text/basic">
+
+'  Nike Hercules display simulation
+' set monitor to 1280 x 1024 (Minimum !!!!)
+'     
+'  July 4 - lets play radius of curvature games
+'         and internet comment is that the radius of curvature in 3 space
+'   can be found from the distance of three points on a 3 space circle
+'  http://www.physicsforums.com/showthread.php?t=173847
+'      Greek000
+'
+'Well, you only need to find the distances between these three points in 3D space, 
+'which correspond to the lengths of the triangle sides. This is an easy task. 
+'If we name these distances a, b, c then the radius R of the circumscribed circle is:
+'
+'                  abc
+'     R = ---------------------------------------------------
+'          SQR( 2a^2b^2 + 2b^2c^2 + 2c^2a^2 - a^4 -b - c^4 )
+'
+'When the points are colinear the quantity inside the square root becomes zero, 
+'and therefore the radius becomes infinite as it should.  
+
+'
+'  Nike dimensions are in the King's English units, not archaic Greek units !!!
+'    Azimuth   is in degrees, from north, clockwise -> east
+'    Elevation is in degrees, from horizontal -> vertical
+'    Range is in yards, slant range (what the radar sees)
+'   
+'    I have settled down to FreeBasic, an enhanced QBASIC
+'         which retains the flavor of QBASIC in 32 bit mode.
+'           case sensitive
+'         and is much more fussy about declaring floats and types
+'  the book says undeclared variables are single precision ! but I doubt it!
+'               DIM bytevar  AS BYTE
+'  %  integer   +-32K     SHORT   DEFSHORT
+'  &  long integer  +-2 billion
+'  !  single precision float   7 places*10^+-38  SINGLE  DEFSNG
+'  #  double precision float 15 places*10^+-300
+'  $  st-ring
+' DEF byte, dbl, int, lng, short, sng, str, ubyte,uint,ushort
+
+' the 'target' should be in a circle contained in the 'body' area
+'     the corners of the 'body' area are not well scanned
+'
+' Internal conventions - two coordinate systems
+'     Cartesian - for flight position and dynamics, and update the 
+'     Polar     - for display and mousing
+' Screen appearance
+'   upper left X,Y plotting board, +- 200,000 yards, target Tracked evaporates last tracks, light back lamp
+'   upper middle  target vs PredTimeIntercept plotting board, 0 to 100,000 feet, 0-150 seconds, """""
+'   upper riht  PIP or Missile vs PredTimeIntercept plotting board, 0 to 100,000 feet, 0-150 seconds, """""
+
+'   lower left   PPI with Azmuth numbers, Alert status near by
+'   lower left middle MTR, range gate, no grass, Az, El, Range, (in digital), raise/lower button, auto track
+'   lower center TTR, range gate, grass, ... Az, El, Range, (in digital) auto track
+'   lower right middle - target ground speed, missile air speed, IFF challenge, launch, manual burst, alert status
+'   lower right edge - game controls, new plane, Auto airplanes, WarGame mode, time mode, quit,
+'
+
+' mouse only inputs, except q for quit - 
+
+
+
+OPTION EXPLICIT   
+
+DEFDBL A-Z         ' default everything to Double floating point
+DIM SiteStatus,LastSiteStatus AS INTEGER
+SiteStatus = 3   ' preset to red, make life simple
+LastSiteStatus = 3 '
+CONST White = &hFFFFFF  ' colors
+CONST Grey  = &h606060
+CONST GreyL = &hA0A0A0
+CONST Red   = &hFF0000
+CONST RedDull = &h800000
+CONST Yellow= &hFFFF00
+CONST YellowDull = &h808000
+CONST Green = &h00FF00
+CONST Blue  = &h0000FF
+CONST BlueDull = &h000080
+CONST Black = &h000000
+
+CONST Mach1 = 372  ' yds/sec  1116 ft/s  wikipedia
+
+CONST dReleaseTime 	= 12. '17.2   ' prelaunch constants from prev
+CONST dReleaseRange 	= 3000'  5300 
+CONST dReleaseZ		= 6260 
+CONST dReleaseSpeed 	= 3.3*Mach1   
+CONST dMaxRange      	= 120000 ' herk?
+CONST dDeadZoneSec	= 60  ' can't seem to hit in there 
+CONST FullSteeringTime = 3  ' cheat streight on in after this time
+
+CONST Debug = 0
+DIM AS INTEGER SimRunMode=0, AutoMode=0, AutoTargetNumber=0
+DIM AutoMinimumTTI=0, AutoLastPPIRad=0
+DIM AS INTEGER TargetDesignatedStatus, TargetTrackedStatus, ComputerSettledStatus,  _
+MissileSelectedStatus, FireButtonStatus, ManBurstButtonStatus, MissileAwayStatus, RollStabizationStatus, _
+G7DiveStatus, NormalGuidanceStatus, BurstStatus
+DIM AS INTEGER IFF_1ButtonStatus = 0, IFF_2ButtonStatus = 0
+
+TargetDesignatedStatus = 0: TargetTrackedStatus = 0: ComputerSettledStatus = 0
+MissileSelectedStatus = 1: FireButtonStatus = 0: ManBurstButtonStatus = 0 : 
+MissileAwayStatus = 0: RollStabizationStatus = 0
+G7DiveStatus = 0: NormalGuidanceStatus = 0: BurstStatus = 0 ' initialize
+DIM AS INTEGER TargetDesignatedStatusLast, TargetTrackedStatusLast, ComputerSettledStatusLast,  _
+MissileSelectedStatusLast, FiredStatusLast, MissileAwayStatusLast, RollStabizationStatusLast, _
+G7DiveStatusLast, NormalGuidanceStatusLast, BurstStatusLast
+TargetDesignatedStatusLast = 0: TargetTrackedStatusLast = 0: ComputerSettledStatusLast = 0
+MissileSelectedStatusLast = 0: FiredStatusLast = 0: MissileAwayStatusLast = 0: RollStabizationStatusLast = 0
+G7DiveStatusLast = 0: NormalGuidanceStatusLast = 0: BurstStatusLast = 0
+
+CONST Pi = 3.1415926535897932384626433832795   ' there are 2 Pi radians in a 360 degree circle
+CONST PiTimes2 = 2*Pi  ' a complete circle
+CONST PiDiv2 = Pi/2  ' 90 degrees
+CONST Deg2Rad = PiTimes2/360
+CONST Rad2Deg = 1/Deg2Rad
+CONST Yds2Mph = 2.0454545 ' 3600/1760  Yards/Sec 2 Miles per Hour
+'print "degrees per radian is 1/Deg2Rad = "; 1/Deg2Rad
+
+CONST PPI_MaxRad   =  200  ' display is 2 * PPI_MaxRad diameter
+CONST PPI_MaxDim = 2*PPI_MaxRad
+
+CONST MouseFF_Y = 1.0  ' mouse fudge factor  :-((
+'Const MouseFF_Y = 1.032 ' mouse fudge factor  :-((
+CONST MouseFF_X = 1.0 ' mouse does not match display !!
+CONST PPI_MaxRange = 300000 ' 300000 yards , about 
+CONST PPI_Pix2Yard = PPI_MaxRange/PPI_MaxRad
+CONST PPI_XOffSet = 65
+CONST PPI_YOffSet = 570 ' 65
+CONST PPI_YBottom = PPI_YOffSet + PPI_MaxDim
+DIM SHARED PPI_DispValu(PPI_MaxDim+1,PPI_MaxDim+1) AS INTEGER  ' make x,y display pixels 
+DIM SHARED PPI_DispFade(PPI_MaxDim+1,PPI_MaxDim+1) AS BYTE  ' make x,y display fade count
+DIM SHARED  PPI_ScanCount AS INTEGER ' *** used in debug to move target
+
+CONST PPI_FadeFactor =   0.92
+CONST Log10 = LOG(10)
+
+DIM AS INTEGER x_i,y_i,i_i,j_i,k_i,  ic_i,jc_i,kc_i
+'Dim as Integer w&,w1&,w2&,w3&,w4&
+DIM AS INTEGER  w_i,w1_i,w2_i,w3_i,w4_i
+DIM   k_f,w_f,x_f,y_f,z_f
+
+CONST  SpriteHi = 15 , SpriteWide = 10 +2
+' plotting board locations 
+CONST XY_X_Offset = 60 , XY_X_Width = 400,  XY_Y_Offset = 65 , XY_Y_Width = 400
+CONST XY_YardsRadius = 200000, XY_PixPerYard = (XY_X_Width/2)/XY_YardsRadius
+DIM AS INTEGER XY_Array(XY_X_Width,XY_Y_Width)
+DIM AS INTEGER  XYT_SpriteArray(SpriteWide,SpriteHi),XYT_SpriteLastLoc ' -1 = no last loc
+DIM AS INTEGER  XYM_SpriteArray(SpriteWide,SpriteHi),XYM_SpriteLastLoc ' -1 = no last loc
+
+CONST ZT_X_Offset = 500, ZT_X_Width = 300, ZT_Y_Offset = 65, ZT_Y_Width = 300
+DIM AS INTEGER xc_i, yc_i ' used to check bounds
+
+DIM AS INTEGER  ZTT_Array(ZT_X_Width,ZT_Y_Width) ' left  plot array
+DIM AS INTEGER  ZTT_SpriteArray(SpriteWide,SpriteHi),ZTT_SpriteLastLoc ' -1 = no last loc
+
+DIM AS INTEGER  ZTM_Array(ZT_X_Width,ZT_Y_Width) ' right plot array
+DIM AS INTEGER  ZTM_SpriteArray(SpriteWide,SpriteHi),ZTM_SpriteLastLoc ' -1 = no last loc
+
+CONST ZT_MaxSec = 150, ZT_MaxYards = 100000/3
+CONST ZT_Y_PixPerYard = ZT_Y_Width/ZT_MaxYards ' determine pix per vertical yard
+CONST ZT_X_PixPerSecond = ZT_X_Width/ZT_MaxSec ' 150 seconds total width
+' Predicted Intercept Point calculated
+DIM PIP_X, PIP_Y, PIP_Z, PIP_Sec, PIP_Rad, PIP_MilNorthRad
+
+DIM  TrackStartMark, TrackNextMark   ' set up for chart periodic marks
+
+CONST G_Meter_X = 1050
+CONST G_Meter_Y = 500
+CONST G_Meter_Width = 110
+CONST G_Meter_Height = 110
+
+
+DIM SHARED  AS DOUBLE ThisTime, LastTime, DynamicsLastTime, PPI_LastTime, TTR_LastTime, Status_LastTime
+LastTime = TIMER
+Status_LastTime = TIMER
+'goto Main
+CONST LEFTBUTTON = 1 
+CONST MIDDLEBUTTON = 4 
+CONST RIGHTBUTTON = 2 
+CONST SHOWMOUSE = 1
+CONST HIDEMOUSE = 0 
+DIM MouseXCurrent AS INTEGER, MouseYCurrent AS INTEGER, MouseButtonsCurrent AS INTEGER
+DIM MouseXPrevious AS INTEGER, MouseYPrevious AS INTEGER, MouseButtonsPrevious AS INTEGER
+DIM  SHARED DesignateRadiusPix = 100 ' in pixels
+DIM  SHARED DesignateAzDeg = 270 ' in degrees
+DIM  SHARED DesignateAzRads ' designate operation to PPI  and TTR
+DIM  SHARED AzDeg AS SINGLE  ' radar Azmuth
+
+CONST TTR_X_Offset = 770 '20.
+CONST TTR_Y_Offset = 800. ' baseline of fuzz
+CONST TTR_RangeMaxYards = 200000.
+CONST TTR_RangeGateOffsetPixels = 25.
+CONST TTR_WidthPixels = 450. ' width of display
+CONST TTR_NotchWidthPixels = 50. ' pixel width of notch
+CONST TTR_NotchWidthYards = 2000. ' range width of notch
+CONST TTR_NotchYardsPerPixel = TTR_NotchWidthYards/TTR_NotchWidthPixels
+CONST TTR_NotchDepthPixels = 20
+CONST TTR_MainYardsPerPixel = (TTR_RangeMaxYards-TTR_NotchWidthYards)/(TTR_WidthPixels-TTR_NotchWidthPixels)
+CONST TTR_MaxFuzzPixels = 40. ' max radius of fuzz from base line
+DIM SHARED TTR_X,TTR_Y,TTR_Z,TTR_DX,TTR_DY,TTR_DZ,TTR_AZ,TTR_EL,TTR_RG,TTR_GroundRange,TTR_GndSpd
+DIM SHARED  TTR_BurstDither = 1 
+DIM SHARED  MatchTTR_MTR  '  
+CONST EngineeringPrintY = 53 
+CONST EngineeringPrintX = 110 
+
+DIM SHARED   TTR_Display_Init, TTR_RangeUnitYards
+TTR_Az = 30. : TTR_EL = 20.: TTR_RangeUnitYards = 30000.
+TTR_Display_Init = 0.
+DIM SHARED TTR_ArrayTop(TTR_WidthPixels+2) AS INTEGER ' allow averaging
+DIM SHARED TTR_ArrayBot(TTR_WidthPixels+2) AS INTEGER ' allow averaging
+FOR i_i =1 TO TTR_WidthPixels+2
+    TTR_ArrayTop(i_i) = 0  '  initial values
+    TTR_ArrayBot(i_i) = 0  '  initial values
+NEXT i
+
+CONST TTR_BandWidthFactor = 8
+DIM TTR_Gap_NoiseArray(-TTR_BandWidthFactor TO TTR_NotchWidthPixels+TTR_BandWidthFactor)  
+' provide band width limited noise in TTR range gap
+FOR i_i = -TTR_BandWidthFactor TO TTR_NotchWidthPixels+TTR_BandWidthFactor
+    TTR_Gap_NoiseArray(i_i) = 0
+NEXT ' i_i = -TTR_BandWidthFactor
+
+' up to 20 targets
+CONST TargetsMax = 7  ' 1st target is 1
+'                                  0    1     2       3        4      5
+'                                  0    W    NE      SE       SW      NW
+DIM  SHARED Target_X(TargetsMax) ={0,-88000,100000,100000,-75000,-150000, _
+0     ,144444} ',444444,444444,444444}' yards,  1 mile = 1760 yards, 50 miles = 88,000 yards
+DIM  SHARED Target_Y(TargetsMax) ={0,-44060,50000,-100000,-75000,  50000, _
+144444,  10} ' yards
+DIM  SHARED Target_Z(TargetsMax) ={0, 10000/3,40000/3,15000/3,20000/3,30000/3, _
+30000/3,  40000/3}' yards NOT FEET
+DIM  SHARED TargetDX(TargetsMax) ={0, 300  ,600   , 600  ,   600,    400, _
+0,     -400} ' yards/sec, 60 mph = 88/ft/sec = 29.3 yd/sec
+DIM  SHARED TargetDY(TargetsMax) ={0, 0    ,    0 ,     0,     0,   -400, _
+-400,    0} ' yards/sec
+DIM  SHARED TargetDZ(TargetsMax) ={0, 0   ,    0 ,     0,     0,      0, _
+0,      0}  '  yards/sec
+DIM  SHARED TargetIFF(TargetsMax)={0, 0   ,    0 ,     0,     0,      1, _
+1,      1}  '  IFF Responder type, 0 = none
+' target initialization
+DIM  SHARED TargetAZ(TargetsMax) ' radians ' derived from above 
+DIM  SHARED TargetEL(TargetsMax) ' radians
+DIM  SHARED TargetRG(TargetsMax) ' yards 
+
+DIM SHARED TargetRangeUnit    ' yards
+
+DIM AS INTEGER ComputerStartFlag = 0
+
+
+' Missile values
+DIM AS INTEGER AltPenColor  ' switch colors at launch
+DIM MSL_X, MSL_Y, MSL_Z, MSL_DX, MSL_DY, MSL_DZ ' position and speed
+CONST Launcher_X = 876 ' launcher position, assume for simplicity Y == 0  Z == 0
+DIM MSL_GyroDegrees, MSL_PP_YawRad
+DIM MSL_GYaw  ' in the plane of the gyro spin axis and missile body - left is positive, as in radians
+DIM MSL_GPitch ' in plane of gyro spin , + is "up", missile body may or may not be in that plane
+CONST MSL_SteerMaxYaw   = 7   ' steering limits
+CONST MSL_SteerMaxPitch =7  ' 
+CONST OneG = 10 ' yards/sec/sec
+CONST BoostGs = 25 ' boost 
+CONST DiveGs = 10 ' dive
+DIM MSL_FlightTime  ' accumulated flight time 
+DIM MSL_Status ' 0 = preFire, 1 = Fire, Gyro Settle, 2 = Missle away, boost, 
+' 3 = roll stabilization, 4 = dive, 5 = cruise, 6 = burst 
+DIM MSL_PP_X, MSL_PP_DX   ' MSL_PP_Y  use MSL_Z  , MSL_DX
+DIM MSL_PP_ElRad
+DIM MSL_PP_Hypot
+DIM MSL_Speed
+DIM DeltaMSL_Z, DeltaX, DeltaRad
+DIM Burst_Timer ' show burst for a while, terminated by new Target Designated
+' Launcher section
+DIM LauncherNumber = 1, SectionNumber = 1
+DIM PauseTimeAdjust = 0 ' used to enable smooth pause
+DIM SavedSimRunMode   ' restore mode after pause
+    DIM AS INTEGER  AutoLastScanCnt, AutoTargetID, AutoMinimumTargetNumber 
+    DIM    AutoTrackPauseSec
+DIM EvasionGs = 0 ' how much target evasion?
+
+'  Missile Position History Arrays
+DIM  MPHA_X(3),MPHA_Y(3),MPHA_Z(3)
+'DIM ad,bd,cd,dx,dy,dz,MSL_Radius,DenominatorSquared  
+DIM OldMSL_GS,MSL_GS
+
+
+' Initialization section
+
+FOR x_i = 0 TO PPI_MaxDim
+    FOR y_i = 0 TO PPI_MaxDim
+        PPI_DispValu(x_i,y_i) = 0
+        PPI_DispFade(x_i,y_i) = 10  ' initialize for good start
+    NEXT y
+NEXT x
+
+
+NikeSimulation:
+AzDeg = 0   ' start at top, North
+PPI_ScanCount = 0 ' play with display, moving airplanes
+' ACQ display main loop update 
+SCREEN 21, 16, 1, 0 '1 '  1280x1024  mode[,16 bit color depth [, one page[, 0 = not fullscreen]]]
+'Screen 19, 32, 1,0 ' 800x600
+' SCREENRES width, height[depth[,nump_pages..]]]
+'print " commands are 'q' = quit, '?' = notes  "
+LOCATE 2,1
+PRINT " NIKE HERCULES SIMULATION 6/4/09  ed@ed-thelen.org"
+COLOR RED
+PRINT " + = Target, ";
+COLOR YELLOW
+PRINT "+ = Predicted Intercept, ";
+COLOR GREEN
+PRINT "+ = Missile"
+COLOR WHITE
+
+GOSUB bezel   ' around PPI
+
+GOSUB NewPlottingPaper  ' Make initial display look good
+
+MouseXPrevious = -2 : MouseYPrevious = -2: MouseButtonsPrevious = -2
+DynamicsLastTime = TIMER
+PPI_LastTime = TIMER - PauseTimeAdjust  ' subtract out pause time
+DIM LastDesignateWriteTime
+LastDesignateWriteTime = TIMER
+
+
+
+
+
+'----------------------------------------------
+IdleLoop: 
+CONST DynamicsInterval = 0.1
+ThisTime = TIMER - PauseTimeAdjust  ' subtract out pause time 
+IF ThisTime > DynamicsLastTime + DynamicsInterval THEN ' do dynamics 
+    ' read keyboard and mouse sim state every 0.1 sec
+    DIM k$ ' keyboard control input character
+    k$ = LCASE$(INKEY$)
+    IF K$ <> "" THEN
+        SELECT CASE K$
+        CASE "p"
+            WHILE INKEY$ = "": SLEEP (10):WEND 
+        CASE "q" 
+            END
+            GOTO ExitPause
+        CASE chr$( 27 )  ' Esc key
+            END
+            GOTO ExitPause
+        END SELECT ' K$
+    END IF ' K$
+    GETMOUSE MouseXCurrent, MouseYCurrent, , MouseButtonsCurrent  ' only GETMOUSE !!
+    MouseYCurrent *= MouseFF_Y : ' don't seem to need it for X
+    IF MouseXCurrent <> MouseXPrevious _
+        or MouseYCurrent <> MouseYPrevious _
+        or MouseButtonsCurrent <> MouseButtonsPrevious THEN
+        'IF  1 THEN 'Debug then
+        '    LOCATE EngineeringPrintY+2,EngineeringPrintX
+        '    PRINT "mouse info ";MouseXCurrent, MouseYCurrent, MouseButtonsCurrent 
+        'END IF
+        MouseXPrevious =  MouseXCurrent   
+        MouseYPrevious =  MouseYCurrent  
+        MouseButtonsPrevious = MouseButtonsCurrent
+    END IF   ' MouseXCurrent 
+    GOSUB  CheckSimulationMode ' is operator changing sim mode?
+    GOSUB  CheckEvasionMode
+
+    IF SimRunMode = 2 Then
+        PauseTimeAdjust += DynamicsInterval  ' hold time  ;-))
+        GOTO IdleLoop
+    END IF ' SimRunMode
+
+    ' not pause, crash on 
+    IF SimRunMode = 1 THEN
+        GOSUB RunAuto
+    ELSE  ' check commands
+        GOSUB MouseInPPI   ' check if mouse in PPI, if yes, enable TargetDesignated, TargetTracked, Computer settled
+        GOSUB  PressingIFF_Buttons  ' is BCO pressing IFF buttons
+        GOSUB  PressingFireButtonQ  ' Is BCO pressing fire button and all systems GO ? 
+        GOSUB PossibleSiteStatusUpdate
+    END IF ' SimRunMode
+
+    
+    
+    
+    ' do dynamics every 0.1 seconds
+    DynamicsLastTime = DynamicsLastTime + DynamicsInterval
+    
+    DIM OnePulseCnt, LastOnePulseCnt  ' we don't care if not initialized, screen print only
+    LastOnePulseCnt = OnePulseCnt
+    
+    
+    
+    GOSUB ComputeTargetPositions  ' target dynamics and polar coordinates
+    GOSUB UpdateIntercept ' compute prelaunch Predicted Intercept Point
+    GOSUB ComputeMissilePosition  ' missile position and polar ?
+    'GOSUB ComputeRadiusCurvature  ' yards
+        
+        
+    
+    ' approximate TTR AGC (Automatic Gain Control)
+    DIM TTR_AGC
+    TTR_AGC += 0.1  ' increment, knocked down when target is in range notch
+    IF TTR_AGC > 1.0 THEN : TTR_AGC = 1.0 : END IF
+    
+    
+    ' New plotting paper on new computer settled, followed by plotting
+    '    set at a faster pace as we wish to connect the dots better
+    IF ComputerSettledStatus <> 0  _
+    AND ComputerSettledStatusLast = 0 THEN
+    GOSUB NewPlottingPaper
+END IF  '  ThisTime > DynamicsLastTime + DynamicsInterval 
+
+'  rapid stuff
+ 
+ComputerSettledStatusLast = ComputerSettledStatus
+DIM TimeMarkFlag
+IF ComputerSettledStatus <> 0 THEN
+    IF ThisTime - TrackNextMark > 10 THEN ' make 10 sec mark 
+        TrackNextMark += 10
+        TimeMarkFlag = 1
+    ELSE
+        TimeMarkFlag = 0
+    END IF
+    GOSUB PlotPaper_ZTT
+    GOSUB PlotPaper_ZTM
+    GOSUB PlotPaper_XYT
+    GOSUB PlotPaper_XYM
+    
+END IF ' computer settled
+
+
+END IF ' Dynamics ThisTime
+
+IF SimRunMode = 2 then
+    SLEEP (10)
+    goto IdleLoop
+END IF ' SimRunMode = 2
+
+IF ThisTime > Status_LastTime THEN ' print status stuff
+    Status_LastTime += 0.5
+    SLEEP (1)  ' let other things happen for 1/60 sec
+    
+    ' draw TTR Range Slider
+    'LINE (TTR_X_Offset,TTR_Y_Offset+TTR_MaxFuzzPixels+TTR_NotchDepthPixels)- _
+    '    (TTR_X_Offset+TTR_WidthPixels,TTR_Y_Offset+TTR_MaxFuzzPixels+TTR_NotchDepthPixels+20 ),0,BF
+    'LINE (TTR_X_Offset,TTR_Y_Offset+TTR_MaxFuzzPixels+TTR_NotchDepthPixels)- _
+    '    (TTR_X_Offset+TTR_WidthPixels,TTR_Y_Offset+TTR_MaxFuzzPixels+TTR_NotchDepthPixels+20 ),255*256,B
+    ' check if mouse in TTR
+    CONST SiteStatusLightsX = 500
+    CONST SiteStatusLightsRadius = 15
+    CONST SiteStatusLightsY = SiteStatusLightsRadius
+    ' lights listed left to right, red, blue, yellow, white
+    '                              w1&   w2&    w3&    w4&
+    DIM wa&(4)
+    LOCATE 2,64
+    ' Print "Site Alert Status"
+    SELECT CASE  SiteStatus
+    CASE 0   ' white
+        wa&(0) = RedDull: wa&(1) =BlueDull : wa&(2) = YellowDull: wa&(3) = White 
+    CASE 1   ' yellow
+        wa&(0) = RedDull: wa&(1) = BlueDull: wa&(2) = Yellow: wa&(3) = Grey 
+    CASE 2    ' blue
+        wa&(0) = RedDull: wa&(1) = Blue : wa&(2) = YellowDull: wa&(3) = Grey 
+    CASE 3    ' red
+        wa&(0) = Red: wa&(1) = BlueDull: wa&(2) = YellowDull: wa&(3) = Grey 
+    CASE ELSE
+        SiteStatus = 0
+    END SELECT
+    FOR i_i = 0 TO 3
+        CIRCLE ((SiteStatusLightsX+ i_i*(2*SiteStatusLightsRadius+10)) , _
+        SiteStatusLightsRadius), SiteStatusLightsRadius, wa&(i_i),,,,F
+        ' 15,w&,,,,F
+    NEXT i 
+    Color White
+    LOCATE 3,63
+    PRINT "SITE ALERT STATUS   "
+    
+    
+    
+    
+    ' find if Missile is Selected
+    IF SiteStatus >= 2 THEN 
+        MissileSelectedStatus = 1
+    ELSE
+        MissileSelectedStatus = 0
+    END IF
+    
+    
+    GOSUB E_MessageMaint ' process removal of error messages  
+    GOSUB PrintSystemStatus  ' 
+    
+    GOSUB PaintG_Meter
+    GOSUB PlotG_Meter
+    GOSUB TargetRecycle  ' see if target needs recycling 
+    
+    
+END IF ' ThisTime > Status_LastTime     
+
+
+IF ThisTime > PPI_LastTime THEN 
+    PPI_LastTime  += 0.0012 ' prevent rapid catchup if some delay
+    OnePulseCnt += 1
+    GOSUB PPI_OnePulse
+    
+ELSE
+    GOSUB TTR_Display
+END IF ' PPI_LastTime
+
+GOTO IdleLoop  
+
+
+
+ExitPause:
+LOCATE 1,82
+PRINT "Exit pause, depress any key to exit                   "
+WHILE INKEY$ = "": SLEEP (1):WEND 
+    END
+    
+    
+    '---------------------------------------------------------------
+    CONST LocEMesX = 76
+    CONST LocEMesY = 50
+    DIM E_MessageTime = 0
+    E_Message1:
+    E_MessageTime = ThisTime + 4 ' erase after 4 seconds
+    COLOR red
+    LOCATE LocEMesY,LocEMesX
+    RETURN
+    
+    
+    
+    E_Message2:
+    E_MessageTime = ThisTime + 4 ' erase after 4 seconds
+    COLOR red
+    LOCATE LocEMesY+1,LocEMesX
+    RETURN
+    
+    E_Message3:
+    E_MessageTime = ThisTime + 4 ' erase after 4 seconds
+    COLOR red
+    LOCATE LocEMesY+2,LocEMesX
+    RETURN
+    
+    E_MessageMaint:
+    IF ThisTime > E_MessageTime THEN
+        LOCATE LocEMesY,LocEMesX
+        '  123456789012345678901234567890
+        PRINT "               "
+        LOCATE LocEMesY+1,LocEMesX
+        ' 123456789012345678901234567890
+        PRINT "               "
+        LOCATE LocEMesY+2,LocEMesX
+        ' 123456789012345678901234567890
+        PRINT "               "
+        E_MessageTime = ThisTime + 4 ' erase after 4 seconds
+    END IF
+    RETURN
+    
+    
+    
+    '---------------------------------------------------------------
+    TTR_Display:
+    
+    IF TTR_Display_Init = 0 THEN
+        TTR_LastTime = ThisTime + 0.1
+        TTR_Display_Init =1
+    END IF
+    ' plan, organized by slices to refresh, randomly pick a slice,
+    '    then find what range fits into that slice,
+    '    This allows much easier thinking about the 
+    '    range tracking expanded portion of the A-Scope
+    IF ThisTime > TTR_LastTime THEN
+        TTR_LastTime += 0.2
+        LINE (TTR_X_Offset,TTR_Y_Offset)-(TTR_X_Offset+2,TTR_Y_Offset+1),200*256,bf  ' main bang
+        LINE (TTR_X_Offset+3,TTR_Y_Offset-TTR_MaxFuzzPixels*1.75) _
+        -(TTR_X_Offset+3,TTR_Y_Offset),200*256  ' main bang 
+        
+        GOSUB MTR_Display
+        
+        'If  TargetTrackedStatus> 0 then ' target Designated and tracked
+        IF  (1) THEN ' target Designated and tracked
+            '  w_f = -TTR_Az +Pi/2 ' rotate to mil, 0 = north,flipping the direction of increasing positive
+            w_f = ATAN2(TTR_X,TTR_Y)  '+Pi/2 ' rotate to mil, 0 = north,flipping the direction of increasing positive
+            IF w_f < 0 THEN : w_f += PiTimes2 : END IF
+            LOCATE EngineeringPrintY-9,EngineeringPrintX 
+            PRINT USING "TTR Az      ###.# "; w_f*Rad2Deg 
+            w_f = ATAN2(TTR_Z,SQR(TTR_Y*TTR_Y+TTR_X*TTR_X))
+            LOCATE EngineeringPrintY-8,EngineeringPrintX  
+            ' print Using "TTR EL         ###.#"; TTR_EL*Rad2Deg  
+            PRINT USING "TTR EL      ###.# "; w_f*Rad2Deg  
+            LOCATE EngineeringPrintY-7,EngineeringPrintX  
+            PRINT USING "TTR RG  ###,### "; TTR_RangeUnitYards
+            
+            
+            IF TTR_RangeUnitYards > TTR_RangeMaxYards THEN
+                TargetTrackedStatus =0 ' out of TTR range
+                ComputerSettledStatus  = 0 ' no valid tracking info
+                TargetDesignatedStatus = 0 ' no longer valid
+                TTR_RangeUnitYards = TTR_RangeMaxYards - 10
+            ELSE ' tracked, update values
+                TTR_RangeUnitYards = TTR_RG
+            END IF 
+        END IF
+    END IF
+    
+    IF TTR_RangeUnitYards < 8000 THEN : TTR_RangeUnitYards = 8000 : END IF
+    IF TargetTrackedStatus =0 THEN 
+        TTR_AGC = 1 
+    ELSE 
+        TTR_AGC = (TTR_RangeUnitYards/TTR_RangeMaxYards)^4 + TTR_BurstDither -1 
+    END IF
+    ' top is  fewer than bottom, 0 is on top
+    ' split top and bottom for different look ?
+    DIM XPixels, YPixelsTop, YPixelsBot
+    XPixels = 4+INT(RND()*(TTR_WidthPixels-4)) ' get random index, starting at one, along slices, after main bang
+    ' blank old line
+    YPixelsTop = TTR_ArrayTop(XPixels)  ' get past length
+    YPixelsBot = TTR_ArrayBot(XPixels)  ' get past length
+    LINE (TTR_X_Offset+XPixels,TTR_Y_Offset+YPixelsTop-1)-(TTR_X_Offset+XPixels,TTR_Y_Offset+YPixelsBot+1),0' blank past fuzz
+    ' compute new fuzz - ignore the target display for a while
+    
+    YPixelsTop = -(INT(SQR(RND())*TTR_MaxFuzzPixels*TTR_AGC))' +TTR_ArrayTop(XPixels-1)/2)   '  
+    YPixelsBot = (INT(SQR(RND())*TTR_MaxFuzzPixels*TTR_AGC))' +TTR_ArrayBot(XPixels-1)/2)   ' 
+    IF YPixelsTop > YPixelsBot THEN ' flip 'em
+        SWAP YPixelsBot , YPixelsTop
+    END IF ' flip em
+    
+    
+    ' determine the range gate width and offset
+    DIM YNotch, NotchLeftSideYards, NotchLeftSidePixels,  NotchRightSideYards , NotchRightSidePixels , TarXPixels 
+    YNotch = 0
+    ' OK - we have TTR_RangeUnitYards, 
+    NotchLeftSideYards = TTR_RangeUnitYards-TTR_NotchWidthYards/2 'Yards to left side of notch
+    NotchLeftSidePixels = INT(NotchLeftSideYards/TTR_MainYardsPerPixel)
+    NotchRightSideYards = TTR_RangeUnitYards+TTR_NotchWidthYards/2 'Yards to right side of notch
+    NotchRightSidePixels = INT(NotchLeftSidePixels + TTR_NotchWidthPixels)
+    ' now work in one target
+    
+    
+    IF NotchLeftSidePixels >  XPixels THEN ' near side of notch
+        'Zone = 1 less than range gate
+        'update using XPixels, Range of target is normal
+        ' find target slice
+        TarXPixels = INT(TTR_RangeUnitYards/TTR_MainYardsPerPixel)
+        ' If TarXPixels = XPixels then
+        '     YPixelsTop += TTR_MaxFuzzPixels ' show target, this is AGC base
+        ' End if ' TarXPixels = XPixels
+        
+    ELSEIF NotchLeftSidePixels =  XPixels _  ' edge of near side of notch
+        OR NotchRightSidePixels =  XPixels  THEN 
+        TarXPixels = INT(TTR_RangeUnitYards/TTR_MainYardsPerPixel)
+        YPixelsBot  = TTR_NotchDepthPixels 
+        
+        
+    ELSEIF NotchRightSidePixels <  XPixels THEN ' -2 then ' -3  then  ' far side of notch
+        ' Zone = 3  greater than range gate
+        ' update using XPixels, Range of target _+ something
+        TarXPixels = INT(TTR_RangeUnitYards/TTR_MainYardsPerPixel) + TTR_NotchWidthPixels 
+        'If TarXPixels = XPixels then
+        '    YPixelsTop += TTR_MaxFuzzPixels ' show target
+        'End if ' TarXPixels = XPixels
+        
+    ELSE ' in notch   - try to lower the noise frequency
+        ' find average of top and bottom of left (or right) line as starting point
+        DIM LeftAvg, YFuzzNotch, TargetMultiplier
+        IF NotchLeftSidePixels+(TTR_NotchWidthPixels/2) <  XPixels THEN 
+            LeftAvg = (TTR_ArrayTop(XPixels-1)+TTR_ArrayBot(XPixels-1))/2  ' this is starting point
+        ELSE
+            LeftAvg = (TTR_ArrayTop(XPixels+1)+TTR_ArrayBot(XPixels+1))/2  ' this is starting point
+        END IF        
+        YFuzzNotch = INT((2*(RND())-1)*TTR_MaxFuzzPixels*TTR_AGC)  + TTR_NotchDepthPixels ' top of noise, not good
+        TarXPixels = INT(NotchLeftSidePixels + TTR_NotchWidthPixels/2 _   ' generate target signal 
+        + (TTR_RangeUnitYards-TTR_RangeUnitYards)/TTR_NotchYardsPerPixel )
+        ' form target image     
+        TargetMultiplier = (10-ABS(TarXPixels - XPixels))/10   
+        IF TargetMultiplier > 0 AND  TargetTrackedStatus <> 0 THEN 
+            YFuzzNotch -= TTR_MaxFuzzPixels*TargetMultiplier
+        END IF
+        ' now determine top and bottom
+        IF YFuzzNotch <LeftAvg THEN
+            YPixelsTop  = YFuzzNotch 
+            YPixelsBot  = LeftAvg
+        ELSE
+            YPixelsTop = LeftAvg 
+            YPixelsBot  = YFuzzNotch
+        END IF
+        IF YPixelsTop  > YPixelsBot THEN
+            SWAP YPixelsTop,YPixelsBot 
+        END IF
+    END IF
+    LINE (TTR_X_Offset+XPixels,TTR_Y_Offset+YPixelsTop) _
+    -(TTR_X_Offset+XPixels,TTR_Y_Offset+YPixelsBot),200*256 ' write fuzz
+    TTR_ArrayTop(XPixels) = YPixelsTop  ' save for future erasing  ;-)
+    TTR_ArrayBot(XPixels) = YPixelsBot
+    
+    RETURN
+    '-----------------------------------------------------------------------------------
+    
+    MTR_Display:
+    DIM AS INTEGER MTR_Points_X(10) = {0,0,0,0,0,0,0,0,0}
+    DIM AS INTEGER MTR_Points_Y(10) = {0,0,0,0,0,0,0,0,0}
+    CONST MTR_DISPLAY_YOffset = 180
+    DIM AS INTEGER I
+    DIM MSL_RANGE, MSL_X_Pixels 
+    
+    MSL_RANGE = SQR(MSL_Y*MSL_Y+MSL_X*MSL_X+MSL_Z*MSL_Z)
+    IF MSL_RANGE > TTR_RangeMaxYards THEN
+        MSL_RANGE = TTR_RangeMaxYards
+    END IF
+    LOCATE EngineeringPrintY+3,EngineeringPrintX-4 
+    PRINT ("Missile Tracking Radar Display") 
+    IF (MissileSelectedStatus) THEN
+        w_f = ATAN2(MSL_X,MSL_Y)  '+Pi/2 ' rotate to mil, 0 = north,flipping the direction of increasing positive
+        IF w_f < 0 THEN : w_f += PiTimes2 : END IF
+        LOCATE EngineeringPrintY+4,EngineeringPrintX 
+        PRINT USING "MSL Az      ###.# "; w_f*Rad2Deg 
+        w_f = ATAN2(MSL_Z,SQR(MSL_Y*MSL_Y+MSL_X*MSL_X))
+        LOCATE EngineeringPrintY+5,EngineeringPrintX  
+        PRINT USING "MSL EL      ###.# "; w_f*Rad2Deg  
+        LOCATE EngineeringPrintY+6,EngineeringPrintX  
+        PRINT USING "MSL RG  ###,### "; MSL_RANGE
+    END IF
+    FOR I = 0 TO 8
+        LINE (TTR_X_Offset+MTR_Points_x(I),TTR_Y_Offset+MTR_DISPLAY_YOffset+MTR_Points_Y(I)) _
+        -(TTR_X_Offset+MTR_Points_x(I+1),TTR_Y_Offset++MTR_DISPLAY_YOffset+MTR_Points_Y(I+1)),0 ' black previous
+    NEXT I
+    
+    MSL_X_Pixels = INT(MSL_Range/TTR_MainYardsPerPixel)+25 ' fudge factor
+    
+    'FOR  I = 0 to 9
+    '    MTR_Points_X(I) = RND(1)*70
+    '    MTR_Points_Y(I) = RND(1)*70
+    'Next I
+    ' Point 0 - top of main bang , fixed
+    MTR_Points_X(0) = 0
+    MTR_Points_Y(0) = - 70
+    ' Point 1 - bottom of main bang , fixed 
+    MTR_Points_X(1) = 0
+    MTR_Points_Y(1) = 0
+    ' Point 2 - lateral to beginning of notch
+    
+    I = MSL_X_Pixels- 15-10
+    IF I < 0 THEN I = 0
+    MTR_Points_X(2) = I
+    MTR_Points_Y(2) = 0
+    ' Point 3 - left side of notch
+    MTR_Points_X(3) = I
+    MTR_Points_Y(3) = 20
+    ' Point 4 - to left side of missile
+    I = MSL_X_Pixels - 10
+    IF I < 0 THEN I = 0
+    MTR_Points_X(4) = I
+    MTR_Points_Y(4) = 20
+    ' Point 5 - left side of missile
+    MTR_Points_X(5) = MSL_X_Pixels 
+    IF MSL_Status = 6 THEN  'burst
+        MTR_Points_Y(5) = 20
+    ELSE
+        MTR_Points_Y(5) = -20
+    END IF
+    
+    ' Point 6 - right side of missile
+    MTR_Points_X(6) = MSL_X_Pixels+10
+    MTR_Points_Y(6) = 20
+    ' Point 7 - to right side of notch
+    MTR_Points_X(7) = MSL_X_Pixels+10+15
+    MTR_Points_Y(7) = 20
+    ' Point 8 - right vertical side of notch
+    MTR_Points_X(8) = MSL_X_Pixels+10+15
+    MTR_Points_Y(8) = 0
+    ' Point 9  -to end of trace
+    MTR_Points_X(9) = 450
+    MTR_Points_Y(9) = 0
+    
+    
+    FOR I = 0 TO 8
+        LINE (TTR_X_Offset+MTR_Points_X(I),TTR_Y_Offset+MTR_DISPLAY_YOffset+MTR_Points_Y(I)) _
+        -(TTR_X_Offset+MTR_Points_X(I+1),TTR_Y_Offset++MTR_DISPLAY_YOffset+MTR_Points_Y(I+1)),200*256 ' black previous
+    NEXT I
+    
+    RETURN
+    '-----------------------------------------------------------------------------------
+    
+    PPI_OnePulse:
+    CONST PPI_AzDelta = 0.1*Deg2Rad ' delta = 0.1 degrees
+    
+    '    WHILE INKEY$ = "": sleep (1):WEND 
+    'sleep (1)
+    
+    DIM PPI_AzRads,  PPI_AzRadsOff60, PPI_AzRadsOff120
+    DIM CosAz, SinAz, CosAzOff60, SinAzOff60, CosAzOff120, SinAzOff120
+    PPI_AzRads -= PPI_AzDelta    ' rotate clockwise
+    IF PPI_AzRads < -(Pi -PPI_AzDelta/2)  THEN
+        PPI_AzRads = Pi '0 ' start in a fixed place - stability?
+        PPI_ScanCount = PPI_ScanCount + 1
+    END IF
+    CosAz = COS(PPI_AzRads)
+    SinAz = SIN(PPI_AzRads)
+    
+    PPI_AzRadsOff60 = PPI_AzRads-Pi/3  
+    IF PPI_AzRadsOff60 < 0 THEN
+        PPI_AzRadsOff60 +=  PiTimes2
+    END IF
+    
+    PPI_AzRadsOff120 =  PPI_AzRads-2*Pi/3  
+    IF PPI_AzRadsOff120 < 0 THEN
+        PPI_AzRadsOff120 += PiTimes2
+    END IF
+    CosAzOff60 = COS(PPI_AzRadsOff60)
+    SinAzOff60 = SIN(PPI_AzRadsOff60)
+    
+    CosAzOff120 = COS(PPI_AzRadsOff120)
+    SinAzOff120 = SIN(PPI_AzRadsOff120)
+    
+    IF 0 THEN 'INT(PPI_AzRads*Rad2Deg*1.5 ) = INT(DesignateAzRads*Rad2Deg*1.5)  then   ' make Target Select ring
+        IF ThisTime > LastDesignateWriteTime + 1  _
+        AND TargetDesignatedStatus > 0 THEN ' no more than once per second
+        LastDesignateWriteTime = ThisTime
+        ' draw a ring about the designated point - 
+        DIM DesignateCenterPixX, DesignateCenterPixY
+        DesignateCenterPixX = DesignateRadiusPix*COS((DesignateAzRads) )
+        DesignateCenterPixY = DesignateRadiusPix*SIN((DesignateAzRads) )
+        FOR w_f = 0 TO PiTimes2 STEP 0.01
+            x_i = 20*COS(w_f)+PPI_MaxRad+DesignateCenterPixX
+            y_i = 20*SIN(w_f)+PPI_MaxRad+DesignateCenterPixY
+            PSET(PPI_XOffSet+x_i, _
+            PPI_YBottom-y_i), Yellow 
+            PPI_DispValu(x_i,y_i) = 255
+        NEXT I
+    END IF
+    
+END IF
+IF ABS(PPI_AzRads - TTR_Az) < 10*Deg2Rad THEN   ' make TTR Tracking Cross 
+    DIM TrackingCrossRangeEnable, TrackingCrossAz
+    TrackingCrossRangeEnable = 1
+    IF INT(PPI_AzRads*Rad2Deg*0.75 ) = INT(TTR_Az*Rad2Deg*0.75)  THEN  ' 1/0.75  degreewide radius
+        TrackingCrossAz = 1
+    ELSE
+        TrackingCrossAz = 0
+    END IF
+ELSE
+    TrackingCrossRangeEnable = 0
+END IF
+
+DIM PPI_AzRangeBuckets(TargetsMax) AS INTEGER ' how is this used ???
+DIM PPI_AzRangeBucketCnt AS INTEGER
+PPI_AzRangeBucketCnt= 0 ' bucket zero is count 
+DIM PPI_AzIFFBuckets(TargetsMax) AS INTEGER ' how is this used ???
+DIM PPI_AzIFFBucketCnt AS INTEGER
+PPI_AzIFFBucketCnt= 0 ' bucket zero is count 
+FOR i_i = 1 TO TargetsMax
+    w_f  = TargetAZ(i_i)  ' radians
+    
+    ' calculate the widening of az at close range
+    IF ABS(w_f  - PPI_AzRads) < 10*Deg2Rad THEN 'AND  TargetRG(i) > 1000 Then ' not good near 0 deg
+        k_f = 27 - 2*LOG(TargetRG(i_i)) 
+        IF ABS(w_f - PPI_AzRads) < k_f*Deg2Rad THEN ' not good near 0 deg
+            ' got an azimuth hit
+            PPI_AzRangeBucketCnt += 1 ' increment bucket counter
+            PPI_AzRangeBuckets(PPI_AzRangeBucketCnt) = INT(TargetRG(i_i)*PPI_MaxRad/PPI_MaxRange)' convert range to pixels
+        END IF
+    END IF
+    ' do IFF
+    IF ABS(w_f  - PPI_AzRads) < 20*Deg2Rad AND IFF_1ButtonStatus = 1 AND TargetIFF(i_i) = 1 THEN  
+        k_f = 35 - 2*LOG(TargetRG(i_i)) 
+        IF ABS(w_f - PPI_AzRads) < k_f*Deg2Rad THEN ' not good near 0 deg
+            ' got an azimuth hit - no problem if not in display area - not displayed -                
+            PPI_AzIFFBucketCnt += 1 ' increment bucket counter
+            PPI_AzIFFBuckets(PPI_AzIFFBucketCnt) = INT((TargetRG(i_i)*PPI_MaxRad/PPI_MaxRange)+ 8)' convert range to pixels
+        END IF
+    END IF
+NEXT i_i
+
+CONST RadiusStepPix = 0.8
+DIM Radius
+FOR Radius = 2 TO PPI_MaxRad STEP RadiusStepPix
+    x_i = Radius*CosAz + PPI_MaxRad
+    y_i = Radius*SinAz + PPI_MaxRad
+    ' process 0 degrees
+    
+    IF PPI_DispFade(x_i,y_i) <> 0 THEN
+        
+        DIM PixVal AS INTEGER
+        PixVal = (RND(1)*255*0.3)  *(1-Radius/PPI_MaxRad) ' make noise
+        IF PPI_AzRangeBucketCnt <> 0 THEN
+            FOR i_i = 1 TO PPI_AzRangeBucketCnt 
+                IF  ABS(Radius -  PPI_AzRangeBuckets(i_i)) < 2 THEN
+                    PixVal = 225  ' target az and range
+                    '  Print " Az = ";PPI_AzRads," Radius = ";Radius
+                END IF
+            NEXT ' i_i = 1 to PPI_AzRangeBucketCnt Then
+        END IF ' PPI_AzRangeBucketCnt <> 0 then
+        'Do IFF
+        IF PPI_AzIFFBucketCnt <> 0 THEN
+            FOR i_i = 1 TO PPI_AzIFFBucketCnt 
+                IF  ABS(Radius -  PPI_AzIFFBuckets(i_i)) < 2 THEN
+                    PixVal = 225  ' target az and range
+                    '  Print " Az = ";PPI_AzRads," Radius = ";Radius
+                END IF
+            NEXT ' i_i = 1 to PPI_AzRangeBucketCnt Then
+        END IF ' PPI_AzRangeBucketCnt <> 0 then
+        
+        
+        IF TrackingCrossRangeEnable <> 0 THEN  ' work on TTR  Tracking Cross
+            w_f = TTR_RangeUnitYards/PPI_Pix2Yard
+            IF INT(Radius) = INT(w_f) THEN  ' ring segment
+                PixVal = 255
+            END IF 
+            IF ABS(w_f - Radius) < 15 AND TrackingCrossAz <> 0 THEN           ' radius segment
+                PixVal = 255
+            END IF 
+        END IF           
+        PixVal += PPI_DispValu(x_i,y_i) ' sum residual and present
+        IF PixVal > 255 THEN   ' prevent overflow
+            PixVal = 255
+        END IF             
+        w_i = PixVal*256 + PixVal*65536 ' make yellow from red & green
+        
+        PSET (PPI_XOffSet+x_i, PPI_YBottom-y_i), w_i ' place pixel
+        
+        
+        PPI_DispValu(x_i,y_i) = PixVal  ' remember value, saves PEEK
+        PPI_DispFade(x_i,y_i) = 0       ' set initial fade control value
+        ' the vector is now swept from positive to negative 
+        '     the below got confused, or at least I did, re-hacking it 
+        ' sequence should be 0, 300, 240, 180, 120, 60
+        
+    END IF  ' PPI_DispFade(x,y) <> 0 then
+    ' process 180 degrees behind
+    x_i = -Radius*CosAz + PPI_MaxRad
+    y_i = -Radius*SinAz + PPI_MaxRad
+    IF PPI_DispFade(x_i,y_i) = 2 THEN
+        DIM Wd2 AS INTEGER
+        W_i = PPI_DispValu(x_i,y_i) 
+        Wd2 =  W_i*PPI_FadeFactor 
+        PPI_DispValu(x_i,y_i) = Wd2
+        w_i = Wd2*256 + Wd2*65536
+        PSET (x_i +PPI_XOffSet,PPI_YBottom-y_i), w_i
+        PPI_DispFade(x_i,y_i) = 3
+    END IF
+    ' process 60 degrees ahead,, not behind , first 
+    x_i = Radius*cosAzOff60 + PPI_MaxRad
+    y_i = Radius*sinAzOff60 + PPI_MaxRad
+    
+    IF PPI_DispFade(x_i,y_i) = 4 THEN    
+        W_i = PPI_DispValu(x_i,y_i) 
+        Wd2 =  W_i*PPI_FadeFactor   
+        PPI_DispValu(x_i,y_i) = Wd2
+        w_i = Wd2*256 + Wd2*65536
+        PSET (x_i + PPI_XOffSet,PPI_YBottom-y_i), w_i
+        PPI_DispFade(x_i,y_i) = 5
+    END IF
+    ' process 240 degrees behind
+    x_i = -Radius*CosAzOff60 + PPI_MaxRad
+    y_i = -Radius*SinAzOff60 + PPI_MaxRad
+    IF PPI_DispFade(x_i,y_i) = 1 THEN
+        W_i = PPI_DispValu(x_i,y_i) 
+        Wd2 =  W_i*PPI_FadeFactor   
+        PPI_DispValu(x_i,y_i) = Wd2
+        w_i = Wd2*256 + Wd2*65536
+        PSET (x_i +  PPI_XOffSet,PPI_YBottom-y_i), w_i
+        PPI_DispFade(x_i,y_i) = 2
+    END IF
+    ' process 120 degrees behind
+    x_i = Radius*CosAzOff120 + PPI_MaxRad
+    y_i = Radius*SinAzOff120 + PPI_MaxRad
+    IF PPI_DispFade(x_i,y_i) = 3 THEN
+        w_i = PPI_DispValu(x_i,y_i) 
+        Wd2 =  w_i*PPI_FadeFactor   
+        PPI_DispValu(x_i,y_i) = Wd2
+        w_i = Wd2*256 + Wd2*65536
+        PSET (x_i + PPI_XOffSet,PPI_YBottom-y_i), w_i
+        PPI_DispFade(x_i,y_i) = 4
+    END IF
+    ' process 300 degrees behind
+    x_i = -Radius*CosAzOff120 + PPI_MaxRad
+    y_i = -Radius*SinAzOff120 + PPI_MaxRad
+    IF PPI_DispFade(x_i,y_i) = 0 THEN
+        W_i = PPI_DispValu(x_i,y_i) 
+        Wd2 =  W_i*PPI_FadeFactor   
+        PPI_DispValu(x_i,y_i) = Wd2
+        w_i = Wd2*256 + Wd2*65536
+        PSET (x_i +  PPI_XOffSet,PPI_YBottom-y_i), w_i
+        PPI_DispFade(x_i,y_i) = 1
+    END IF
+    NextRadius:      
+NEXT Radius
+'sleep(1)
+RETURN
+
+' ----------------------------------------------------------------------------------------------  
+
+Bezel:  ' place bezel around the PPI
+w_i = &H0ffffff  ' white !!
+FOR w_f = 0 TO PiTimes2-0.001 STEP Pi/6  ' step 30 degrees
+    DIM WCosAzRad, WSinAzRad, st$, xe, xs,  ys, ye
+    WCosAzRad = COS(w_f)
+    WSinAzRad =  SIN(w_f)
+    DIM AS INTEGER ye_i,ys_i,xe_i,xs_i
+    y_i  = ((PPI_MaxRad +10) * (-WCosAzRad)) + PPI_MaxRad+PPI_YOffSet
+    ye_i = ((PPI_MaxRad +20) * (-WCosAzRad)) + PPI_MaxRad+PPI_YOffSet
+    ys_i = ((PPI_MaxRad +35 ) * (-WCosAzRad)) + PPI_MaxRad+PPI_YOffSet + 8
+    x_i  = ((PPI_MaxRad +10) * WSinAzRad) + PPI_MaxRad+PPI_XOffSet
+    xe_i = ((PPI_MaxRad +20) * WSinAzRad) + PPI_MaxRad+PPI_XOffSet
+    xs_i = ((PPI_MaxRad +40) * WSinAzRad) + PPI_MaxRad+PPI_XOffSet
+    LINE (x_i,y_i)-(xe_i,ye_i),w_i
+    st$ = STR$(INT(w_f*Rad2Deg+0.01))
+    xs_i =xs_i/8
+    ys_i = ys_i/16
+    LOCATE ys_i,xs_i
+    PRINT   st$
+NEXT i
+RETURN
+
+' ------------------------------------------------------------------------------------------
+ComputeTargetPositions:
+
+FOR i_i = 1 TO TargetsMax
+    Target_X(i_i) += TargetDX(i_i)*DynamicsInterval ' intgrate
+    Target_Y(i_i) += TargetDY(i_i)*DynamicsInterval ' 
+    Target_Z(i_i) += TargetDZ(i_i)*DynamicsInterval ' 
+    TargetAZ(i_i) = ATAN2(Target_Y(i_i),Target_X(i_i)) '   Radians
+    w_f= SQR(Target_X(i_i)*Target_X(i_i)+Target_Y(i_i)*Target_Y(i_i)) ' GroundRangeyards
+    TargetEL(i_i) = ATAN2(Target_Z(i_i),w_f) ' Radians
+    TargetRG(i_i) = SQR(Target_X(i_i)*Target_X(i_i)+Target_Y(i_i)*Target_Y(i_i)+Target_Z(i_i)*Target_Z(i_i)) ' yards
+    IF TargetDesignatedStatus= i_i THEN
+        DIM Gs, v_f, PrevTargetDesignatedStatus, PrevTTR_X, PrevTTR_Y, PrevTTR_Z
+        DIM BaseTargetMovementAngleXY, BaseTargetMovementAngleZ, GOffSet
+        ' normalized evasion value
+        CONST EP = 14   ' EvasionPeriod
+        ' the constant 10 is to get more digits from MOD, increase resolution
+        CONST ModRes = 10
+        DIM EP_Res = EP*ModRes
+        ' v_f = SIN(Pi/2 * 2*ABS((70)-((ThisTime*10) MOD 140)/70)-1)' 14 second period
+         v_f = SIN(Pi/2 * 2*ABS((EP_Res/2)-((ThisTime*ModRes) MOD EP_Res)/(EP_Res/2))-1)
+        Gs = EvasionGs * v_f
+        GOffSet = 245 * Gs
+        '  dither these according to the travel vector and Gs
+        '  general plan, dither about the base course, ie,
+        IF EvasionGs = 0.0  THEN
+            TTR_X = Target_X(i_i)  ' yards 
+            TTR_Y = Target_Y(i_i)
+            TTR_Z = Target_Z(i_i)
+            locate 3,86
+           'print using " dither yds = ####.#   ";GOffSet
+            print       "                       " 
+
+        ELSE
+            BaseTargetMovementAngleXY = ATAN2(TargetDY(i_i),TargetDX(i_i)) '   Radians
+            BaseTargetMovementAngleZ  = _
+                ATAN2(TTR_DZ,SQR(TargetDX(i_i)*TargetDX(i_i) + TargetDY(i_i)*TargetDY(i_i))) '   Radians
+            TTR_X = Target_X(i_i) + GOffSet*SIN(BaseTargetMovementAngleXY) ' yards 
+            TTR_Y = Target_Y(i_i) + GOffSet*COS(BaseTargetMovementAngleXY) ' yards 
+            TTR_Z = Target_Z(i_i) + GOffSet*COS(BaseTargetMovementAngleZ) ' yards
+            'locate 3,86
+           ' print using " dither yds = ####.#   ";GOffSet
+        END IF
+            
+        ' compute these based on (present values - previous values)/DynamicsInterval
+        IF TargetDesignatedStatus <> PrevTargetDesignatedStatus  _
+            OR EvasionGs = 0.0  THEN
+            TTR_DX = TargetDX(i_i)  ' yards/sec - initialization on designate change
+            TTR_DY = TargetDY(i_i) 
+            TTR_DZ = TargetDZ(i_i) '
+            PrevTargetDesignatedStatus = TargetDesignatedStatus
+        ELSE
+            TTR_DX = (TTR_X - PrevTTR_X)/DynamicsInterval
+            TTR_DY = (TTR_Y - PrevTTR_Y)/DynamicsInterval 
+            TTR_DZ = (TTR_Z - PrevTTR_Z)/DynamicsInterval 
+        END IF
+        PrevTTR_X = TTR_X 
+        PrevTTR_Y = TTR_Y
+        PrevTTR_Z = TTR_Z
+        
+        ' hopefully the following will be good enough based on non-dithered values
+        TTR_AZ = TargetAZ(i_i)  ' radians
+        TTR_EL = TargetEL(i_i)
+        TTR_RG = TargetRG(i_i)  ' target slant range yards
+        TTR_GroundRange = w_f ' yards
+        TTR_GndSpd = SQR(TargetDX(i_i)*TargetDX(i_i) + TargetDY(i_i)*TargetDY(i_i))
+    END IF ' i_i
+NEXT ' i_i = 1 to TargetsMax
+RETURN
+
+
+' ------------------------------------------------------------------------------------------
+
+MouseInPPI:   ' check if mouse in PPI, if yes, enable TargetDesignated, TargetTracked, Computer settled
+' fix a mouse scaling problem?
+DIM CalPPI_AzRad, CalPPI_AzDeg, CalPPI_RadiusPix,CalPPI_RadiusYards 
+IF MouseButtonsCurrent = 0 OR  MSL_Status <> 0 THEN
+    RETURN ' left button not depressed,  missile status <> 0
+END IF   
+IF MouseXCurrent >= PPI_XOffSet AND MouseXCurrent <= PPI_XOffSet + 2*PPI_MaxRad _
+AND MouseYCurrent >= PPI_YOffSet AND MouseYCurrent <= PPI_YOffSet + 2*PPI_MaxRad THEN
+    x_i = MouseXCurrent - (PPI_XOffSet + PPI_MaxRad)
+    y_i = MouseYCurrent - (PPI_YOffSet + PPI_MaxRad)
+    CalPPI_RadiusPix = SQR(x_i*x_i+y_i*y_i)
+    CalPPI_RadiusYards = CalPPI_RadiusPix*PPI_Pix2Yard
+    '   locate EngineeringPrintY+6,EngineeringPrintX
+    '   Print Using "MouseYards ###,###";CalPPI_RadiusYards
+    ' compute DesignateAzDeg ' in degrees  
+    CalPPI_AzRad = ATAN2(-y_i,x_i) ' in Rad
+    CalPPI_AzDeg = CalPPI_AzRad*Rad2Deg+90 'degress
+    IF CalPPI_AzDeg >=360 THEN : CalPPI_AzDeg -= 360 : END IF
+    IF CalPPI_AzDeg < 0 THEN : CalPPI_AzDeg += 360 : END IF
+    '    locate EngineeringPrintY+7,EngineeringPrintX
+    '    Print Using "MouseAzDeg     ###";CalPPI_AzDeg
+    ' see if an 'aircraft' is near Designate Az and Range
+    'locate 3,85
+    'print "xxxx"; x_i;"   ";y_i;"   "
+
+    ' compute  DesignateRadiusPix  ' in pixels
+    TargetDesignatedStatus = 0 : TargetTrackedStatus = 0 : ComputerSettledStatus = 0
+    FOR i_i = 1 TO TargetsMax  ' search existing aircraft, compare
+        IF ABS(TargetAZ(i_i) - CalPPI_AzRad) < 10*Deg2Rad _  ' Az angle +- 10 degrees
+        AND ABS(CalPPI_RadiusYards -  TargetRG(i_i)) < 10000 THEN ' range +- 10000 yards
+        DIM CalTargSlantRange 
+        CalTargSlantRange = SQR(Target_X(i_i)*Target_X(i_i)+Target_Y(i_i)*Target_Y(i_i)+ _
+                Target_Z(i_i)*Target_Z(i_i) )  ' slant range - fix corner condition
+        IF  CalTargSlantRange < TTR_RangeMaxYards - 1000  THEN  ' in max TTR Range
+            TargetDesignatedStatus = i_i
+            TargetTrackedStatus = i_i
+            ComputerStartFlag = 1 ' start computer
+            DesignateAzRads = CalPPI_AzRad
+            DesignateRadiusPix = CalPPI_RadiusPix
+            GOSUB E_Message1
+            '      123456789012345
+            PRINT "               "
+            GOSUB E_Message2
+            PRINT "               "
+            COLOR white
+        ELSE
+            GOSUB E_Message1
+            '      123456789012345
+            PRINT "Out of         "
+            GOSUB E_Message2
+            PRINT "TTR Range      "
+            COLOR white
+        END IF
+    END IF
+NEXT ' i_i = 1 to TargetsMax
+END IF
+ 
+RETURN
+
+'---------------------------------------------------------------------------------------------
+
+
+PossibleSiteStatusUpdate: ' what a mess of mouse and printed text :-((
+'w = -20 ' PPI mouse Y correction
+DIM MS_ButtonLast
+'If MouseXCurrent >= TTR_X_OffSet AND MouseXCurrent <= TTR_X_OffSet + TTR_WidthPixels _
+'   AND MouseYCurrent >= TTR_Y_Offset+TTR_MaxFuzzPixels+TTR_NotchDepthPixels+w  _
+'   AND MouseYCurrent <=  TTR_Y_Offset+TTR_MaxFuzzPixels+TTR_NotchDepthPixels+20+w then
+'        If MouseButtonsCurrent = 1 Then
+'            TTR_RangeUnitYards = (MouseXCurrent-TTR_X_OffSet)*TTR_MainYardsPerPixel+TTR_NotchWidthYards/2
+'        End if
+'    End If    
+
+IF MouseYCurrent > 0  AND MouseYCurrent < 33 _   ' monitor status requests, in status lights
+AND MouseButtonsCurrent = 1  THEN
+FOR i_i = 0 TO 3 
+    IF  MouseXCurrent > SiteStatusLightsX + _  ' cycles through RED, BLUE, YELLOW, WHITE
+    ((i_i-0)*(2*SiteStatusLightsRadius+10) - SiteStatusLightsRadius) _
+    AND MouseXCurrent < SiteStatusLightsX + _
+    ((i_i+1)*(2*SiteStatusLightsRadius+10) - SiteStatusLightsRadius) _
+    THEN
+    SiteStatus = 3-i_i  '3-i_i
+END IF
+NEXT i_i
+END IF
+
+
+IF SiteStatus < 0 THEN :SiteStatus = 0 : END IF
+IF SiteStatus > 3 THEN :SiteStatus = 3 : END IF
+
+LastSiteStatus = SiteStatus
+RETURN   
+
+'----------------------------------------------------
+
+
+PrintSystemStatus:
+
+' colors in order are White,  Yellow, Red, Blue
+CONST StatusPrintXOffset = 70
+CONST StatusPrintXOffset2nd = StatusPrintXOffset + 30
+CONST StatusPrintXOffset3rd = StatusPrintXOffset2nd + 30
+CONST StatusPrintYOffset = 30 '  
+COLOR White ' set nominal
+LOCATE StatusPrintYOffset+1,StatusPrintXOffset
+PRINT "                  SYSTEM STATUS       "       
+LOCATE StatusPrintYOffset+2,StatusPrintXOffset
+PRINT " -------------------------------------  "       
+LOCATE StatusPrintYOffset+3,StatusPrintXOffset
+PRINT "Target Designated      ";
+IF TargetDesignatedStatus = 0 THEN : COLOR Red : PRINT "NO " ELSE : COLOR Green : PRINT "YES" : END IF
+COLOR White
+LOCATE StatusPrintYOffset+4,StatusPrintXOffset
+PRINT "Target Tracked         ";
+IF TargetTrackedStatus = 0 THEN : COLOR Red : PRINT "NO " ELSE : COLOR Green : PRINT "YES" : END IF
+COLOR White
+
+LOCATE StatusPrintYOffset+5,StatusPrintXOffset
+PRINT "Computer Settled       ";
+IF ComputerSettledStatus = 0 THEN : COLOR Red : PRINT "NO " ELSE : COLOR Green : PRINT "YES" : END IF
+COLOR White
+
+LOCATE StatusPrintYOffset+6,StatusPrintXOffset
+PRINT "Site Alert Status RED? ";
+IF SiteStatus <> 3 THEN : COLOR Red : PRINT "NO " ELSE : COLOR Green : PRINT "YES" : END IF
+COLOR White
+
+LOCATE StatusPrintYOffset+7,StatusPrintXOffset
+PRINT "Missile Selected       ";
+IF MissileSelectedStatus = 0 THEN : COLOR Red : PRINT "NO " ELSE : COLOR Green : PRINT "YES" : END IF
+COLOR White
+
+LOCATE StatusPrintYOffset+8,StatusPrintXOffset
+PRINT " ---------------       ";
+
+LOCATE StatusPrintYOffset+9,StatusPrintXOffset
+PRINT "Ready to Fire ?        ";
+IF TargetTrackedStatus>0 AND ComputerSettledStatus>0 AND SiteStatus = 3 _
+AND MissileSelectedStatus > 0 _ 
+THEN 
+COLOR Green : PRINT "YES" 
+ELSE 
+    COLOR Red : PRINT "NO " 
+END IF
+COLOR White
+
+LOCATE StatusPrintYOffset+10,StatusPrintXOffset
+PRINT " -------------------------------------  ";
+
+
+LOCATE StatusPrintYOffset+13,StatusPrintXOffset+35
+PRINT " Target Tracking Radar Display       ";
+
+COLOR White ' return to nominal
+
+' print launcher & missile status
+
+LOCATE StatusPrintYOffset+4,StatusPrintXOffset2nd
+IF LauncherNumber< 1 OR LauncherNumber> 3 THEN 
+    LauncherNumber=1 
+    SectionNumber += 1
+END IF
+IF SectionNumber< 1 OR SectionNumber> 2 THEN 
+    SectionNumber = 1
+END IF
+
+
+LOCATE StatusPrintYOffset+3,StatusPrintXOffset2nd
+'Print "Section  Number    # ";
+'Print Using "# ";SectionNumber
+PRINT "Sel Sctn # ";
+PRINT USING "# ";SectionNumber;
+PRINT "Lnchr # ";
+PRINT USING "# ";LauncherNumber
+
+'  Locate StatusPrintYOffset+4,StatusPrintXOffset2nd
+' Print "Launcher Number    # ";
+' Print Using "# ";LauncherNumber
+
+
+LOCATE StatusPrintYOffset+4,StatusPrintXOffset2nd
+PRINT "Msl Status ";
+COLOR Green
+SELECT CASE   MSL_Status 
+CASE 0
+    IF SiteStatus < 3 THEN
+        COLOR Yellow
+    END IF
+    PRINT "      Ready  "
+CASE 1
+    PRINT " SettleGyro  "
+CASE 2
+    PRINT "Away, Boost "
+CASE 3
+    PRINT "  Roll Stab "
+CASE 4
+    PRINT "       Dive "
+CASE 5
+    PRINT "1/2g Cruise "
+CASE 6
+    COLOR Red
+    PRINT "      Burst "
+CASE ELSE
+    PRINT "?????       "    
+END SELECT 
+
+COLOR White ' return to nominal
+LOCATE StatusPrintYOffset+5,StatusPrintXOffset2nd ' print  
+IF ComputerSettledStatus <> 0 THEN
+    'Print Using "MSL Gyro Degrees  #### ";MSL_GyroDegrees ' = PIP_MilNorthRad*Rad2Deg
+    PRINT USING "Pred Intercept sec ### ";PIP_Sec '  
+ELSE
+    PRINT   "                         "
+END IF
+
+COLOR White ' return to nominal
+LOCATE StatusPrintYOffset+6,StatusPrintXOffset2nd ' print  
+IF ComputerSettledStatus <> 0 THEN
+    PRINT USING "MSL Gyro Degrees  #### ";MSL_GyroDegrees ' = PIP_MilNorthRad*Rad2Deg
+ELSE
+    PRINT   "                         "
+END IF
+
+LOCATE StatusPrintYOffset+7,StatusPrintXOffset2nd
+PRINT USING "Flight Time       ####";MSL_FlightTime
+LOCATE StatusPrintYOffset+8,StatusPrintXOffset2nd '  
+IF TargetTrackedStatus <>0 THEN
+    PRINT USING "Tgt Gnd MPH       ####";TTR_GndSpd*Yds2Mph
+ELSE
+    PRINT   "                         "
+END IF
+
+LOCATE StatusPrintYOffset+9,StatusPrintXOffset2nd
+PRINT USING "Missile MPH       ####";SQR(MSL_DX*MSL_DX+MSL_DY*MSL_DY+MSL_DZ*MSL_DZ)*Yds2Mph
+
+
+IF Debug THEN
+    LOCATE StatusPrintYOffset+4,StatusPrintXOffset3rd ' print 3rd col
+    IF MissileAwayStatus <> 0 THEN
+        'Print Using "Msl Gnd Spd  mph = ####  ";MslGndSpd*Yds2Mph
+    ELSE
+        PRINT       "                       "
+    END IF
+    
+    LOCATE StatusPrintYOffset+5,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "PIP Time  sec    = ####  ";PIP_Sec
+    'else
+    'Print       "                       "
+    'end if
+    
+    
+    LOCATE StatusPrintYOffset+7,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL - Nose up      ##.#  ";MSL_PP_ElRad*Rad2Deg ' = PIP_MilNorthRad*Rad2Deg
+    'else
+    'Print       "                       "
+    'end if
+    LOCATE StatusPrintYOffset+8,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "PIP X           #######  ";PIP_X '  
+    'else
+    'Print       "                       "
+    'end if
+    
+    LOCATE StatusPrintYOffset+9,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "PIP Y           #######  ";PIP_Y '  
+    
+    'else
+    'Print       "                       "
+    'end if
+    
+    LOCATE StatusPrintYOffset+10,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL PP DX       #######  ";MSL_PP_DX ' = PIP_MilNorthRad*Rad2Deg
+    'else
+    'Print       "                       "
+    'end if
+    LOCATE StatusPrintYOffset+11,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL PP x        #######  ";MSL_PP_x ' = PIP_MilNorthRad*Rad2Deg
+    'else
+    'Print       "                       "
+    'end if
+    LOCATE StatusPrintYOffset+12,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL X           #######  ";MSL_X '  
+    'else
+    'Print       "                       "
+    'end if
+    LOCATE StatusPrintYOffset+13,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL Y           #######  ";MSL_Y '          'else
+    'Print       "                       "
+    'end if
+    LOCATE StatusPrintYOffset+14,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL Z           #######  ";MSL_Z
+    'else
+    'Print       "                       "
+    'end if
+    LOCATE StatusPrintYOffset+15,StatusPrintXOffset3rd ' print 3rd col
+    'If ComputerSettledStatus <> 0 then
+    PRINT USING "MSL  mph mach  #### #.##  ";MSL_Speed*180/88, MSL_Speed/Mach1 ' = PIP_MilNorthRad*Rad2Deg
+    'else
+    'Print       "                       "
+    'end if
+END IF ' debug
+
+RETURN
+
+'----------------------------------------------------------------------------------------------
+
+
+NewPlottingPaper:
+DIM PlotBackground
+' paint the X,Y plot background if edge targetTracked after notTargetTracked
+'If ComputerSettledStatus <> 0 and ComputerSettledStatusLast = 0 then ' paint XY and ZT displays
+ZTT_SpriteLastLoc = -1 ' = no last loc
+ZTM_SpriteLastLoc = -1 ' = no last loc
+XYT_SpriteLastLoc = -1 ' = no last loc
+XYM_SpriteLastLoc = -1 ' = no last loc
+PlotBackground = GreyL
+'Line (XY_X_Offset,XY_Y_Offset) _
+' -(XY_X_Offset+XY_X_Width,XY_Y_Offset + XY_Y_Width),PlotBackground,BF ' XY Plotting board
+' Add scale numbers and marks
+FOR i_i = 0 TO XY_X_Width 
+    FOR  j_i = 0 TO XY_Y_Width
+        XY_Array(i_i,j_i) = PlotBackground
+    NEXT j_i
+NEXT i_i
+PlotBackground = Black
+
+FOR i_i = 0 TO XY_Y_Width STEP XY_Y_Width/4
+    FOR j_i = 0 TO XY_Y_Width
+        XY_Array(i_i,j_i) = PlotBackground
+    NEXT j_i    
+NEXT   i_i
+FOR j_i = 0 TO XY_Y_Width STEP XY_Y_Width/4
+    FOR i_i = 0 TO XY_Y_Width
+        XY_Array(i_i,j_i) = PlotBackground
+    NEXT i_i    
+NEXT   j_i
+
+FOR i_i = 0 TO XY_X_Width 
+    FOR  j_i = 0 TO XY_Y_Width
+        PSET(i_i+ XY_X_Offset,j_i+XY_Y_Offset), XY_Array(i_i,j_i)' = PlotBackground
+    NEXT j_i
+NEXT i_i
+PlotBackground = White     
+
+
+LOCATE 1+(XY_Y_Offset+ XY_Y_Width)/16,(XY_X_Offset)/8
+PRINT " ^           ^            ^           ^            ^"
+LOCATE 2+(XY_Y_Offset+ XY_Y_Width)/16,(XY_X_Offset)/8   ' was 32
+PRINT "200         100                      100          200"
+LOCATE 3+(XY_Y_Offset+ XY_Y_Width)/16,(XY_X_Offset)/8    ' was 48
+PRINT "    X,Y Plotting Board, in Thousands of Yards"
+LOCATE 4+(XY_Y_Offset+ XY_Y_Width)/16,(XY_X_Offset)/8    ' was 48
+PRINT "-113 miles                0                      +113"
+
+
+
+' elevation plots ZTL and ZTR, these are physically one, but we will address them as two.
+'    however, their group offset is still called ZT, with ZTL and ZTR as offsets within the ZT offsets
+'      - two square boards, 
+'              - left has target altitude vs time, 
+'            ' - right has Pred Int alt, then missile altitude vs time
+'  each has 0 to 150 seconds in 30 second steps, altitude to 100,000 ft in 10,000 foot steps
+
+'    Left Time Plotting board, tracks Target vs Time
+CONST ZTT_X_Offset = ZT_X_Offset, ZTT_X_Width = ZT_X_Width, _
+ZTT_Y_Offset = ZT_Y_Offset, ZTT_Y_Width = ZT_Y_Width
+
+w_i = GreyL
+FOR i_i = 0 TO ZTT_X_Width    ' set ZTT background 
+    FOR j_i = 0 TO  ZTT_Y_Width
+        ZTT_Array(i_i,j_i) = w_i  ' save in array
+    NEXT j_i
+NEXT i_i
+' wipe out overflow red timing marks or right of ZTT array
+FOR i_i = 1 TO 6
+    LINE (ZT_X_Offset+ZT_X_Width+i_i,ZT_Y_Offset)  _
+    -(ZT_X_Offset+ZT_X_Width+i_i,ZT_Y_Offset+ZT_Y_Width),black
+NEXT i_i
+
+
+DIM ii_i,jj_i
+w_i = Black
+FOR w_f = 0.20 TO 0.99 STEP 0.20 ' plot vertical time lines
+    ii_i = ZTT_X_Width*w_f
+    FOR j_i = 0 TO ZTT_Y_Width
+        ZTT_Array(ii_i,j_i) = w_i  ' save in array
+    NEXT j_i
+NEXT w_f
+FOR w_f = 0.1 TO 0.99 STEP 0.1  ' plot horizontal altitude  lines
+    jj_i = ZTT_Y_Width*w_f
+    FOR i_i = 0 TO ZTT_X_Width
+        ZTT_Array(i_i,jj_i) = w_i  ' save in array
+    NEXT i
+NEXT w_f
+FOR i_i = 0 TO ZTT_X_Width    ' copy ZTT array to video
+    FOR j_i = 0 TO  ZTT_Y_Width
+        w_i = ZTT_Array(i_i,j_i)  ' get from array
+        PSET (i_i+ZTT_X_Offset,j_i+ZTT_Y_Offset),w_i
+    NEXT j_i
+NEXT i_i
+' horizontal scale of left time plotting board
+LOCATE 2+(ZTT_Y_Offset+ ZTT_Y_Width)/16,(ZTT_X_Offset)/8
+'       1234567812345678123456781234567812345678
+PRINT " ^       ^      ^       ^      ^       ^ "
+LOCATE 3+(ZTT_Y_Offset+ ZTT_Y_Width)/16,(ZTT_X_Offset)/8   ' was 32
+PRINT "150     120     90     60      30      0"
+LOCATE 4+(ZTT_Y_Offset+ ZTT_Y_Width)/16,(ZTT_X_Offset)/8    ' was 48
+PRINT "       Time to Intercept, in seconds"
+
+'---------------------------------------------------
+
+'    RIGHT Time Plotting board, tracks PIP or Missile vs Time
+CONST ZTM_X_Offset = ZT_X_Offset+ZTT_X_Width+20, ZTM_X_Width = ZT_X_Width, _
+ZTM_Y_Offset = ZT_Y_Offset, ZTM_Y_Width = ZT_Y_Width
+PlotBackground = GreyL
+'Line (ZTM_X_Offset,ZTM_Y_Offset) _
+'     -(ZTM_X_Offset+ZTM_X_Width,ZTM_Y_Offset + ZTM_Y_Width),PlotBackground,BF ' XY Plotting board
+' For w_f = 0.20 to 0.99 step 0.20  ' plot vertical time lines
+'     Line (ZTM_X_Offset+ZTM_X_Width*w_f,ZTM_Y_Offset) _
+'         -(ZTM_X_Offset+ZTM_X_Width*w_f,ZTM_Y_Offset + ZTM_Y_Width),Black,B  ' XY Vertical center
+' Next ' w_f 
+' For w_f = 0.1 to 0.99 step 0.1  ' plot horizontal altitude  lines
+'    Line (ZTM_X_Offset,ZTM_Y_Offset+ ZTM_Y_Width*w_f) _
+'        -(ZTM_X_Offset+ZTM_X_Width,ZTM_Y_Offset + ZTM_Y_Width*w_f),Black,B  ' XY Horizontal center
+'  Next ' S 
+w_i = GreyL
+FOR i_i = 0 TO ZTM_X_Width    ' set ZTM background 
+    FOR j_i = 0 TO  ZTM_Y_Width
+        ZTM_Array(i_i,j_i) = w_i  ' save in array
+    NEXT j_i
+NEXT i_i
+
+
+w_i = Black
+FOR w_f = 0.20 TO 0.99 STEP 0.20 ' plot vertical time lines
+    ii_i = ZTM_X_Width*w_f
+    FOR j_i = 0 TO ZTM_Y_Width
+        ZTM_Array(ii_i,j_i) = w_i  ' save in array
+    NEXT j_i
+NEXT w_f
+FOR w_f = 0.1 TO 0.99 STEP 0.1  ' plot horizontal altitude  lines
+    jj_i = ZTM_Y_Width*w_f
+    FOR i_i = 0 TO ZTM_X_Width
+        ZTM_Array(i_i,jj_i) = w_i  ' save in array
+    NEXT i
+NEXT w_f
+' plot DEAD ZONE - try elipse from time 0 to 30, max height = 30,000 feet
+DIM x=0,d=100,a=3, xoff = 30
+FOR i_i = 0 TO ZTM_X_Width*30/150
+    x = i_i
+    jj_i = ZTM_Y_Width -   SQR(d*d -a*x*x +2*x*xoff - xoff*xoff)
+    ZTM_Array(i_i,jj_i) = w_i  ' save in array
+    ZTM_Array(i_i,jj_i-1) = w_i  ' save in array, make thicker
+NEXT i_i
+
+FOR i_i = 0 TO ZTM_X_Width    ' copy ZTM array to video
+    FOR j_i = 0 TO  ZTM_Y_Width
+        w_i = ZTM_Array(i_i,j_i)  ' get from array
+        PSET (i_i+ZTM_X_Offset,j_i+ZTM_Y_Offset),w_i
+    NEXT j_i
+NEXT i_i
+
+' horizontal scale
+LOCATE 2+(ZTM_Y_Offset+ ZTM_Y_Width)/16,(ZTM_X_Offset)/8
+'       1234567812345678123456781234567812345678
+PRINT " ^       ^      ^       ^      ^       ^ "
+LOCATE 3+(ZTM_Y_Offset+ ZTM_Y_Width)/16,(ZTM_X_Offset)/8   ' was 32
+PRINT " 0      30     60      90      120     150"
+LOCATE 4+(ZTM_Y_Offset+ ZTM_Y_Width)/16,(ZTM_X_Offset)/8    ' was 48
+PRINT "       Time to Intercept, in seconds"
+
+
+
+'vertical scale - for both charts 
+LOCATE 1+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "< 100,000 "
+LOCATE 4+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "< 80,000 "
+LOCATE 8+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "< 60,000 "
+LOCATE 12+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "< 40,000 "
+LOCATE 16+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "< 20,000 "
+LOCATE 19+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "< 0 "
+LOCATE 20+(ZTM_Y_Offset)/16,2+(ZTM_X_Offset+ZTM_X_Width)/8
+PRINT "  Altitude, Feet"
+TrackStartMark = ThisTime ' start time
+TrackNextMark = TrackStartMark ' set up for periodic marks
+
+RETURN
+
+'-----------------------------------------------------------------------------------------
+PlotPaper_ZTT:
+
+'If TargetTrackedStatus > 0 then
+'    ' plot TTR on XY
+'    ' values in  Dim Shared TTR_X, TTR_Y, TTR_Z  ' in yards 
+'    x = TTR_X*XY_PixPerYard + XY_X_Width/2
+'    y = -TTR_Z*XY_PixPerYard + XY_Y_Width/2 
+'    PSET (x +  XY_X_Offset,y +  XY_Y_OffSet), Red ' place pixel
+'    If TimeMarkFlag <> 0 then ' make 10 sec mark (Under the sprite, no conflict )
+'        Line (x+XY_X_Offset,y +XY_Y_OffSet)-(x+XY_X_Offset,y +XY_Y_OffSet+5), Red 'down (should be up, but sprite)
+'        Line (x+XY_X_Offset,y +XY_Y_OffSet)-(x+XY_X_Offset+5,y +XY_Y_OffSet), Red ' right
+'    end if
+'end if
+'return   
+IF ComputerSettledStatus > 0 THEN 
+    ' plot Target on left ZT board, time zero to right, TTR_Z zero on bottom,
+    x_i  = INT(PIP_Sec*ZT_X_PixPerSecond) 
+    'If x > ZT_X_Width then : x = ZT_X_Width : end if
+    y_i  = INT(TTR_Z*ZT_Y_PixPerYard)
+    'If y < 0 then : y = 0 : end if
+    'If y > ZT_Y_Width then : y = ZT_Y_Width : end if
+    'restore from sprite array to chart area and PSET, clipping will cause violate destination, -1 = clipp save
+    ' restore previous area to replace current sprite
+    IF ZTT_SpriteLastLoc <> -1 THEN 
+        DIM AS INTEGER ZTT_LastX, ZTT_LastY
+        ZTT_LastX = INT(ZTT_SpriteLastLoc/1000)
+        ZTT_LastY = INT(ZTT_SpriteLastLoc -ZTT_LastX*1000)
+        IF x_i = ZTT_LastX AND y_i = ZTT_LastY AND TimeMarkFlag = 0 THEN
+            RETURN ' no work to do 
+        END IF 
+        FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+            FOR j_i = 0 TO SpriteHi
+                w_i = ZTT_SpriteArray(i_i,j_i)
+                IF w_i <> -1 THEN
+                    xc_i = -ZTT_LastX + i_i +ZT_X_Width - INT(SpriteWide/2) -1
+                    yc_i = -ZTT_LastY - j_i +ZT_Y_Width -1
+                    IF xc_i > 0 AND xc_i < ZT_X_Width _
+                    AND yc_i > 0 AND yc_i < ZT_Y_Width THEN
+                    PSET ( xc_i+ZTT_X_Offset, yc_i+ ZT_Y_Offset   ), w_i
+                END IF
+                'PSET (i_i+550, -j_i+500), w_i ' debug, result in Sprite Array
+            END IF
+        NEXT j
+    NEXT i 
+END IF
+
+' save chart area to sprite array, place sprite (black arrow?), observe clipping
+FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+    FOR j_i = 0 TO SpriteHi
+        xc_i = -x_i + i_i -INT(SpriteWide/2)  - 0 +ZT_X_Width
+        yc_i = -y_i - j_i +ZT_Y_Width         - 1  ' try to show all terms
+        IF xc_i > 0 AND xc_i < ZT_X_Width AND yc_i > 0 AND yc_i < ZT_Y_Width THEN
+            w_i = ZTT_Array(xc_i ,yc_i )
+            ZTT_SpriteArray(i_i,j_i) = w_i
+        ELSE : w_i = -1 : ZTT_SpriteArray(i_i,j_i) = w_i : END IF
+            
+            IF w_i <> -1 THEN
+                ' PSET (i_i+500, -j_i+500), w_i ' debug. source to Sprite Array
+            END IF
+        NEXT j_i
+    NEXT i_i
+    ZTT_SpriteLastLoc = x_i*1000+y_i  ' show where saved data should go
+    
+    ' write white arrow  - THIS White dart WORKS - well at  least downward
+    FOR i_i = -1 TO -14 STEP -1  ' y direction this is the area above the xy pixel
+        FOR k_i = +i_i+1 TO -i_i-1
+            j_i = k_i/3
+            xc_i = j_i-x_i 
+            yc_i = i_i-y_i 
+            IF   xc_i > -ZT_X_Width AND xc_i <= 0 AND yc_i > -ZT_Y_Width AND yc_i <= 0 THEN
+                PSET (xc_i+ZT_X_Width +ZTT_X_Offset, yc_i +ZT_Y_Width + ZT_Y_Offset), White
+            END IF
+        NEXT k_i
+    NEXT i_i   
+    IF x_i > 0 AND x_i< ZT_X_Width AND y_i > 0 AND y_i < ZT_Y_Width THEN
+        ZTT_Array(-x_i +ZT_X_Width,  -y_i + ZT_Y_Width) = Red  ' place on internal memory
+        PSET (-x_i +ZTT_X_Offset+ZT_X_Width ,-y_i + ZT_Y_Offset+ZT_Y_Width), Red ' place pixelon chart
+    END IF
+    
+    
+    IF TimeMarkFlag <> 0 THEN ' make 10 sec mark (Under the sprite, no conflict )
+        FOR i_i = 0 TO 5 ' make vertical line down
+            IF x_i > 0 AND  x_i < ZT_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < ZT_Y_Width THEN
+                ZTT_Array(-x_i  +ZT_X_Width              ,-y_i +i_i + ZT_Y_Width) = Red
+                PSET     (-x_i  +ZTT_X_Offset+ZT_X_Width ,-y_i +i_i + ZT_Y_Offset+ZT_Y_Width), Red ' place pixel
+            END IF
+        NEXT i_i
+        FOR i_i = 0 TO 5 ' make horizontal line to right
+            IF x_i > 0 AND  x_i < ZT_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < ZT_Y_Width THEN               
+                ZTT_Array(-x_i + i_i              +ZT_X_Width ,-y_i +             ZT_Y_Width) = Red
+                PSET     (-x_i + i_i +ZTT_X_Offset+ZT_X_Width ,-y_i + ZT_Y_Offset+ZT_Y_Width), Red ' place pixel
+            END IF
+        NEXT i_i
+        
+        
+    END IF
+    
+END IF
+RETURN
+
+
+
+PlotPaper_ZTM:
+' Plot on right chart
+IF ComputerSettledStatus > 0 THEN 
+    SELECT CASE MSL_Status
+    CASE 0 ' prefire, prelaunch
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(PIP_Z*ZT_Y_PixPerYard)
+        AltPenColor = Yellow
+        
+    CASE 1 ' Fire Button Pushed, Gyro settle
+        AltPenColor = Yellow
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(MSL_Z*ZT_Y_PixPerYard)
+        
+        
+    CASE 2 ' Lift_off, Boost
+        AltPenColor = Green
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(MSL_Z*ZT_Y_PixPerYard)
+        
+    CASE 3 ' Roll Stab
+        AltPenColor = Green
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(MSL_Z*ZT_Y_PixPerYard)
+        
+    CASE 4 ' Dive 
+        AltPenColor = Green
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(MSL_Z*ZT_Y_PixPerYard)
+        
+    CASE 5 ' Cruise
+        AltPenColor = Green
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(MSL_Z*ZT_Y_PixPerYard)
+        
+    CASE 6 ' Burst
+        AltPenColor = Yellow
+        x_i  = ZT_X_Width - INT(PIP_Sec*ZT_X_PixPerSecond) 
+        y_i  =   INT(MSL_Z*ZT_Y_PixPerYard)
+        
+    END SELECT
+    
+    'If y < 0 then : y = 0 : end if
+    'If y > ZT_Y_Width then : y = ZT_Y_Width : end if
+    'restore from sprite array to chart area and PSET, clipping will cause violate destination, -1 = clipp save
+    ' restore previous area to replace current sprite
+    IF ZTM_SpriteLastLoc <> -1 THEN 
+        DIM AS INTEGER ZTM_LastX, ZTM_LastY
+        ZTM_LastX = INT(ZTM_SpriteLastLoc/1000)
+        ZTM_LastY = INT(ZTM_SpriteLastLoc -ZTM_LastX*1000)
+        IF x_i = ZTM_LastX AND y_i = ZTM_LastY AND TimeMarkFlag = 0 THEN
+            RETURN ' no work to do 
+        END IF
+        FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+            FOR j_i = 0 TO SpriteHi
+                w_i = ZTM_SpriteArray(i_i,j_i)
+                IF w_i <> -1 THEN
+                    xc_i = -ZTM_LastX + i_i +ZT_X_Width - INT(SpriteWide/2) -1
+                    yc_i = -ZTM_LastY - j_i +ZT_Y_Width -1
+                    IF xc_i > 0 AND xc_i < ZT_X_Width _
+                    AND yc_i > 0 AND yc_i < ZT_Y_Width THEN
+                    PSET ( xc_i+ZTM_X_Offset, yc_i+ ZT_Y_Offset   ), w_i
+                END IF
+                'PSET (i_i+550, -j_i+500), w_i ' debug, result in Sprite Array
+            END IF
+        NEXT j
+    NEXT i 
+END IF
+
+' save chart area to sprite array, place sprite (black arrow?), observe clipping
+FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+    FOR j_i = 0 TO SpriteHi
+        xc_i = -x_i + i_i -INT(SpriteWide/2)  - 0 +ZT_X_Width
+        yc_i = -y_i - j_i +ZT_Y_Width         - 1  ' try to show all terms
+        IF xc_i > 0 AND xc_i < ZT_X_Width AND yc_i > 0 AND yc_i < ZT_Y_Width THEN
+            w_i = ZTM_Array(xc_i ,yc_i )
+            ZTM_SpriteArray(i_i,j_i) = w_i
+        ELSE : w_i = -1 : ZTM_SpriteArray(i_i,j_i) = w_i : END IF
+            
+            IF w_i <> -1 THEN
+                ' PSET (i_i+500, -j_i+500), w_i ' debug. source to Sprite Array
+            END IF
+        NEXT j_i
+    NEXT i_i
+    ZTM_SpriteLastLoc = x_i*1000+y_i  ' show where saved data should go
+    
+    ' write white arrow  - THIS White dart WORKS - well at  least downward
+    FOR i_i = -1 TO -14 STEP -1  ' y direction this is the area above the xy pixel
+        FOR k_i = +i_i+1 TO -i_i-1
+            j_i = k_i/3
+            xc_i = j_i-x_i 
+            yc_i = i_i-y_i 
+            IF   xc_i > -ZT_X_Width AND xc_i <= 0 AND yc_i > -ZT_Y_Width AND yc_i <= 0 THEN
+                PSET (xc_i+ZT_X_Width +ZTM_X_Offset, yc_i +ZT_Y_Width + ZT_Y_Offset), White
+            END IF
+        NEXT k_i
+    NEXT i_i   
+    IF x_i > 0 AND x_i< ZT_X_Width AND y_i > 0 AND y_i < ZT_Y_Width THEN
+        ZTM_Array(-x_i +ZT_X_Width,  -y_i + ZT_Y_Width) = AltPenColor  ' place on internal memory
+        PSET (-x_i +ZTM_X_Offset+ZT_X_Width ,-y_i + ZT_Y_Offset+ZT_Y_Width), AltPenColor ' place pixelon chart
+    END IF
+    
+    
+    IF TimeMarkFlag <> 0 THEN ' make 10 sec mark (Under the sprite, no conflict )
+        FOR i_i = 0 TO 5 ' make vertical line down
+            IF x_i > 0 AND  x_i < ZT_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < ZT_Y_Width THEN
+                ZTM_Array(-x_i  +ZT_X_Width              ,-y_i +i_i + ZT_Y_Width) = AltPenColor
+                PSET     (-x_i  +ZTM_X_Offset+ZT_X_Width ,-y_i +i_i + ZT_Y_Offset+ZT_Y_Width), AltPenColor ' place pixel
+            END IF
+        NEXT i_i
+        FOR i_i = 0 TO 5 ' make horizontal line to right
+            IF x_i > 0 AND  x_i < ZT_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < ZT_Y_Width THEN               
+                ZTM_Array(-x_i + i_i              +ZT_X_Width ,-y_i +             ZT_Y_Width) = AltPenColor
+                PSET     (-x_i + i_i +ZTM_X_Offset+ZT_X_Width ,-y_i + ZT_Y_Offset+ZT_Y_Width), AltPenColor ' place pixel
+            END IF
+        NEXT i_i
+        
+        
+    END IF
+    
+END IF
+RETURN
+
+PlotPaper_XYT:
+' plot target on XY chart
+IF ComputerSettledStatus > 0 THEN 
+    ' plot Target on xy board,  
+    x_i  =  XY_X_Width/2 - INT(TTR_X*XY_PixPerYard)  
+    'If x > ZT_X_Width then : x = ZT_X_Width : end if
+    y_i  = INT(TTR_Y*XY_PixPerYard) + XY_Y_Width/2
+    'If y < 0 then : y = 0 : end if
+    
+    'restore from sprite array to chart area and PSET, clipping will cause violate destination, -1 = clipp save
+    ' restore previous area to replace current sprite
+    IF XYT_SpriteLastLoc <> -1 THEN 
+        DIM AS INTEGER XYT_LastX, XYT_LastY
+        XYT_LastX = INT(XYT_SpriteLastLoc/1000)
+        XYT_LastY = INT(XYT_SpriteLastLoc -XYT_LastX*1000)
+        IF x_i = XYT_LastX AND y_i = XYT_LastY AND TimeMarkFlag = 0 THEN
+            RETURN ' no work to do 
+        END IF
+        
+        FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+            FOR j_i = 0 TO SpriteHi
+                w_i = XYT_SpriteArray(i_i,j_i)
+                IF w_i <> -1 THEN
+                    xc_i = -XYT_LastX + i_i +XY_X_Width - INT(SpriteWide/2) -1
+                    yc_i = -XYT_LastY - j_i +XY_Y_Width -1
+                    IF xc_i > 0 AND xc_i < XY_X_Width _
+                    AND yc_i > 0 AND yc_i < XY_Y_Width THEN
+                    PSET ( xc_i+XY_X_Offset, yc_i+ XY_Y_Offset   ), w_i
+                END IF
+                'PSET (i_i+550, -j_i+500), w_i ' debug, result in Sprite Array
+            END IF
+        NEXT j
+    NEXT i 
+END IF
+
+' save chart area to sprite array, place sprite (black arrow?), observe clipping
+FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+    FOR j_i = 0 TO SpriteHi
+        xc_i = -x_i + i_i -INT(SpriteWide/2)  - 0 +XY_X_Width
+        yc_i = -y_i - j_i +XY_Y_Width         - 1  ' try to show all terms
+        IF xc_i > 0 AND xc_i < XY_X_Width AND yc_i > 0 AND yc_i < XY_Y_Width THEN
+            w_i = XY_Array(xc_i ,yc_i )
+            XYT_SpriteArray(i_i,j_i) = w_i
+        ELSE : w_i = -1 : XYT_SpriteArray(i_i,j_i) = w_i : END IF
+            
+            IF w_i <> -1 THEN
+                'PSET (i_i+500, -j_i+500), w_i ' debug. source to Sprite Array
+            END IF
+        NEXT j_i
+    NEXT i_i
+    XYT_SpriteLastLoc = x_i*1000+y_i  ' show where saved data should go
+    
+    ' write white arrow  - THIS White dart WORKS - well at  least downward
+    FOR i_i = -1 TO -14 STEP -1  ' y direction this is the area above the xy pixel
+        FOR k_i = +i_i+1 TO -i_i-1
+            j_i = k_i/3
+            xc_i = j_i-x_i 
+            yc_i = i_i-y_i 
+            IF   xc_i > -XY_X_Width AND xc_i <= 0 AND yc_i > -XY_Y_Width AND yc_i <= 0 THEN
+                PSET (xc_i+XY_X_Width +XY_X_Offset, yc_i +XY_Y_Width + XY_Y_Offset), White
+            END IF
+        NEXT k_i
+    NEXT i_i   
+    IF x_i > 0 AND x_i< XY_X_Width AND y_i > 0 AND y_i < XY_Y_Width THEN
+        XY_Array(-x_i +XY_X_Width,  -y_i + XY_Y_Width) = Red  ' place on internal memory
+        PSET (-x_i +XY_X_Offset+XY_X_Width ,-y_i + XY_Y_Offset+XY_Y_Width), Red ' place pixelon chart
+    END IF
+    
+    
+    IF TimeMarkFlag <> 0 THEN ' make 10 sec mark (Under the sprite, no conflict )
+        FOR i_i = 0 TO 5 ' make vertical line down
+            IF x_i > 0 AND  x_i < XY_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < XY_Y_Width THEN
+                XY_Array(-x_i  +XY_X_Width              ,-y_i +i_i + XY_Y_Width) = Red
+                PSET     (-x_i  +XY_X_Offset+XY_X_Width ,-y_i +i_i + XY_Y_Offset+XY_Y_Width), Red ' place pixel
+            END IF
+        NEXT i_i
+        FOR i_i = 0 TO 5 ' make horizontal line to right
+            IF x_i > 0 AND  x_i < XY_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < XY_Y_Width THEN               
+                XY_Array(-x_i + i_i              +XY_X_Width ,-y_i +             XY_Y_Width) = Red
+                PSET     (-x_i + i_i +XY_X_Offset+XY_X_Width ,-y_i + XY_Y_Offset+XY_Y_Width), Red ' place pixel
+            END IF
+        NEXT i_i
+        
+        
+    END IF
+    
+END IF
+RETURN
+
+
+
+PlotPaper_XYM:
+' plot PIP/Missile on XY chart
+IF ComputerSettledStatus > 0 THEN 
+    SELECT CASE MSL_Status
+    CASE 0 ' prefire, prelaunch
+        AltPenColor = Yellow
+        x_i  =  XY_X_Width/2 - INT(PIP_X*XY_PixPerYard)  
+        y_i  = INT(PIP_Y*XY_PixPerYard) + XY_Y_Width/2
+        
+    CASE 1 ' Fire Button Pushed, Gyro settle
+        AltPenColor = Green
+        x_i  =  XY_X_Width/2 - INT(MSL_X*XY_PixPerYard)  
+        y_i  = INT(MSL_Y*XY_PixPerYard) + XY_Y_Width/2
+        
+        
+    CASE 2 ' Lift_off, Boost
+        AltPenColor = Green
+        x_i  =  XY_X_Width/2 - INT(MSL_X*XY_PixPerYard)  
+        y_i  = INT(MSL_Y*XY_PixPerYard) + XY_Y_Width/2
+        
+    CASE 3 ' Roll Stab
+        AltPenColor = Green
+        x_i  =  XY_X_Width/2 - INT(MSL_X*XY_PixPerYard)  
+        y_i  = INT(MSL_Y*XY_PixPerYard) + XY_Y_Width/2
+    CASE 4 ' Dive 
+        AltPenColor = Green
+        x_i  =  XY_X_Width/2 - INT(MSL_X*XY_PixPerYard)  
+        y_i  = INT(MSL_Y*XY_PixPerYard) + XY_Y_Width/2
+    CASE 5 ' Cruise
+        AltPenColor = Green
+        x_i  =  XY_X_Width/2 - INT(MSL_X*XY_PixPerYard)  
+        y_i  = INT(MSL_Y*XY_PixPerYard) + XY_Y_Width/2
+    CASE 6 ' Burst
+        AltPenColor = Yellow
+        x_i  =  XY_X_Width/2 - INT(MSL_X*XY_PixPerYard)  
+        y_i  = INT(MSL_Y*XY_PixPerYard) + XY_Y_Width/2
+        
+    END SELECT
+    
+    'restore from sprite array to chart area and PSET, clipping will cause violate destination, -1 = clipp save
+    ' restore previous area to replace current sprite
+    IF XYM_SpriteLastLoc <> -1 THEN 
+        DIM AS INTEGER XYM_LastX, XYM_LastY
+        XYM_LastX = INT(XYM_SpriteLastLoc/1000)
+        XYM_LastY = INT(XYM_SpriteLastLoc -XYM_LastX*1000)
+        IF x_i = XYM_LastX AND y_i = XYM_LastY AND TimeMarkFlag = 0 THEN
+            RETURN ' no work to do 
+        END IF
+        
+        FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+            FOR j_i = 0 TO SpriteHi
+                w_i = XYM_SpriteArray(i_i,j_i)
+                IF w_i <> -1 THEN
+                    xc_i = -XYM_LastX + i_i +XY_X_Width - INT(SpriteWide/2) -1
+                    yc_i = -XYM_LastY - j_i +XY_Y_Width -1
+                    IF xc_i > 0 AND xc_i < XY_X_Width _
+                    AND yc_i > 0 AND yc_i < XY_Y_Width THEN
+                    PSET ( xc_i+XY_X_Offset, yc_i+ XY_Y_Offset   ), w_i
+                END IF
+                'PSET (i_i+550, -j_i+500), w_i ' debug, result in Sprite Array
+            END IF
+        NEXT j
+    NEXT i 
+END IF
+
+' save chart area to sprite array, place sprite (black arrow?), observe clipping
+FOR i_i = 0 TO SpriteWide    ' x direction this is the area above the xy pixel
+    FOR j_i = 0 TO SpriteHi
+        xc_i = -x_i + i_i -INT(SpriteWide/2)  - 0 +XY_X_Width
+        yc_i = -y_i - j_i +XY_Y_Width         - 1  ' try to show all terms
+        IF xc_i > 0 AND xc_i < XY_X_Width AND yc_i > 0 AND yc_i < XY_Y_Width THEN
+            w_i = XY_Array(xc_i ,yc_i )
+            XYM_SpriteArray(i_i,j_i) = w_i
+        ELSE : w_i = -1 : XYM_SpriteArray(i_i,j_i) = w_i : END IF
+            
+            IF w_i <> -1 THEN
+                'PSET (i_i+500, -j_i+500), w_i ' debug. source to Sprite Array
+            END IF
+        NEXT j_i
+    NEXT i_i
+    XYM_SpriteLastLoc = x_i*1000+y_i  ' show where saved data should go
+    
+    ' write white arrow  - THIS White dart WORKS - well at  least downward
+    FOR i_i = -1 TO -14 STEP -1  ' y direction this is the area above the xy pixel
+        FOR k_i = +i_i+1 TO -i_i-1
+            j_i = k_i/3
+            xc_i = j_i-x_i 
+            yc_i = i_i-y_i 
+            IF   xc_i > -XY_X_Width AND xc_i <= 0 AND yc_i > -XY_Y_Width AND yc_i <= 0 THEN
+                PSET (xc_i+XY_X_Width +XY_X_Offset, yc_i +XY_Y_Width + XY_Y_Offset), White
+            END IF
+        NEXT k_i
+    NEXT i_i   
+    IF x_i > 0 AND x_i< XY_X_Width AND y_i > 0 AND y_i < XY_Y_Width THEN
+        XY_Array(-x_i +XY_X_Width,  -y_i + XY_Y_Width) = AltPenColor  ' place on internal memory
+        PSET (-x_i +XY_X_Offset+XY_X_Width ,-y_i + XY_Y_Offset+XY_Y_Width), AltPenColor ' place pixelon chart
+    END IF
+    
+    
+    IF TimeMarkFlag <> 0 THEN ' make 10 sec mark (Under the sprite, no conflict )
+        FOR i_i = 0 TO 5 ' make vertical line down
+            IF x_i > 0 AND  x_i < XY_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < XY_Y_Width THEN
+                XY_Array(-x_i  +XY_X_Width              ,-y_i +i_i + XY_Y_Width) = AltPenColor
+                PSET     (-x_i  +XY_X_Offset+XY_X_Width ,-y_i +i_i + XY_Y_Offset+XY_Y_Width), AltPenColor ' place pixel
+            END IF
+        NEXT i_i
+        FOR i_i = 0 TO 5 ' make horizontal line to right
+            IF x_i > 0 AND  x_i < XY_X_Width AND -y_i +i_i < 0 AND -y_i +i_i < XY_Y_Width THEN               
+                XY_Array(-x_i + i_i              +XY_X_Width ,-y_i +             XY_Y_Width) = AltPenColor
+                PSET     (-x_i + i_i +XY_X_Offset+XY_X_Width ,-y_i + XY_Y_Offset+XY_Y_Width), AltPenColor ' place pixel
+            END IF
+        NEXT i_i
+        
+        
+    END IF
+    
+END IF
+RETURN
+'------------------------------------------------------------------------------------             
+
+DIM  PaintG_MeterInit = 0
+
+PaintG_Meter:  ' do this every time computer goes settled
+DIM PaintG_Meter_Status
+
+IF (ComputerSettledStatus = 1 AND PaintG_Meter_Status = 0)  _
+OR PaintG_MeterInit = 0 THEN
+LINE (G_Meter_X,G_Meter_Y)-(G_Meter_X+G_Meter_Width,G_Meter_Y+G_Meter_Height),white,b
+LOCATE (G_Meter_Y/16), G_Meter_X/8
+PRINT "Missile Steering "
+FOR i_i = 1 TO (G_Meter_Height/16) STEP 1
+    LOCATE (G_Meter_Y)/16 + i_i, (G_Meter_X+G_Meter_Width)/8 + 2
+    PRINT USING "##"; -(-12 + i_i*3)
+    LOCATE (G_Meter_Y)/16 + i_i, (G_Meter_X+G_Meter_Width)/8 + 5
+    SELECT CASE i_i
+    CASE 2 : PRINT "P"
+    CASE 3 : PRINT "i"
+    CASE 4 : PRINT "t"
+    CASE 5 : PRINT "c"
+    CASE 6 : PRINT "h"
+    END SELECT
+NEXT i_i
+LOCATE  ((G_Meter_Y+G_Meter_Height) /16)+2 , G_Meter_X/8
+PRINT " -9-6-3 0 3 6 9"
+LOCATE  ((G_Meter_Y+G_Meter_Height) /16)+3 , G_Meter_X/8
+PRINT "    Yaw in G's"
+
+END IF 
+
+
+
+RETURN
+'------------------------------------------------------------------------------------             
+
+DIM LastMSL_GYaw = -100, LastMSL_GPitch = -100
+PlotG_Meter:   ' run on the 1/2 second loop
+'MSL_GPitch = -9 : MSL_GYaw = -9
+'If MSL_GYaw <> LastMSL_GYaw or MSL_GPitch <> LastMSL_GPitch then
+IF MSL_GPitch <> -100 THEN ' erase previous
+    w1_i = -LastMSL_GPitch*(G_Meter_Height/2)/10 
+    w2_i = LastMSL_GYaw*(G_Meter_Width/2)/10
+    LINE (G_Meter_X+5, G_Meter_Y+G_Meter_Height/2 + w1_i) _
+    -(G_Meter_X+G_Meter_Width-5,G_Meter_Y+G_Meter_Height/2 + w1_i ),black ' horizontal line
+    LINE (G_Meter_X +G_Meter_Width/2 + w2_i, G_Meter_Y + 5 )  _
+    -(G_Meter_X +G_Meter_Width/2 + w2_i, G_Meter_Y +G_Meter_Height - 5),black ' vertical line
+END IF
+
+w1_i = -MSL_GPitch*(G_Meter_Height/2)/10 
+w2_i =  MSL_GYaw*(G_Meter_Width/2)/10
+LINE (G_Meter_X+5, G_Meter_Y+G_Meter_Height/2 + w1_i) _
+-(G_Meter_X+G_Meter_Width-5,G_Meter_Y+G_Meter_Height/2 + w1_i ),red ' horizontal line
+LINE (G_Meter_X +G_Meter_Width/2 + w2_i, G_Meter_Y + 5 )  _
+-(G_Meter_X +G_Meter_Width/2 + w2_i, G_Meter_Y +G_Meter_Height - 5),red ' vertical line
+'end if
+LastMSL_GYaw = MSL_GYaw
+LastMSL_GPitch = MSL_GPitch
+RETURN
+
+'------------------------------------------------------------------------------------             
+
+UpdateIntercept:      'also sends steering commands during cruise
+
+' calculate Predicted Intercept Point
+' based on previous 
+DIM UpdateInterceptDebugCase0 = 0
+
+DIM dTryPx, dTryPy, dTryPz 
+DIM dTryMx, dTryMy, dTryMz 
+DIM dTryTGRange, dTryTRad, dTryMGRange 
+DIM dMx, dMy, dMRange 	' missile data
+DIM dTx, dTy, dTRange 	' target  data
+
+DIM dTryMTime, dTryMRad   ' static between runs
+DIM dMPx, dMPy, dMPz   ' midpoint between missile and PredInt
+DIM dWTime, dWTime2 
+DIM fMVRadN, fM2Ix,fM2Iy,fM2Ir,fMGoalRadN,fMErrorRadH 
+DIM GyroSettledTime
+
+IF (TargetTrackedStatus = 0) THEN
+    ' move predicted intercept point to 0
+    'MSL_Status = 0
+    MSL_FlightTime = 0
+    ComputerSettledStatus = 0
+END IF
+SELECT CASE MSL_Status
+CASE 0 ' pre-launch
+    IF (TargetTrackedStatus <> 0) THEN
+        ComputerSettledStatus = 1
+    END IF
+    TTR_BurstDither = 1
+    ' following code clears G Meter after manual burst
+    
+    MSL_GYaw  = 0
+    MSL_GPitch  = 0
+    
+    
+    IF  dTryMTime < dReleaseTime THEN : dTryMTime = dReleaseTime : END IF
+    IF  dTryMTime > 150          THEN : dTryMTime = 150          : END IF
+    IF  dTryMRad  > Pi           THEN : dTryMRad  = PiTimes2     : END IF
+    IF  dTryMRad  < -Pi          THEN : dTryMRad  = -Pi          : END IF
+    FOR i_i=0 TO 3.99 
+        dTryPx = TTR_X + TTR_DX*dTryMTime ' projected target at projected time
+        dTryPy = TTR_Y + TTR_DY*dTryMTime  '  "
+        dTryTGRange = SQR( dTryPx*dTryPx + dTryPy*dTryPy ) ' projected range of PIP from launcher
+        'if ( dTryPx <> 0 AND dTryPy <> 0 ) then
+        dTryTRad = ATAN2( dTryPy, dTryPx)  ' angle of projected target from current target
+        'else
+        '    dTryTRad = 0
+        'end if
+        dTryMGRange  = dReleaseRange + dReleaseSpeed*(dTryMTime - dReleaseTime) 
+        ' progected missile range from launcher
+        dTryMx = dTryMGRange * COS(dTryMRad) ' projected missile position
+        dTryMy = dTryMGRange * SIN(dTryMRad) '    "
+        dTryMz = dReleaseZ
+        IF ( dTryMx <> 0 AND dTryMy <> 0 ) THEN
+            dTryMRad = ATAN2( dTryMy, dTryMx) ' angle of projected from current (launcher)
+        ELSE
+            dTryMRad = 0
+        END IF
+        
+        
+        ' if i is even do angle, else do time
+        IF ( INT(i_i) AND 1 ) = 0 THEN
+            dTryMRad += (dTryTRad - dTryMRad)/2
+        ELSE
+            '               dTryMTime += ( (dTryTGRange - dTryMGRange)/dTryMGRange)/2 
+            dTryMTime += ( (dTryTGRange - dTryMGRange)/dReleaseSpeed)/2 
+        END IF
+        
+        
+    NEXT i
+    dTryMGRange  = dReleaseRange + dReleaseSpeed*(dTryMTime - dReleaseTime) ' update after last change
+    
+    PIP_Sec = dTryMTime
+    IF PIP_Sec > 149 THEN
+        ComputerSettledStatus = 0
+        GOSUB E_Message1
+        '      123456789012345
+        PRINT "Pred. Intercept "
+        GOSUB E_Message2
+        PRINT "> 150 seconds   "
+        COLOR white
+    ELSE
+        GOSUB E_Message1
+        '      123456789012345
+        PRINT "               "
+        GOSUB E_Message2
+        PRINT "               "
+        COLOR white
+    END IF
+    PIP_Rad = dTryMRad
+    MSL_PP_YawRad = dTryMRad  ' initialize to gyro angle
+    
+    PIP_MilNorthRad = -dTryTRad + Pi/2 ' flip to 0 north increase clockwise
+    IF PIP_MilNorthRad < 0 THEN : PIP_MilNorthRad += PiTimes2 : END IF
+    PIP_X   = dTryMGRange*COS(PIP_Rad)
+    PIP_Y   = dTryMGRange*SIN(PIP_Rad)
+    PIP_Z   = TTR_Z+TTR_DZ*PIP_SEC
+    ' clamp PIP_Z
+    IF PIP_Z < 1 Then
+        PIP_Z = 1
+    ELSEIF PIP_Z > 80000/3 Then
+        PIP_Z = 80000/3
+    END IF
+    MSL_GyroDegrees = PIP_MilNorthRad*Rad2Deg ' updated prelaunch only
+CASE 1 ' gyro settling
+    MSL_GYaw = 0
+    MSL_GPitch = 0
+    COLOR white  ' 
+    
+    LOCATE StatusPrintYOffset+11,StatusPrintXOffset ' blank previous miss distance
+    PRINT "                                                                ";        
+    
+    
+CASE 2 ' boost
+CASE 3 ' roll stab
+CASE 4 ' dive , issue dive commands
+    IF MSL_Speed < 3.3*Mach1 THEN
+        MSL_Speed += (3.3*Mach1 - MSL_Speed)*0.01
+    END IF
+    
+    MSL_GYaw = 0
+    MSL_GPitch = -9
+    IF MSL_PP_ElRad < Pi/16    THEN  ' wait till less than 67 degree climb before checking term dive,  for now
+        z_f = MSL_Z + MSL_Speed*SIN(MSL_PP_ElRad)*PIP_Sec ' missile height + gives rate of climb* Time = aim point
+        x_f = MSL_Speed*COS(MSL_PP_ElRad)*PIP_Sec ' approx radius in PP Plane 
+        y_f = 0.5*0.5* OneG * PIP_Sec*PIP_Sec ' 1/2 g fall distance in PP Plane
+        IF z_f - y_f < PIP_Z THEN  ' about 1/2 g flight 
+            MSL_Status = 5   ' stop dive
+            MSL_GPitch = -0.5 ' give nominal flight g's, show 1 g fall
+        END IF
+    END IF ' MSL_ElRad
+    
+    '------------    check burst ---------------------------
+    IF PIP_Sec < 1 THEN  '--------------------------
+        MSL_Status = 6  ' indicate burst 
+        'MatchTTR_MTR = 1
+        Burst_Timer = 0  ' indicate just burst
+        RETURN ' ------------------------------------
+    END IF
+    
+    
+    
+CASE 5 ' cruise, issue steering commands & send burst command
+    
+    IF MSL_Speed < 3.3*Mach1 THEN
+        MSL_Speed += (3.3*Mach1 - MSL_Speed)*0.01
+    END IF
+    dTryMtime = PIP_Sec
+    ' determine approx missile flight xy relative to target xy to select
+    '       deflection shooting or in-line shooting
+    '
+    ' proposed, find whether the missile will intersect with the target
+    '           at less than 45 degrees (in-line) (current steering works well here)
+    '        or greater than 45 degrees (deflection) (current steering miserable)
+    '
+    '   what is a good general method? maybe figure which quadrant (off set by 45 degrees)
+    '          the predicted intercept is - is OK for straight line targets
+    '              evasion may have to do in-flight changes ?
+    x_f = MSL_GyroDegrees + 45  ' make deflection angle, perpendicular = +- 90 degrees
+    '            somewhat head on is positive, somewhat over targets sholder is negative
+    
+    
+    ' the following seems to work well for in-line shooting
+    Case5InLine:
+    FOR i_i=0 TO 3.99 
+        dTryPx = TTR_X + TTR_DX*dTryMTime  ' projected targetPIP range  from missile now in XY plane
+        dTryPy = TTR_Y + TTR_DY*dTryMTime
+        dTryTGRange = SQR( (dTryPx-MSL_X)^2 + (dTryPy-MSL_Y)^2 ) ' ground range of target PIP from missile
+        x_f = dTryPx - MSL_X
+        y_f = dTryPy - MSL_Y
+        'if ( x_f <> 0 OR y_f <> 0 ) then
+        dTryTRad = ATAN2( y_f, x_f) ' angle from target PIP to Missile
+        'else
+        '    dTryTRad = 0
+        'end if
+        'above looks good 
+        ' find projected range of MSL_PIP from missile now in XY plane
+        dTryMGRange = MSL_Speed*dTryMTime
+        ' find angle to T_PIP from Missile
+        x_f = dTryPx - MSL_X
+        y_f = dTryPy - MSL_Y
+        'if ( MSL_DX <> 0 OR MSL_DY <> 0 ) then
+        dTryMRad = ATAN2( MSL_DY, MSL_DX) ' angle of current missile ground motion
+        'else
+        '   dTryMRad = 0
+        'end if
+        
+        
+        ' if i is even do angle, else do time
+        IF ( INT(i_i) AND 1 ) = 0 THEN
+            dTryMRad += (dTryTRad - dTryMRad)/2
+        ELSE
+            dTryMTime += ( (dTryTGRange - dTryMGRange)/MSL_Speed)/2 
+        END IF
+        WHILE dTryMRad < Pi : dTryMRad += PiTimes2 : WEND
+        WHILE dTryMRad > Pi
+            dTryMRad -= PiTimes2
+        WEND
+    NEXT i
+    dTryMGRange  = MSL_Speed*(dTryMTime) ' update after last change
+  
+        ' PIP_Sec = dTryMTime
+    IF PIP_Sec - DynamicsInterval*0.75 < dTryMTime THEN ' clamp time modification to make missile path look better
+        PIP_Sec -= DynamicsInterval*0.75 ' prevent time from going backward
+        'LOCATE 7,2
+        'PRINT "-"
+    ELSEIF PIP_Sec - DynamicsInterval*1.25 > dTryMTime THEN
+        PIP_Sec -= DynamicsInterval*1.25
+        'LOCATE 7,2
+        'PRINT "+"
+    ELSE
+        PIP_Sec = dTryMTime
+        'LOCATE 7,2
+        'PRINT "X"
+    END IF
+    PIP_Rad = dTryMRad
+    PIP_MilNorthRad = -dTryTRad + Pi/2 ' flip to 0 north increase clockwise
+    IF PIP_MilNorthRad < 0 THEN : PIP_MilNorthRad += PiTimes2 : END IF
+    
+    PIP_X   = dTryPx
+    PIP_Y   = dTryPy
+    PIP_Z   = TTR_Z+TTR_DZ*PIP_SEC
+    ' clamp PIP_Z
+    IF PIP_Z < 1 Then
+        PIP_Z = 1
+    ELSEIF PIP_Z > 80000/3 THEN
+        PIP_Z = 80000/3
+    END IF
+    
+    '------------    check burst ---------------------------
+    IF PIP_Sec < 1 THEN  '--------------------------
+        MSL_Status = 6  ' indicate burst 
+        MatchTTR_MTR = 1
+        Burst_Timer = 0  ' indicate just burst
+        RETURN ' ------------------------------------
+    END IF
+    ' generate steering commands
+    'dTryTRad = atan2( y_f, x_f) ' angle from target PIP to Missile
+    'dTryMRad = atan2( MSL_DY, MSL_DX) ' angle of current missile ground motion
+    ' generate missile ground path error
+    'x_f = dTryTRad - dTryMRad '- Pi   ' reverse missile direction vector
+    x_f = (dTryMRad -dTryTRad)*10    '  
+    WHILE x_f < Pi : x_f += PiTimes2 : WEND
+    WHILE x_f > Pi : x_f -=PiTimes2 : WEND
+    IF  Debug THEN  
+        LOCATE 10,1
+        PRINT USING "10 ##.### ##.### ##.###";x_f,dTryTRad,dTryMRad
+    END IF
+    MSL_GYaw = x_f  '/SQR(PIP_Sec) 
+    MSL_GPitch = (PIP_Z + (0.5*0.5*OneG*PIP_Sec*PIP_Sec) - MSL_DZ*PIP_Sec- MSL_Z)/PIP_Sec
+    IF MSL_GYaw > 9 THEN   ' clamp steering commands
+        MSL_GYaw = 9
+    ELSEIF   MSL_GYaw < -9 THEN
+        MSL_GYaw = -9
+    END IF
+    IF MSL_GPitch > 9 THEN
+        MSL_GPitch = 9
+    ELSEIF MSL_GPitch < -9 THEN
+        MSL_GPitch = -9
+    END IF
+    IF  Debug THEN
+        LOCATE 11,1
+        PRINT USING "11 ###.## ###.##";MSL_GPitch,MSL_GYaw
+    END IF 
+    GOTO EndCase5
+    ' -------------- end of in-line steering
+    Case5Deflection:
+    LOCATE 11,1
+    PRINT USING "11 Deflection Angle = ###.##          ";x_f
+    
+    GOTO EndCase5
+    EndCase5:
+    
+    
+CASE 6 ' burst status
+    
+    IF PIP_Sec > -.01 THEN
+        PIP_Sec -= DynamicsInterval ' coast missile and target 
+    END IF
+    IF PIP_Sec > 0 THEN
+        TTR_X += TTR_DX*DynamicsInterval  ' yards 
+        TTR_Y += TTR_DY*DynamicsInterval  ' yards 
+        TTR_Z += TTR_DZ*DynamicsInterval  ' yards 
+        MSL_X += MSL_DX*DynamicsInterval  ' yards
+        MSL_Y += MSL_DY*DynamicsInterval  ' yards
+        MSL_Z += MSL_DZ*DynamicsInterval  ' yards
+        DIM AS INTEGER mx,my,mz,mr
+        mx = ABS(TTR_X - MSL_X)/60
+        my = ABS(TTR_Y - MSL_Y)/60
+        mz = ABS(TTR_Z - MSL_Z)/60
+        mr = SQR(mx*mx + my*my + mz*mz)
+        
+        LOCATE StatusPrintYOffset+11,StatusPrintXOffset
+        PRINT USING "Miss distance yards  X= ### Y= ### Z= ### Radius= ###  ";mx,my,mz,mr
+    ELSEIF MatchTTR_MTR THEN
+        MSL_X = TTR_X
+        MSL_Y = TTR_Y
+        MSL_Z = TTR_Z
+        MatchTTR_MTR = 0
+        
+    END IF
+    Burst_Timer += DynamicsInterval  ' update burst
+    IF Burst_Timer > 7 THEN ' OR TargetDesignatedStatus <> 0 then
+        MSL_Status = 0
+        Target_X(TargetTrackedStatus) = 500000 ' move target out of range for recycling
+        TargetTrackedStatus =0 ' show grass
+        TargetDesignatedStatus = 0 
+        ComputerSettledStatus = 0
+        TTR_BurstDither = 1
+    ELSEIF Burst_Timer > 1 THEN
+        TargetDX(TargetTrackedStatus) *= 0.96
+        TargetDY(TargetTrackedStatus) *= 0.96
+        TargetDZ(TargetTrackedStatus) *= 0.96
+        TTR_BurstDither = 1 + RND() ' 
+        MSL_GPitch = 0
+        MSL_GYaw = 0
+        
+    END IF
+    
+    
+END SELECT
+
+
+RETURN
+
+'------------------------------------------------------------------------------------------
+PressingIFF_Buttons:  ' Is BCO pressing IFF Buttons? 
+
+CONST IFF_Button1X = 600,  IFF_Button1Y  = 700
+CONST IFF_Button1WX = 40,  IFF_Button1WY = 40
+CONST IFF_Button2X = IFF_Button1X + IFF_Button1WX + 10 , IFF_Button2Y = IFF_Button1Y   
+CONST IFF_Button2WX = 40, IFF_Button2WY = 40
+DIM IFF_BQM_X, IFF_BQM_Y,IFF_BQM_B ' reduce unneeded processing
+
+IF IFF_BQM_X=MouseXCurrent AND IFF_BQM_Y=MouseYCurrent AND IFF_BQM_B=MouseButtonsCurrent THEN
+    RETURN   ' no action needed
+END IF
+LOCATE  (IFF_Button1Y)/16 -1, (IFF_Button1X)/8  
+PRINT "IFF Challenge"
+IFF_BQM_X=MouseXCurrent : IFF_BQM_Y=MouseYCurrent : IFF_BQM_B=MouseButtonsCurrent ' show last processed
+'Locate row, column
+LOCATE  (IFF_Button1Y+IFF_Button1WY)/16 + 2, (IFF_Button1X)/8 + 1
+PRINT "Mode1  Mode2"
+
+
+IF MouseYCurrent > IFF_Button1Y AND MouseYCurrent < IFF_Button1Y + IFF_Button1WY THEN ' in Fire Row
+    IF MouseXCurrent > IFF_Button1X AND MouseXCurrent < IFF_Button1X + IFF_Button1WX    THEN' in File Col
+        IF MouseButtonsCurrent = 1  THEN  ' left button pushed
+            IFF_1ButtonStatus = 1
+        ELSE 
+            IFF_1ButtonStatus = 0
+        END IF
+    END IF
+END IF
+IF  IFF_1ButtonStatus     <> 0 THEN : w1_i = Yellow : ELSE : w1_i = YellowDull END IF   
+
+
+IF MouseYCurrent > IFF_Button2Y _
+AND MouseYCurrent < IFF_Button2Y + IFF_Button2WY THEN ' in Fire Row
+IF MouseXCurrent > IFF_Button2X _
+AND MouseXCurrent < IFF_Button2X + IFF_Button2WX    THEN' in File Col
+IF MouseButtonsCurrent = 1  THEN  ' left button pushed
+    IFF_2ButtonStatus = 1
+ELSE 
+    IFF_2ButtonStatus = 0
+END IF
+END IF
+END IF
+IF  IFF_2ButtonStatus <> 0 THEN : w2_i = Yellow : ELSE : w2_i = YellowDull END IF   
+
+
+LINE (IFF_Button1X, IFF_Button1Y)-  _
+(IFF_Button1X+IFF_Button1WX, IFF_Button1Y+IFF_Button1WY), w1_i, BF ' Mode 1  button
+LINE (IFF_Button2X,IFF_Button2Y)-  _
+(IFF_Button2X+IFF_Button2WX,IFF_Button2Y+IFF_Button2WY), w2_i, BF  ' Mode 2 button
+
+
+
+RETURN
+
+
+'-----------------------------------------------------------------------------------------
+
+PressingFireButtonQ:  ' Is BCO pressing fire button and all systems GO ? 
+
+CONST FireButtonX = 600,  FireButtonY  = 900
+CONST FireButtonWX = 40,  FireButtonWY = 40
+CONST ManBurstButtonX = FireButtonX + FireButtonWX + 10 , ManBurstButtonY = FireButtonY   
+CONST ManBurstButtonWX = 40, ManBurstButtonWY = 40
+DIM PFBQM_X, PFBQM_Y,PFBQM_B ' reduce unneeded processing
+
+IF PFBQM_X=MouseXCurrent AND PFBQM_Y=MouseYCurrent AND PFBQM_B=MouseButtonsCurrent THEN
+    RETURN   ' no action needed
+END IF
+PFBQM_X=MouseXCurrent : PFBQM_Y=MouseYCurrent : PFBQM_B=MouseButtonsCurrent ' show last processed
+'Locate row, column
+LOCATE  (FireButtonY+FireButtonWY)/16 + 1, (FireButtonX)/8 + 2
+PRINT "FIRE  Manual"
+LOCATE  (FireButtonY+FireButtonWY)/16 + 2, (FireButtonX)/8 + 2
+PRINT "      Burst "
+
+IF MouseYCurrent > FireButtonY AND MouseYCurrent < FireButtonY + FireButtonWY THEN ' in Fire Row
+    IF MouseXCurrent > FireButtonX AND MouseXCurrent < FireButtonX + FireButtonWX    THEN' in File Col
+        IF MouseButtonsCurrent = 1  THEN  ' left button pushed
+            FireButtonStatus = 1
+        ELSE 
+            FireButtonStatus = 0
+        END IF
+    END IF
+END IF
+IF  FireButtonStatus     <> 0 THEN : w1_i = Red : ELSE : w1_i = RedDull END IF   
+
+' Turn off fire button if status not correct
+IF FireButtonStatus = 1  _
+AND (TargetTrackedStatus = 0 OR SiteStatus <> 3) THEN
+FireButtonStatus = 0
+w1_i = Yellow
+END IF
+
+
+
+
+IF MouseYCurrent > ManBurstButtonY _
+AND MouseYCurrent < ManBurstButtonY + ManBurstButtonWY THEN ' in Fire Row
+IF MouseXCurrent > ManBurstButtonX _
+AND MouseXCurrent < ManBurstButtonX + ManBurstButtonWX    THEN' in File Col
+IF MouseButtonsCurrent = 1  THEN  ' left button pushed
+    ManBurstButtonStatus = 1
+ELSE 
+    ManBurstButtonStatus = 0
+END IF
+END IF
+END IF
+IF  ManBurstButtonStatus <> 0 THEN : w2_i = Red : ELSE : w2_i = RedDull END IF   
+
+' Turn off ManBurst button if status not correct
+IF ManBurstButtonStatus = 1 THEN
+    IF MSL_Status < 3 THEN
+        ManBurstButtonStatus = 0
+        w2_i = Yellow
+    ELSE
+        MSL_Status = 0
+        w2_i = Red
+    END IF
+END IF
+LINE (FireButtonX, FireButtonY)-  _
+(FireButtonX+FireButtonWX, FireButtonY+FireButtonWY), w1_i, BF ' fire button
+LINE (ManBurstButtonX,ManBurstButtonY)-  _
+(ManBurstButtonX+ManBurstButtonWX,ManBurstButtonY+ManBurstButtonWY), w2_i, BF  ' manual burst button
+
+
+
+RETURN
+
+'-------------------------------------------------------------------------
+
+
+'-----------------------------------------------------------------------
+
+ComputeMissilePosition:  ' missile position and polar ? 
+DIM VTheta
+SELECT CASE MSL_Status
+CASE 0 ' prefire, prelaunch
+    MSL_FlightTime = 0
+    GyroSettledTime = 0
+    IF FireButtonStatus <> 0 THEN 
+        MSL_Status = 1 
+        LauncherNumber += 1 ' go to next launcher
+    END IF
+    MSL_X = Launcher_X + LauncherNumber*14 + SectionNumber* 15' give some variablilty 
+    MSL_DX = 0
+    MSL_Y = 0
+    MSL_DY = 0
+    MSL_Z = 0
+    MSL_DZ = 0
+    MSL_PP_ElRad = Pi/2 ' straight up
+    VTheta = 0 ' radians per second
+CASE 1 ' Fire Button Pushed, Gyro settle
+    GyroSettledTime += DynamicsInterval
+    PIP_Sec -= DynamicsInterval
+    IF GyroSettledTime > 1.99 THEN  : MSL_Status = 2 : END IF
+    
+CASE 2 ' Lift_off, Boost
+    MSL_DZ += OneG*BoostGs*DynamicsInterval '  10 yards/sec/sec = 1 g, boost = 25 g
+    MSL_Z += MSL_DZ*DynamicsInterval
+    MSL_FlightTime += DynamicsInterval
+    PIP_Sec -= DynamicsInterval
+    
+    IF MSL_FlightTime > 3.49 THEN  : MSL_Status = 3 : END IF
+    
+CASE 3 ' Roll Stab
+    'MSL_DZ = 0 '
+    MSL_Z += MSL_DZ*DynamicsInterval
+    
+    MSL_FlightTime += DynamicsInterval
+    PIP_Sec -= DynamicsInterval
+    
+    IF MSL_FlightTime > 4.99 THEN  
+        MSL_Status = 4 
+        ' use a PP Plane, containing MSL_GyroRad, and MSL_Z from XY view
+        MSL_PP_X = 0 ' = MSL Ground Range
+        MSL_Speed = MSL_DZ ' use the boost end speed as missile speed
+    END IF
+CASE 4,5 ' Dive and cruise - make dive triangles, latteral g's
+    ' MSL_GPitch MSL_GYAW  set by compute steering
+    ' compute new MSL_PP_ElRad
+    '  **** currently, a dive to the north stops climb, goes flat
+    MSL_PP_Hypot = MSL_Speed*DynamicsInterval  ' compute side of dive triangle
+    VTheta = MSL_GPitch*OneG*DynamicsInterval
+    DeltaX = VTheta*DynamicsInterval + _
+    0.5*MSL_GPitch*OneG*DynamicsInterval*DynamicsInterval
+    DeltaRad = ATAN2(DeltaX,MSL_PP_Hypot)   ' compute angle of vertical bend
+    
+    ' place dive triangle onto last velocity vector
+    MSL_PP_ElRad += DeltaRad ' new Pitch or El angle
+    
+    ' compute new MSL_PP_YawRad
+    ' MSL_PP_Hypot already computed
+    DeltaX = 0.5*MSL_GYaw*OneG*DynamicsInterval*DynamicsInterval  ' compute end of dive triangle
+    DeltaRad = ATAN2(DeltaX,MSL_PP_Hypot)   ' compute angle of vertical bend
+    
+    ' place dive triangle onto last velocity vector
+    MSL_PP_YawRad -= DeltaRad ' new Yaw angle 'backwards???? now trying -=
+    WHILE MSL_PP_YawRad < Pi : MSL_PP_YawRad += PiTimes2 : WEND
+    WHILE MSL_PP_YawRad > Pi : MSL_PP_YawRad -= PiTimes2 : WEND
+    
+    ' I think the above two angles are correct, the elevation angle and the yaw anglel,
+    '   now how to connect them to reality?
+    ' So - we now have a new vertical angle and a new "horizontal" angle,
+    '     actually a resulting length "MSL_PP_Hypot" (our assumption/approximation) on the new 3-D vector
+    '  the projection on the X-Y axis is 
+    '            foreshortened by the elevation angle
+    DIM ForeShortXY,ForeShortXZ 
+    ForeShortXY = MSL_PP_Hypot*COS(MSL_PP_ElRad) ' length on that plane
+    x_f =  ForeShortXY*COS(MSL_PP_YawRad)
+    ' a gross cheat ******
+    IF PIP_Sec < FullSteeringTime THEN
+        MSL_X += MSL_DX*DynamicsInterval
+        MSL_Y += MSL_DY*DynamicsInterval
+        MSL_Z += MSL_DZ*DynamicsInterval
+    ELSE
+        MSL_X += x_f          
+        MSL_DX = x_f/DynamicsInterval
+        y_f =  ForeShortXY*SIN(MSL_PP_YawRad)
+        MSL_Y += y_f          
+        MSL_DY = y_f/DynamicsInterval
+        
+        z_f = MSL_PP_Hypot*SIN(MSL_PP_ElRad)
+        MSL_Z += z_f   ' **** zerp if north !!!!
+        MSL_DZ = z_f/DynamicsInterval
+    END IF
+    
+    MSL_FlightTime += DynamicsInterval
+    IF MSL_Status <> 5 AND MSL_Status <> 6 THEN
+        PIP_Sec -= DynamicsInterval
+    END IF
+    
+    
+CASE 6 ' Burst
+    'MSL_X = Launcher_X
+    MSL_DX = 0
+    'MSL_Y = 0
+    MSL_DY = 0
+    'MSL_Z = 0
+    MSL_DZ = 0
+    
+    
+END SELECT
+'LOCATE 5,2
+'OldMSL_GS = MSL_GS
+'MSL_GS = SQR( MSL_DX*MSL_DX + MSL_Dy*MSL_Dy)
+'Print " delta Missile gnd speed = ";MSL_GS-OldMSL_GS
+'LOCATE 6,2
+'PRINT USING " Missile deltas = ####.# ####.# ####.# ";MSL_DX,MSL_DY,MSL_DZ
+
+RETURN
+
+'-------------------------------------------------------------------------
+
+PrintText1:
+
+SCREEN 19, 32, 1,0 ' 800x600
+
+PRINT "   '>' next page;   other keys return to Nike Simulation"
+PRINT" "
+PRINT " Page 1"
+PRINT "  Dear Friends and you others too  ;-))"
+PRINT ""
+PRINT "  This Nike Site Simulation is much simplified for many reasons.  Very limited moniter area,"
+PRINT "  very limited input switches, knobs, hand wheels, etc. If nothing else, the real system"
+PRINT "  had three more radar desplays and 5.5 more radar operators, mostly to fight jamming and"
+PRINT "  other electronic counter measures.  The Battery Control Officer was about 1/2 radar operator."
+PRINT ""
+PRINT "  You, the Battery control Officer, count as 1/2 operator  ;-))   The missile launching area,"
+PRINT "  which is vital also, with at least 10 people pushing missiles about and operating"
+PRINT "  various controls and elevators, is represented in this simulation simply as 'Missile Ready'."
+PRINT "     - but who said life is fair?"
+PRINT ""
+PRINT "  Also, also cooks, maintenance folks (like me), generator operators, ... are not listed."
+
+PRINT
+PRINT "  The round radar scope, Plan Position Indicator (PPI) has a range of 200,000 yards, "
+PRINT "  about 115 miles, a little over the range of the Target and Missile Tracking Radars.  "
+PRINT "  The real PPI scope had had switch settings out to 350,000 hards - which makes the simulation "
+PRINT "  more complicated and take too long for most people. "
+PRINT
+PRINT "  Items: IFF, no warhead choice (only chemical), few aircraft (no need for nukes)"
+PRINT ""
+PRINT "  Rather accurate simulation of: rather accurate simulations:"
+PRINT "    a) Acquisition radar picture (PPI): including  sweep, noise, slow phosphor, range ring, burst"
+PRINT "    b) TTR: & MTR: range gate, noise, target, speeds, angles, maybe bumpy tracking, burst"
+PRINT "    c) Computer: time to intercept, Predicted Intercept Point (PIP)"
+PRINT "    d) Missile: path, boost, 7 g dive, steering 1/2 g glide, speed, burst "
+
+
+PrintText1Loop:
+    SLEEP (10)
+    k$ = LCASE$(INKEY$)  
+    IF K$ <> "" THEN
+        SELECT CASE K$
+        CASE ">"
+            GOTO  PrintText2
+        CASE ELSE 
+           GOTO NikeSimulation
+
+        END SELECT ' K$
+    ELSE
+        GOTO PrintText1Loop
+    END IF ' K$
+ 
+    
+    
+    '-------------------------------------------------------------------------
+
+PrintText2:
+
+SCREEN 19, 32, 1,0 ' 800x600
+
+PRINT "  '>' next page; '<' previous page; other keys return to Nike Simulation"
+PRINT" "
+PRINT " Page 2"
+PRINT
+PRINT "  General Rules"
+PRINT ""
+PRINT "   a) You must have designated a target in the round PPI scope with your mouse"
+PRINT "        to do much of anything in Nike and this simulation. "
+PRINT
+PRINT "    b) The yellow 'Predicted Intercept Point' plotting pen should not be " 
+PRINT "       inside the 'DEAD ZONE', the curved area in the right hand 'HEIGHT' plotting board."
+PRINT "       The missile cannot reliably hit a target in this 'DEAD ZONE' "
+PRINT "  "
+PRINT "    c) To 'FIRE', you must be:"
+PRINT "       1) in RED alert status - top middle of screen"
+PRINT "       2) tracking a target "
+PRINT "       3) computer must be settled, and less than 150 seconds "
+PRINT
+PRINT "  Hints "
+PRINT "    a) To help identify friendly aircraft, (with IFF transponders) there are IFF keys"
+PRINT "       - no aircraft in this simulation respond to 'MODE 2' "
+PRINT
+PRINT "    b) In 'AUTO' mode, an alert crew shoots at enemy targets (no IFF response),"
+PRINT "       with the soonest legal PREDICTED INTERCEPT TIME, outside of the DEAD ZONE,"
+PRINT
+PRINT "    c) You can select target evasion of 0.2 and 1.0 g's (times the force of gravity.   "
+PRINT "       The type of evasion is weaving about a flight path with a period of 14 seconds."
+PRINT "   "
+PRINT "  Cheats "
+PRINT "     a) I do a 13 G dive, to speed the simulation "
+PRINT ""
+PRINT "  Comments:"
+PRINT "      a) A person expects the top of the dive to be smoother."
+PRINT "           The current  display seems quite valid."
+ 
+ 
+
+
+
+PrintText2Loop:
+    SLEEP (10)
+    k$ = LCASE$(INKEY$)  
+    IF K$ <> "" THEN
+        SELECT CASE K$
+        CASE ">"
+            GOTO  PrintText2
+        CASE "<"
+            GOTO  PrintText1
+        CASE ELSE 
+           GOTO NikeSimulation
+
+        END SELECT ' K$
+    ELSE
+        GOTO PrintText2Loop
+    END IF ' K$
+    
+    '----------------------------------------------------
+    
+    TargetRecycle:
+    ' target my fly out of range or get shot down,
+    '            in which case they are moved out of range
+    ' the purpose of this module is to assure that all allowable target slots
+    '    are flying about the PPI -
+    FOR i_i = 1 TO TargetsMax
+        IF SQR(Target_X(i_i)*Target_X(i_i) + Target_Y(i_i)*Target_Y(i_i) ) > PPI_MaxRange THEN ' convert slot to new target
+            DO
+                Target_X(i_i) = PPI_MaxRange*(1.0-2.0*RND())
+                Target_Y(i_i) = PPI_MaxRange*(1.0-2.0*RND())
+                z_f = SQR(Target_X(i_i)*Target_X(i_i) + Target_Y(i_i)*Target_Y(i_i) )
+            LOOP WHILE z_f < PPI_MaxRange-50000  OR z_f > PPI_MaxRange
+            Target_Z(i_i) = 1000 + 10000*RND()  ' altitude
+            TargetDZ(i_i) = 0 ' steady altitude
+            TargetDX(i_i) = -Target_X(i_i)/400 +100-200*RND() 
+            TargetDY(i_i) = -Target_Y(i_i)/400 +100-200*RND()  
+        END IF
+    NEXT i_i
+    RETURN
+    
+    
+    '----------------------------------------------------
+    
+    CheckSimulationMode: ' is operator changing sim mode?
+    IF ( MouseYCurrent > 0 AND MouseYCurrent < 12 AND MouseButtonsCurrent = 1 ) THEN
+        SELECT CASE AS CONST MouseXCurrent
+        CASE 741 TO 801     ' Normal
+            SimRunMode = 0
+            LOCATE 4,86
+            ' PRINT USING "Designated Target = ##            ";AutoTargetID
+            PRINT       "                                  " ' clear possible message
+
+        CASE  801 TO 852    ' Auto
+            SimRunMode = 1
+            AutoMode = 0
+        CASE  852 TO 909      ' Pause
+            IF SimRunMode = 2 Then 'toggle
+                SimRunMode = SavedSimRunMode
+            ELSE
+                SavedSimRunMode = SimRunMode
+                SimRunMode = 2
+            END IF
+            '  fighting mouse bounce?
+            FOR i_i = 1 to 20
+                sleep (10)
+                GETMOUSE MouseXCurrent, MouseYCurrent, , MouseButtonsCurrent  ' only GETMOUSE !!
+            NEXT i_i
+
+        CASE  909 TO 957      ' exit
+            SimRunMode = 3
+            END
+        CASE  957 TO 997        ' TEXT
+            SimRunMode = 4
+            GOTO PrintText1
+        CASE ELSE
+        END SELECT
+    END IF ' MouseYCurrent
+        LOCATE 1,82
+    PRINT "Game Modes: ";
+    IF SimRunMode = 0 THEN 
+        COLOR Red
+    ELSE
+        COLOR White
+    END IF
+    PRINT "Normal, ";
+    
+    IF SimRunMode = 1 THEN ' Auto mode
+        COLOR Red
+        PRINT USING "Auto# ";AutoMode;
+    ELSE
+        COLOR White
+        PRINT "Auto, ";
+    END IF
+    
+    
+    IF SimRunMode = 2 THEN ' pause
+        COLOR Red
+    PRINT "Paused,";
+    ELSE
+        COLOR White
+    PRINT "Pause ,";
+    END IF
+    
+    IF SimRunMode = 3 THEN ' Exit
+        COLOR Red
+        END             '   outa here
+    ELSE
+        COLOR White
+    END IF
+    PRINT "Exit, ";
+    
+    IF SimRunMode = 4 THEN ' Text
+        COLOR Red
+    ELSE
+        COLOR White
+    END IF
+    PRINT "Text "
+    
+    COLOR White
+ 
+    RETURN
+    
+    
+    '----------------------------------------------------
+    
+    RunAuto:
+    SELECT CASE AutoMode
+    CASE 0
+        'AutoTargetNumber=0
+        AutoMinimumTTI=150   ' max legal TimeToIntercept
+        AutoLastPPIRad=0
+        ' how to wait for new scan
+        AutoLastScanCnt = PPI_ScanCount
+ '       TargetDesignatedStatus=1       ' start tracking #1 
+        ' turn on IFF
+        MouseXCurrent = IFF_Button1X + IFF_Button1WX/2
+        MouseYCurrent = IFF_Button1Y + IFF_Button1WY/2
+        MouseButtonsCurrent = 1 ' show un-designate
+        GOSUB PressingIFF_Buttons   ' Is BCO pressing IFF BUTTON ? 
+
+        AutoTargetID = 1 
+        
+        AutoMode = 1  ' go to next mode
+
+    CASE 1     ' sequentially track all  targets,
+        '			            for 1 second
+        '                   finding minimum TTI,
+        '                      - in range, out of dead zone
+        '                  if none, go to 0) above
+        '                  track  target with minimum TTIqq
+        '                    AutoLastScanCnt = PPI_ScanCount
+         ' CalPPI_RadiusYards = CalPPI_RadiusPix*PPI_Pix2Yard
+        ' TargetTrackedStatus, PIP_Sec, ComputerSettledStatus
+        
+        ' if target tracked & computer settled i.e. < 150 seconds
+        '    if PIP_Sec < AutoMinimumTTI Then
+        '       AutoMinimumTTI = PIP_Sec
+        '       AutoMinimumTargetNumber = AutoTargetID
+        LOCATE 4,86
+        PRINT USING "Designated Target = ##            ";AutoTargetID
+        IF TargetIFF(AutoTargetID) <> 0 then '   IFF response
+            AutoMode = 4 ' go to next target
+            Return
+        END IF ' TargetTrackedStatus
+        MouseXCurrent = PPI_XOffSet + PPI_MaxRad + Target_X(AutoTargetID)/PPI_Pix2Yard
+        MouseYCurrent = PPI_YOffSet + PPI_MaxRad - Target_Y(AutoTargetID)/PPI_Pix2Yard ' flipped for some reason
+        'locate 2,80
+        'print AutoTargetID;
+        'print MouseXCurrent;MouseYCurrent
+        MouseButtonsCurrent = 1 ' show designate
+        GOSUB MouseInPPI  ' try to track the target
+         AutoTrackPauseSec = ThisTime
+        AutoMode = 2
+    CASE 2  ' target tracked, wait for computer to settle
+        IF  AutoTrackPauseSec + 1.5 > ThisTime THEN
+            RETURN
+        END IF '
+        IF TargetTrackedStatus = 0 THEN   ' out of range 
+            AutoMode = 4
+            Return
+        END IF ' TargetTrackedStatus
+
+        IF ComputerSettledStatus = 0 then   
+            AutoMode = 4  ' probably PIP out of range
+            RETURN
+        END IF
+        IF PIP_Sec > 30 OR Target_Z(AutoTargetID) > 30000/3 Then ' practical target
+            IF PIP_Sec <  AutoMinimumTTI THEN  ' practical taget is a minimum
+                 AutoMinimumTTI = PIP_Sec
+                 AutoMinimumTargetNumber = AutoTargetID
+            END IF ' PIP_Sec  ' < 
+        ELSE  ' in dead zone
+            ' set message
+            ' wait 
+        END IF ' PIP_Sec ' > 30 
+        AutoMode = 3
+    CASE 3  
+        AutoMode = 4
+    CASE 4 
+       AutoTargetID += 1 ' go to next target
+        IF AutoTargetID <= TargetsMAX then ' go to next target
+            AutoMode = 1 ' 
+            RETURN
+        END IF 'AutoTargetID <=
+        IF AutoMinimumTargetNumber = 0 Then
+            AutoMode = 0 '  no best target, start over
+            RETURN
+        END IF
+        ' Track selected target
+        MouseXCurrent = PPI_XOffSet + PPI_MaxRad + Target_X(AutoMinimumTargetNumber)/PPI_Pix2Yard
+        MouseYCurrent = PPI_YOffSet + PPI_MaxRad - Target_Y(AutoMinimumTargetNumber)/PPI_Pix2Yard ' flipped
+        MouseButtonsCurrent = 1 ' show designate
+        GOSUB MouseInPPI  ' try to track the target
+        IF TargetTrackedStatus = 0 THEN   ' out of range 
+            AutoMode = 0
+            Return
+        END IF ' TargetTrackedStatus
+        AutoTrackPauseSec = ThisTime
+        AutoMode = 5
+    CASE 5  ' target tracked, wait for computer to settle
+        IF  AutoTrackPauseSec + 1.5 > ThisTime THEN
+            RETURN
+        END IF '
+        ' turn OFF IFF
+        MouseXCurrent = IFF_Button1X + IFF_Button1WX/2
+        MouseYCurrent = IFF_Button1Y + IFF_Button1WY/2
+        MouseButtonsCurrent = 0 ' show un-designate
+        GOSUB PressingIFF_Buttons   ' Is BCO pressing IFF BUTTON ? 
+
+        IF ComputerSettledStatus = 0 then   
+            AutoMode = 0  ' probably PIP out of range
+            RETURN
+        END IF
+
+        AutoMode = 6
+    CASE 6  ' try to fire
+        'CONST FireButtonX = 600,  FireButtonY  = 900
+        'CONST FireButtonWX = 40,  FireButtonWY = 40
+
+        MouseXCurrent = FireButtonX + FireButtonWX/2
+        MouseYCurrent = FireButtonY + FireButtonWY/2
+        MouseButtonsCurrent = 1 ' show designate
+        GOSUB PressingFireButtonQ   ' Is BCO pressing fire button and all systems GO ? 
+        IF FireButtonStatus = 0 then
+            AutoMode = 0
+            RETURN
+        END IF
+        AutoTrackPauseSec = ThisTime
+        AutoMode = 7
+    CASE 7  
+        IF  AutoTrackPauseSec + 1.5 > ThisTime THEN
+            RETURN
+        END IF '
+        ' Release FIRE button
+        MouseXCurrent = FireButtonX + FireButtonWX/2
+        MouseYCurrent = FireButtonY + FireButtonWY/2
+        MouseButtonsCurrent = 0 ' show un-designate
+        GOSUB PressingFireButtonQ   ' Is BCO pressing fire button and all systems GO ? 
+
+         AutoMode = 8
+    CASE 8 
+        IF PIP_Sec < 15 THEN  ' energize IFF
+            MouseXCurrent = IFF_Button1X + IFF_Button1WX/2
+            MouseYCurrent = IFF_Button1Y + IFF_Button1WY/2
+            MouseButtonsCurrent = 1 ' show un-designate
+            GOSUB PressingIFF_Buttons   ' Is BCO pressing IFF BUTTON ? 
+            ' CONST IFF_Button1X = 600,  IFF_Button1Y  = 700
+            'CONST IFF_Button1WX = 40,  IFF_Button1WY = 40
+        END IF
+        IF MSL_Status <> 6 Then ' = burst
+            RETURN
+        END IF 
+
+        AutoMode = 0
+        
+    END SELECT
+    
+    RETURN
+    
+' ----------------------------------------------------------
+
+CheckEvasionMode:
+IF ( MouseYCurrent > 14 AND MouseYCurrent < 29 AND MouseButtonsCurrent = 1 ) THEN
+        SELECT CASE AS CONST MouseXCurrent
+        CASE 741 TO 801     ' Normal
+            EvasionGs = 0
+        CASE  801 TO 852    ' Auto
+            EvasionGs = 0.2
+        CASE  852 TO 909      ' Pause
+            EvasionGs = 1.0
+        CASE ELSE
+        END SELECT
+    END IF ' MouseYCurrent
+        LOCATE 2,82
+    PRINT "Evasion Gs: ";
+    IF EvasionGs = 0 THEN 
+        COLOR Red
+    ELSE
+        COLOR White
+    END IF
+'   PRINT "Normal, ";
+    PRINT "0.0 g   ";
+    IF EvasionGs = 0.2 THEN  
+        COLOR Red
+    ELSE
+        COLOR White
+    END IF
+    PRINT "0.2 g   ";
+    IF EvasionGs = 1.0 THEN  
+        COLOR Red
+    ELSE
+        COLOR White
+    END IF
+    PRINT "1.0 g   ";
+    COLOR White
+    PRINT "tracked target only"
+    'Locate 3,82
+    'Print using " Gs = ##.##";Gs
+    RETURN
+
+
+' RETURN
+
+ComputeRadiusCurvature:
+'  July 4 - lets play radius of curvature games
+'         and internet comment is that the radius of curvature in 3 space
+'   can be found from the distance of three points on a 3 space circle
+'  http://www.physicsforums.com/showthread.php?t=173847
+'      Greek000
+'
+'Well, you only need to find the distances between these three points in 3D space, 
+'which correspond to the lengths of the triangle sides. This is an easy task. 
+'If we name these distances a, b, c then the radius R of the circumscribed circle is:
+'
+'                  abc
+'     R = ---------------------------------------------------
+'          SQR( 2a^2b^2 + 2b^2c^2 + 2c^2a^2 - a^4 -b^4 - c^4 )
+'
+'When the points are colinear the quantity inside the square root becomes zero, 
+'and therefore the radius becomes infinite as it should.  
+'  Missile Position History Arrays
+'DIM  MPHA_X(3),MPHA_Y(3),MPHA_Z(3)
+DIM ad,bd,cd,dx,dy,dz,MSL_Radius,DenominatorSquared  
+    FOR i_i =2 to 0 STEP -1 ' move history along
+        MPHA_X(i_i+1) = MPHA_X(i_i)
+        MPHA_Y(i_i+1) = MPHA_Y(i_i)
+        MPHA_Z(i_i+1) = MPHA_Z(i_i)
+        'LOCATE 8+i_i,2
+        'print MPHA_X(i_i+1);"   ";MPHA_Y(i_i+1);"   ";MPHA_Z(i_i+1);"   "
+    NEXT   ' i_i 
+    MPHA_X(0) = MSL_X  ' enter current values
+    MPHA_Y(0) = MSL_Y
+    MPHA_Z(0) = MSL_Z
+    If MSL_Status = 3 OR MSL_Status = 4 OR MSL_Status = 5 Then ' Roll stab,dive,cruise
+        dx = MPHA_X(0)-MPHA_X(1)
+        dy = MPHA_Y(0)-MPHA_Y(1)
+        dz = MPHA_Z(0)-MPHA_Z(1)
+        'LOCATE  5,2
+        'PRINT " dx = ";dx;" dy = ";dy;" dz = ";dz;
+
+        ad = SQR( dx*dx +dy*dy + dz*dz) ' distance  between points
+        dx = MPHA_X(2)-MPHA_X(1)
+        dy = MPHA_Y(2)-MPHA_Y(1)
+        dz = MPHA_Z(2)-MPHA_Z(1)
+        'LOCATE  6,2
+       ' PRINT " dx = ";dx;" dy = ";dy;" dz = ";dz;
+        bd = SQR( dx*dx +dy*dy + dz*dz) ' distance  between points
+        dx = MPHA_X(0)-MPHA_X(2)
+        dy = MPHA_Y(0)-MPHA_Y(2)
+        dz = MPHA_Z(0)-MPHA_Z(2)
+        'LOCATE  7,2
+        'PRINT " dx = ";dx;" dy = ";dy;" dz = ";dz;
+
+        cd = SQR( dx*dx +dy*dy + dz*dz) ' distance  between points
+        DenominatorSquared = 2*ad*ad*bd*bd + 2*bd*bd*cd*cd + 2*cd*cd*ad*ad _
+             - ad*ad*ad*ad - bd*bd*bd*bd -cd*cd*cd*cd
+        IF DenominatorSquared <= 0 THEN
+            MSL_Radius = 99999 ' funny value
+        ELSE
+            MSL_Radius = ad*bd*cd/SQR(DenominatorSquared)
+        END IF
+    END IF
+    LOCATE 4,2
+    PRINT USING "MSL TurnRadius= #######  gs=  ###.#  ";MSL_Radius, (MSL_Speed*MSL_Speed/MSL_Radius)/9.9  
+RETURN
+
+</script>
+
