@@ -47,12 +47,14 @@ Forth-y DSLs
 • Typically involve an RPN-like syntax
   - RED LED ON
   - LEFT MOTOR OFF
+• Parsing tends to be limited to word name creation
 • Composition often arises naturally
   - But often relies on "carnal knowledge"
 
 Attempt #1
 ══════════
 • Support infix math with ONLY one word to the right
+  EXPRESSION + &lt;scan ahead one word>
 • Also support parentheses, but only ONE layer
 • Rely on {} local variables
 
@@ -84,7 +86,7 @@ Attempt #2
 ══════════
 • Use an actual grammar
 • Can we make it expandable?
-• Rely on {} local variables
+• Reuse {} local variables contextually
 
 Backus–Naur Form
 ════════════════
@@ -94,8 +96,8 @@ Backus–Naur Form
 • Or | conjunction to allow alternatives
 ――――――――――――――――――――――――――――――――――――――――――――――――――――――
 &lt;full-name> ::= &lt;first-name> &lt;middle-name> &lt;last-name>
-&lt;expr> ::= &lt;term> | &lt;expr>&lt;addop>&lt;term>
-&lt;integer> ::= &lt;digit> | &lt;integer>&lt;digit>
+&lt;expr> ::= &lt;term> | &lt;expr> &lt;operation> &lt;term>
+&lt;integer> ::= &lt;digit> | &lt;integer> &lt;digit>
 
  0 \ BNF Parser                                (c) 1988 B. J. Rodriguez
  1 0 VARIABLE SUCCESS
@@ -135,6 +137,22 @@ https://www.forth.org/literature/bnfparse.html
 ――――――――――――――――――――――――――――――――――――――――――――――
 https://www.forth.org/literature/bnfparse.html
 
+Refinements
+═══════════
+• Make adding alternatives later easy
+• Use THROW / CATCH to preserve stacks
+  - Tack on interpreter state too
+• Use regular parsing more
+• String / token matching immediate words
+
+Grammar Format
+――――――――――――――
+kind &lt;FOO>
+  {{ list of terminals / non-terminals / actions ... }}
+  {{ alternate.. }}
+  
+' &lt;BAR> :{{ out of order rule... }}
+
 The Target
 ――――――――――
 def square { x } {
@@ -147,14 +165,6 @@ def pyth { a b } {
  
 3 4 pyth
 → 25  ok
-
-Grammar Format
-――――――――――――――
-kind &lt;FOO>
-  {{ list of terminals / non-terminals / actions ... }}
-  {{ alternate.. }}
-  
-' &lt;BAR> :{{ out of order rule... }}
 
 : kind ( "name" -- )
    create 0 ,
@@ -282,7 +292,8 @@ Assessment
 Left Elimination?
 ═════════════════
 • Make a larger grammar that doesn't need to backtrack
-  
+ 
+Example regular expresion: βα*
 A → Aα | β
 ⇒
 A → βA'
@@ -291,19 +302,22 @@ A' → αA' | ε
 E → E + T | T
 T → T * F | F
 F → ( E ) | id
+ 
 ⇒
-E → TE'
-E' → +TE' | ε
-T → FT'
-T' → *FT' | ε
-F → (E) | id
+ 
+E → T E'
+E' → + T E' | ε
+T → F T'
+T' → * F T' | ε
+F → ( E ) | id
 
 Is it Forthy? Is it ~Good~?
 ═══════════════════════════
 • You can add new words AND grammar
 • Root implementation is fairly simple
+  - most complexity in the grammar
 • Backtracking behavior is weird
-  - Reducing to LL(1) makes it messy
+  - Reducing to left recursion makes it messy
 • The stack still, peeks through
 • It would allow more English DSLs
 • Needs a better way to deal with errors
@@ -311,9 +325,9 @@ Is it Forthy? Is it ~Good~?
 Would it Help Adoption?
 ═══════════════════════
 • It matches people expectations more
-• But would be frustrating when it fails to
+• But would be frustrating when it fails to meet them
 • The more it looks like C/C++/Java/...,
-  the more it will frustrate when it isn't
+  the more it will make people expect only that
 
   DEMO &
 QUESTIONS❓
