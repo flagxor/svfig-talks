@@ -55,17 +55,40 @@ Attempt #1
 ══════════
 • Support infix math with ONLY one word to the right
   EXPRESSION + &lt;scan ahead one word>
-• Also support parentheses, but only ONE layer
+• Also support parentheses, by counting () depth
 • Rely on {} local variables
 
 variable pending
-variable scarfing
-: scarf   1 scarfing !
-          bl parse evaluate
-          pending @ if 0 pending ! [char] ) parse evaluate then
-          0 scarfing ! ;
-: enact ( xt -- ) state @ if , else execute then ;
-: (   1 pending !   scarfing @ 0= if scarf then ; immediate
+: token ( -- a ) >in @ tib + ;
+: full? ( -- f ) >in @ #tib @ &lt; ;
+: (   token 0
+      begin full? over 0&lt; 0= and while
+        token c@ [char] ( = if 1+ then
+        token c@ [char] ) = if 1- then
+        1 >in +!
+      repeat
+      drop token over - 1- 0 max
+      dup 0= pending ! evaluate ; immediate
+: scarf   bl parse evaluate
+          pending @ if postpone ( then ;
+: enact   state @ if , else execute then ;
+: +   scarf ['] + enact ; immediate
+: -   scarf ['] - enact ; immediate
+: *   scarf ['] * enact ; immediate
+: /   scarf ['] / enact ; immediate
+
+: token ( -- a ) >in @ tib + ;
+: full? ( -- f ) >in @ #tib @ &lt; ;
+: (   token 0
+      begin full? over 0&lt; 0= and while
+        token c@ [char] ( = if 1+ then
+        token c@ [char] ) = if 1- then
+        1 >in +!
+      repeat
+      drop token over - 1- 0 max
+      evaluate ; immediate
+: scarf   +evaluate1 ;
+: enact   state @ if , else execute then ;
 : +   scarf ['] + enact ; immediate
 : -   scarf ['] - enact ; immediate
 : *   scarf ['] * enact ; immediate
@@ -86,6 +109,7 @@ Attempt #2
 ══════════
 • Use an actual grammar
 • Can we make it expandable?
+• Allow some more flexibility on spaces
 • Reuse {} local variables contextually
 
 Backus–Naur Form
