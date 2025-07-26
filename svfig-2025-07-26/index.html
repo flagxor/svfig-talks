@@ -319,6 +319,17 @@ struct ff
 
 DEMO
 
+Mapping to FPGA CRAM
+════════════════════
+• Sentinels for: No-connection, globals
+• Instead of allocating LUTs + FFs,
+  encode in FPGA space: bit + x * 8 + y * WIDTH * 8
+  - CRAM has: Truth Table, 2 layer input route
+  - For simulation keep bit for each LUT and FF,
+    one bit to track enable state per PLB
+• Handle carry as a special case adder structure?
+• How to use the LUT in front of a FF? Waste a LUT per FF?
+
 What's Next?
 ════════════
 • Bite the bullet and allocate paths greedily
