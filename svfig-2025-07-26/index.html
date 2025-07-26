@@ -120,6 +120,13 @@ N ... NegClk
 
 chipdb-5k.txt
 
+.net 514
+0 2 sp4_h_r_0
+1 2 sp4_h_r_13
+2 2 sp4_h_r_24
+3 2 sp4_h_r_37
+4 2 sp4_h_l_37
+
 .routing 25 30 103375 B6[11] B6[13] B7[12]
 001 86500
 010 98041
@@ -195,9 +202,10 @@ Simuation
 Goals
 ═════
 • Support talking about multiple wires at once
-  BUS UNBUS
+  BUS ( wire bus -- bus' )
+  UNBUS ( bus' -- wire bus )
 • Support allocating registers
-  8 REGISTER
+  8 REGISTER ( bus )
 • Support multi-bit logic and arithmetic
   x y + z REG!
 • Support clocks and enabling
