@@ -103,13 +103,15 @@ function Load(data) {
   var lines = data.split('\n');
   var pages = [];
   var page = [];
+  var titled = false;
   for (var i = 0; i < lines.length; ++i) {
     if (lines[i] == '') {
       pages.push(page);
       page = [];
     } else {
-      if (page.length == 0 && pages.length == 0) {
+      if (!titled && lines[i].match(/[A-Za-z ]+/)) {
         document.title = lines[i];
+        titled = true;
       }
       page.push(ColorIt(lines[i]));
     }
