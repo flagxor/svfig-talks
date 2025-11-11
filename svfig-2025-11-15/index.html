@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = 'consolas; courier';
+USABLE = 0.9;
+LINE_SPACING = 1.0;
+BACKGROUND = '#ffdd00';
+FOREGROUND = '#000000';
+</script><pre>
+
+════════════════════════════
+ 𓇲 Forth FPGA Synthesis 𓇲
+════════════════════════════
+           November 15, 2025
+               FORTH DAY
+Brad Nelson 
+
+Background
+──────────
+• Forth Day 2023
+  Christopher Lozinski offers a pico-ice:
+  - Raspberry Pi Pico (RP2040) - 264K RAM
+  - iCE40UP5K FPGA ★
+  - 4MB SPI Flash for CPU
+  - 4MB SPI Flash for FPGA
+  - 8MB low power qSPI RAM
+  - Shared RGB LED, All RP2040 + iCE40 pins exposed
+  - RP2040 can feed configuration to FPGA!
+• By December 2023 ported uEforth
+  - and ability to send an FPGA image
+
+iCE40UP5K
+─────────
+• 5280 LUTs
+• 1Mbit single port RAM
+• 120Kb dual port RAM
+• 8 x DSP blocks
+• Part of a larger family with similar structure
+
+icestorm/YoSYS
+──────────────
+• Community has reverse engineered
+  the iCE40 bitstream format!
+• Built an open source verilog
+• icepack capture fairly simple config layout
+https://prjicestorm.readthedocs.io/en/latest/format.html
+
+@ice40_structure.png
+<img src="ice40_structure.png">
+
+@ice40_plb.png
+<img src="ice40_plb.png">
+
+@ice40_cram_banks.png
+<img src="ice40_cram_banks.png">
+
+@ice40_spans.png
+<img src="ice40_spans.png">
+
+.logic_tile_bitmap
+Nobrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+--orrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbbbCbbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+bbbrrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb-bbbb
+bborrrr-rrrrrrbbbbbb-bbbbbbbbbbbbbbbllllllllllbbb--bbb
+- ... unknown bit
+r ... routing
+b ... buffer
+l ... logic bits
+o ... ColBufCtrl
+C ... CarryInSet
+N ... NegClk
+
+@tilebits.jpg
+<img src="tilebits.jpg">
+
+chipdb-5k.txt
+─────────────
+.net 514
+0 2 sp4_h_r_0
+1 2 sp4_h_r_13
+2 2 sp4_h_r_24
+3 2 sp4_h_r_37
+4 2 sp4_h_l_37
+ 
+.routing 25 30 103375 B6[11] B6[13] B7[12]
+001 86500
+010 98041
+011 103318
+100 86493
+101 98040
+110 98045
+111 103314
+
+.buffer 25 30 103209 B6[14] B7[14] B7[15] B7[16] B7[17]
+00001 103357
+00011 78827
+00101 103265
+00111 90387
+01001 103344
+01011 64134
+01111 103317
+10011 98042
+10101 94028
+10111 98431
+11001 103257
+11011 98176
+11101 94151
+11111 98441
+
+@ice40_graphviz.png
+<img src="ice40_graphviz.png">
+
+@visualize1.png
+<img src="visualize1.png">
+
+@visualize2.png
+<img src="visualize2.png">
+
+@visualize3.png
+<img src="visualize3.png">
+
+@visualize4.png
+<img src="visualize4.png">
+
+@visualize5.png
+<img src="visualize5.png">
+
+         ┌───────┐
+ ────────┥       │  ┌─────┐
+ ────────┥ LUT4  ┣──┥ FF? ┣──────
+ ────────┥       │  └─────┘
+ ────────┥       │
+         └───────┘
+( optional carry )
+
+output       /  ────➤  local_gX_Y  ────➤  lutff_A/in_B  ────➤  Span4 H V RV /
+B T BL L     /            X=0..3              A=0..7              Span12 H V
+TR TL BL R   /            Y=0..7              B=0..3
+Span4 H V RV /
+Span12 H V   /
+Globals
+
+SuperFly!
+─────────
+• Need to represent each wire
+  - output, input, span, local
+• A real object for each is too big
+• Use Forth to create a special OO framework
+  for objects that fit in one CELL!
+ 
+SEE SVFIG September 2025 Talk
+
+ROUTING ALGORITHM
+─────────────────
+: route { src dst -- f }
+  src dst = if -1 exit then
+  dst .getOption { p }
+  p if src p dst .optionWire recurse exit then
+  dst .optionCount { n }
+  n 0 ?do
+    i dst .setOption
+    src i dst .optionWire recurse if -1 unloop exit then
+    0 dst .setOption
+  loop 0
+;
+
+@synth1.png
+<img src="synth1.png">
+
+@synth2.png
+<img src="synth2.png">
+
+TODO: Slide on IO routes
+
+TODO: Pictures of IO IN / OUT
+
+TODO: Slide with synthesis language
+
+TODO: Slide on current file sizes?
+
+TODO: Demo simple system
+
+TODO: Next steps / slide on unsupported routes
+
+QUESTIONS❓
+    🙏
+ Thank you!
