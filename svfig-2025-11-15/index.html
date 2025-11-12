@@ -161,6 +161,15 @@ SuperFly!
  
 SEE SVFIG September 2025 Talk
 
+WIRE INTERFACE
+──────────────
+method .create ( {various} o -- o )
+method .optionCount ( o -- n )
+method .optionWire ( i o -- wire )
+method .getOption ( o -- n )
+method .setOption ( n o -- )
+method .print ( o -- )
+
 ROUTING ALGORITHM
 ─────────────────
 : route { src dst -- f }
@@ -183,7 +192,8 @@ ROUTING ALGORITHM
 
 TODO: Slide on IO routes
 
-TODO: Pictures of IO IN / OUT
+@iopins.png
+<img src="iopins.png">
 
 TODO: Slide with synthesis language
 
@@ -191,7 +201,12 @@ TODO: Slide on current file sizes?
 
 TODO: Demo simple system
 
-TODO: Next steps / slide on unsupported routes
+What's Missing?
+───────────────
+• Flip-flop enable, clock, set/reset
+• Vertical-Horizonal cross-over routing
+• Chip wide globals
+• Phase Locked Loops, BRAM
 
 QUESTIONS❓
     🙏
