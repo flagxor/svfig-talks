@@ -28,6 +28,9 @@ Background
 • By December 2023 ported uEforth
   - and ability to send an FPGA image
 
+@pico-ice.png
+<img src="pico-ice.png">
+
 iCE40UP5K
 ─────────
 • 5280 LUTs
@@ -151,6 +154,14 @@ Span4 H V RV /
 Span12 H V   /
 Globals
 
+output       /  ────➤  local_gX_Y  ────➤  io_A/OUT_B/OUT_ENB
+Span4 H V    /            X=0..1              A=0..1
+Span12 V     /            Y=0..7              B=0..a
+ 
+io_A/IN_B    /  ────➤  Span4 H V
+ A=0..1      /         Span12 V
+ B=0..1      /
+
 SuperFly!
 ─────────
 • Need to represent each wire
@@ -190,23 +201,57 @@ ROUTING ALGORITHM
 @synth2.png
 <img src="synth2.png">
 
-TODO: Slide on IO routes
-
 @iopins.png
 <img src="iopins.png">
 
-TODO: Slide with synthesis language
+LUT4 ( wire1..4 table -- wire ) Allocate a LUT4
+IN1PIN ( n -- wire ) Bring a single pin to a wire
+OUT1PIN! ( wire n -- ) Output a single pin to a wire
+BUS ( wire bus -- bus' ) Merge wire into a bus
+UNBUS ( bus -- wire bus' ) Extract wire from bus
+AND1 OR1 XOR1 INVERT1 - other operations on wires
 
-TODO: Slide on current file sizes?
+PLACE ( x y -- ) Select coordinates to try to place
+INPINS ( p1...pn n -- bus ) Input pins as a bus
+OUTPINS ( bus p1...pn n -- ) Output bus to pins
+REGISTER ( n -- "name" ) Create a register
+AND OR XOR INVERT - other operations on buses
+TBD - ENABLE / CLOCK / SET_RESET
 
-TODO: Demo simple system
+8 5 PLACE
+16 REGISTER constant v1
+16 REGISTER constant v2
+ 
+9 5 PLACE
+v1 INVERT constant v1i
+v2 INVERT constant v2i
+ 
+10 6 PLACE
+v1i v2i XOR constant xorval
+
+   60 ice40_allocation.fs
+   50 ice40_config.fs
+    3 ice40.fs
+  771 ice40_layout.fs
+  175 ice40_storage.fs
+   92 ice40_synthesis.fs
+   30 flyclasses.fs
+ 1181 TOTAL
+
+( DEMO )
+42 1 INPINS constant a
+43 1 INPINS constant b
+a b AND INVERT LED_R 1 OUTPINS!
+a b OR LED_G 1 OUTPINS!
+5 30 PLACE
+a b XOR LED_B 1 OUTPINS!
 
 What's Missing?
 ───────────────
 • Flip-flop enable, clock, set/reset
 • Vertical-Horizonal cross-over routing
 • Chip wide globals
-• Phase Locked Loops, BRAM
+• Phase Locked Loops, BRAM, DSP
 
 QUESTIONS❓
     🙏
