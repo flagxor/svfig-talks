@@ -159,8 +159,8 @@ Span4 H V    /            X=0..1              A=0..1
 Span12 V     /            Y=0..7              B=0..a
  
 io_A/IN_B    /  ────➤  Span4 H V
- A=0..1      /         Span12 V
- B=0..1      /
+ A=0..1      /          Span12 V
+ B=0..1      /          Neighbors
 
 SuperFly!
 ─────────
@@ -240,11 +240,8 @@ v1i v2i XOR constant xorval
 
 ( DEMO )
 42 1 INPINS constant a
-43 1 INPINS constant b
-a b AND INVERT LED_R 1 OUTPINS!
-a b OR LED_G 1 OUTPINS!
-5 30 PLACE
-a b XOR LED_B 1 OUTPINS!
+a INVERT LED_B 1 OUTPINS!
+a LED_R 1 OUTPINS!
 
 What's Missing?
 ───────────────
