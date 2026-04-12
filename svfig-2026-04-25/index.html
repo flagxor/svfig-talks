@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<script src="../websent/websent.js"></script><script>
+FONT = '"Courier New", monospace';
+USABLE = 0.9;
+LINE_SPACING = 1.0;
+FOREGROUND = '#110000';
+BACKGROUND = '#ffffee';
+</script><pre>
+
+------------------------------
+  Primeval Forth on the Web
+------------------------------
+Brad Nelson
+                April 25, 2026
+
+A tremendous community works to keep IBM 1130 history alive.
+Thank you Bob Flanders, Carl Claunch, Charles Anthony, Paul Hardy!
+And the many archivists out there!
+------------------------------------------------------------
+https://bitsavers.org/pdf/ibm/punchedCard
+   /Keypunch/029/A24-3332-3_29_Reference_Man.pdf
+https://bitsavers.org/pdf/ibm/punchedCard
+   /Keypunch/029/225-3357-3_29_FE_Maint_Man_Nov70.pdf
+https://bitsavers.org/pdf/ibm/1130
+   /A26-5717-0_1130_Operating_Procedures_1968.pdf
+https://www.tnmoc.org/ibm1130
+https://www.forth.org/svfig/kk/02-2018-Claunch.pdf
+https://www.columbia.edu/cu/computinghistory/1130.html
+https://www.forth.com/resources/forth-programming-language/
+https://github.com/monsonite/1968-FORTH
+https://gitlab.com/unused0/protoforth
+https://groups.google.com/g/ibm1130/c/U46_pE5-iQk
+http://media.ibm1130.org/E0024.pdf
+
+IBM 1130 Forth
+--------------
+* First Forth called "FORTH" - 1968
+  - Due to the limitations of the DMS file system
+
+* history of this forth
+* building an emuator
+  - instruction set
+  - console
+  - keyboard
+  - indicator lights
+  - switches
+  - punch cards / boot
+  - debugger
+  - I/O emulation
+* internals of this forth
+  - dictionary
+  - difference approach
+* origin and comparison with modern forth
+
+* dictionary structure
+* : ; vs . , - bug in protoforth
+* VALUE vs @ | = vs !
+* OPERATION vs :
+* OK , HELLO WORLD
+* Faking DMS Routines
+* Faking XIO
+* FORGET AND REMEMBER
+* LINK BALO?
+* PRNT1 DISK1
+* Character Sets
+* Spaces in disk vs console
+* 1+ etc.
+
+@forth_page1.png
+<img src="forth_page1.png">
+
+@forth_page2.png
+<img src="forth_page2.png">
+
+@ibm1130_whole.png
+<img src="ibm1130_whole.png">
+
+@ibm1130_console.png
+<img src="ibm1130_console.png">
+
+@console_4row.png
+<img src="console_4row.png">
+
+@console_5row.png
+<img src="console_5row.png">
+
+@keypunch029.png
+<img src="keypunch029.png">
+
+@alpha_numeric_keys.png
+<img src="alpha_numeric_keys.png">
+
+@keyboard_noalpha.png
+<img src="keyboard_noalpha.png">
+
+@hold_numeric.png
+<img src="hold_numeric.png">
+
+@mode_vs_hold.png
+<img src="mode_vs_hold.png">
+
+@keypunch029_numeric_note.png
+<img src="keypunch029_numeric_note.png">
+
+@keypunch029_alpha_note.png
+<img src="keypunch029_alpha_note.png">
+
+@keypunch029_models.png
+<img src="keypunch029_models.png">
+
+@keypunch029_numeric.png
+<img src="keypunch029_numeric.png">
+
+@program_card.png
+<img src="program_card.png">
+
+@keypunch029_keys.png
+<img src="keypunch029_keys.png">
+
+@program_drum.png
+<img src="program_drum.png">
+
+PARITY
+
+@parity_indicators.png
+<img src="parity_indicators.png">
+
+EBCDIC
+   0 1 2 3 4 5 6 7 8 9 A B C D E F
+4                      ¢ . < ( + |
+5  &                   ! $ * ) ; ¬
+6  - /                 ¦ , % _ > ?
+7                    ` : # @ ' = "
+8    a b c d e f g h i           ±
+9    j k l m n o p q r
+A    ~ s t u v w x y z
+B  ^                   [ ]
+C  { A B C D E F G H I
+D  } J K L M N O P Q R
+E  \   S T U V W X Y Z
+F  0 1 2 3 4 5 6 7 8 9
+
+
+09D2 0  0000     00168    ENTER DC         ADD TO SYMBOL TABLE
+09D3 0  40ED     00169          BSI     ENTRY
+09D4 00 C4000A55 00170          LD   L  INTER
+09D6 0  D302     00171          STO   3 2
+09D7 00 C4000D83 00172          LD   L  IC
+09D9 0  1001     00173          SLA     1
+09DA 0  8091     00174          A       ONE
+09DB 0  D1FB     00175          STO   1 -5   D
+09DC 0  808F     00176          A       ONE
+09DD 0  D303     00177          STO   3 3
+09DE 0  C016     00178          LD      ASAVE   SKIP OVER DEFINITION
+09DF 0  D1FC     00179          STO   1 -4   SAVE
+09E0 00 44000922 00180    EN1   BSI  L  NEXT
+09E2 0  C015     00181          LD      COMMA
+09E3 00 94000AE2 00182          S    L  WORD
+09E5 00 4C2009EF 00183          BNZ     EN2
+09E7 0  C1FB     00184    EN3   LD    1 -5   D
+09E8 0  1801     00185          SRA     1
+09E9 00 D4000D83 00186          STO  L  IC
+09EB 0  C00A     00187          LD      ASAV0
+09EC 0  D1FC     00188          STO   1 -4   SAVE
+09ED 00 4C8009D2 00189          B    I  ENTER
+09EF 0  C007     00190    EN2   LD      DOT
+09F0 00 94000AE2 00191          S    L  WORD
+09F2 00 4C2009E0 00192          BNZ     EN1
+09F4 0  70F2     00193          B       EN3
+09F5 0  0962     00194    ASAVE DC      SAVE
+09F6 0  0969     00195    ASAV0 DC      SAVE0
+09F7 0  3024     00196    DOT   DC      /3024   SEMICOLON
+09F8 0  3424     00197    COMMA DC      /3424   ,
+
+0A70 0  0000     00268    COM   DC        END INTERPRET
+0A71 00 74FD0B06 00269          MDM  L  R,-3
+0A73 00 67800B06 00270          LDX  I3 R
+0A75 0  C301     00271          LD    3 1
+0A76 0  D1FD     00272          STO   1 -3   C
+0A77 0  C302     00273          LD    3 2
+0A78 0  D1FE     00274          STO   1 -2   ACCEPT
+0A79 0  C300     00275          LD    3
+0A7A 00 94000AD8 00276          S    L  E
+0A7C 00 4C880A70 00277          BNP  I  COM
+0A7E 0  C300     00278          LD    3 0
+0A7F 00 D4000AD8 00279          STO  L  E
+0A81 00 4C800A70 00280          B    I  COM
+
+0A83 0  0000     00281    LOC   DC         LOCATION OF CODE
+0A84 00 44000922 00282          BSI  L  NEXT
+0A86 00 44000993 00283          BSI  L  DO
+0A88 0  C302     00284          LD    3 2
+0A89 0  7201     00285          MDX   2 1
+0A8A 0  D200     00286          STO   2
+0A8B 00 4C800A83 00287          B    I  LOC
+
+09C1 0  0000     00157    ENTRY DC         INITIAL ENTRY
+09C2 00 44000922 00158          BSI  L  NEXT
+09C4 00 74040AD7 00159          MDM  L  E1,4
+09C6 00 67800AD7 00160          LDX  I3 E1
+09C8 00 6F000AD8 00161          STX  L3 E
+09CA 00 74040AD8 00162          MDM  L  E,4
+09CC 0  C103     00163          LD    1 3   WORD
+09CD 0  D300     00164          STO   3
+09CE 0  C104     00165          LD    1 4   WORD+1
+09CF 0  D301     00166          STO   3 1
+09D0 00 4C8009C1 00167          B    I  ENTRY
+
+0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ¢#&lt;(+|&!$*);¬-/,%_>?:.@'="
+
+QUESTIONS❓
+    🙏
+ Thank you!
