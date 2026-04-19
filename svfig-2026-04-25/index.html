@@ -505,6 +505,20 @@ SEMICOLON (COMMA)
 0A7F 00 D4000AD8 00279          STO  L  E
 0A81 00 4C800A70 00280          B    I  COM
 
+Converse of Modern Forth
+------------------------
+* Parsing of "normal" words is deferred to runtime
+  - No indirect-threaded virtual instructions
+  - Conditionals instead manipulate the parse stream
+    ( n -- ) NONZERO
+    ( n -- ) FALSE
+    ( n -- ) POSITIVE
+* But still Hyper Static Global Envirornment
+  - You can't use a word before it is defined
+* How would loops have worked?
+  - Loops and conditionals in OPERATIONs are more conventional
+  - Main loop is done with callbacks + OPERATIONs
+
 Other Words
 -----------
 NEXT - Parse next word
