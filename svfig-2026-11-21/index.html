@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Stack Algebra</title>
+    <meta name="description"
+    content="Stack Algebra - November 21, 2026">
+    <meta name="author" content="Brad Nelson">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="../reveal.js/dist/reveal.css">
+    <link rel="stylesheet" href="../reveal.js/dist/theme/simple.css" id="theme">
+    <!-- Code syntax highlighting -->
+    <!--
+      <link rel="stylesheet" href="../reveal.js/plugin/highlight/zenburn.css">
+    -->
+    <script src="../common/printing.js"></script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+<style>
+pre {
+  background-color: #cef;
+  padding: 20px;
+}
+</style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <div class="slides">
+        <section data-transition="fade-out">
+          <h2>Stack Algebra</h2>
+          <h4>November 21, 2026 <small>Forth Day!</small></h4>
+          <small><a href="http://flagxor.com">Brad Nelson</a> /
+            <a href="http://twitter.com/flagxor">@flagxor</a></small>
+          </p>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Motivation</h3>
+          <ul>
+            <li>Inspired by Back and Forth - Hans Bezemer <small>(thanks Martin Andronikos)</small></li>
+            <li>Locals don't <i>fit</i> Forth</li>
+            <li>Shallow stacks are best</li>
+            <li>But we should be able to reason about stacks better</li>
+            <li>Are we missing an "algebra" of stack manipulation?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>How to Build an Algebra</h3>
+          <ul>
+            <li>Build on equivalent non-immediate word sequences</li>
+            <li><b>Key Open Question:</b> Can a small set of substitutions inter-convert all equivalent expressions?</li>
+          </ul>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Which stack words are "atomic"?</h3>
+          <pre>
+<b>I propose:</b> DUP SWAP DROP &gt;R R&gt;
+
+<hr/>
+OVER &harr; &gt;R DUP R&gt; SWAP
+
+ NIP &harr; SWAP DROP
+TUCK &harr; SWAP OVER
+
+ ROT &harr; &gt;R SWAP R&gt; SWAP
+-ROT &harr; SWAP &gt;R SWAP R&gt;
+
+RDROP &harr; R&gt; DROP
+   R@ &harr; R&gt; DUP &gt;R
+
+DUP DROP &harr; OVER DROP &harr; &gt;R R&gt; &harr; NOP
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Notation for repetition</h3>
+          <pre>
+<sub>n</sub>DROP &harr; DROP<sup>n</sup>
+
+: nDROP 0 ?DO DROP LOOP ;  ( gets harder with other words! )
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>PICK and ROLL</h3>
+          <pre>
+0 PICK &harr; DUP
+1 PICK &harr; OVER
+n PICK &harr; &gt;R<sup>n</sup> DUP ( R&gt; SWAP )<sup>n</sup>
+
+0 ROLL &harr; NOP
+1 ROLL &harr; SWAP
+2 ROLL &harr; ROT
+n ROLL &harr; &gt;R<sup>n</sup> ( R&gt; SWAP )<sup>n</sup>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>n-Operations</h3>
+          <pre>
+<sub>n</sub>DUP &harr; ( n-1 PICK )<sup>n</sup>
+<sub>n</sub>SWAP &harr; ( 2n-1 ROLL )<sup>n</sup>
+<sub>n</sub>DROP &harr; DROP<sup>n</sup>
+<sub>n</sub>&gt;R &harr; &gt;R<sup>n</sup>
+<sub>n</sub>R&gt; &harr; R&gt;<sup>n</sup>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Doubling Operations</h3>
+          <pre>
+2DUP &harr; OVER OVER
+
+2SWAP &harr; ROT             &gt;R ROT             R&gt;
+      &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt; SWAP R&gt;
+      <i>a b c d -- a c d b -- c d a b</i>
+
+2DROP &harr; DROP DROP
+
+2&gt;R &harr; &gt;R &gt;R
+
+2R&gt; &harr; R&gt; R&gt;
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Build up by 2x</h3>
+          <pre>
+ 2DUP &harr; OVER  OVER
+<sub>2n</sub>DUP &harr; <sub>n</sub>OVER <sub>n</sub>OVER
+
+2OVER &harr; 2&gt;R 2DUP 2R&gt; 2SWAP
+<sub>n</sub>OVER &harr; <sub>n</sub>&gt;R <sub>n</sub>DUP <sub>n</sub>R&gt; <sub>n</sub>SWAP
+
+ 2SWAP &harr; &gt;R  SWAP  R&gt;  SWAP   &gt;R  &gt;R  SWAP  R&gt;  SWAP  R&gt;
+<sub>2n</sub>SWAP &harr; <sub>n</sub>&gt;R <sub>n</sub>SWAP <sub>n</sub>R&gt; <sub>n</sub>SWAP   <sub>n</sub>&gt;R <sub>n</sub>&gt;R <sub>n</sub>SWAP <sub>n</sub>R&gt; <sub>n</sub>SWAP <sub>n</sub>R&gt;
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>2SWAP Equivalence?</h3>
+          <pre>
+<sub>n</sub>SWAP &harr; ( 2n-1 ROLL )<sup>n</sup>
+
+2SWAP &harr; 3 ROLL 3 ROLL                        <i>n ROLL &harr; &gt;R<sup>n</sup> ( R&gt; SWAP )<sup>n</sup></i>
+      &harr; &gt;R &gt;R &gt;R R&gt; SWAP R&gt; SWAP R&gt; SWAP
+        &gt;R &gt;R &gt;R R&gt; SWAP R&gt; SWAP R&gt; SWAP
+      &harr; &gt;R &gt;R       SWAP R&gt; SWAP R&gt; SWAP
+        &gt;R &gt;R       SWAP R&gt; SWAP R&gt; SWAP
+      &harr; &gt;R ROT                   R&gt; SWAP
+        &gt;R ROT                   R&gt; SWAP
+
+2SWAP &harr; ROT             &gt;R ROT             R&gt;
+      &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt; SWAP R&gt;
+                  <b>?</b>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>What if we emptied the rstack?</h3>
+          <pre>
+&gt;R &gt;R SWAP R&gt;         SWAP R&gt;   SWAP
+&gt;R &gt;R SWAP R&gt;         SWAP R&gt;   SWAP
+
+             &harr;
+
+&gt;R &gt;R SWAP R&gt; R&gt;   &gt;R SWAP R&gt;   SWAP
+&gt;R &gt;R SWAP R&gt; R&gt;   &gt;R SWAP R&gt;   SWAP
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>Layer Notation</h3>
+          <pre>
+SWAP<sub>n</sub> &harr; &gt;R<sup>n</sup> SWAP R&gt;<sup>n</sup>
+DUP<sub>n</sub> &harr; &gt;R<sup>n</sup> DUP R&gt;<sup>n</sup>
+DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
+          <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 DROP0 DUP1"></span>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule S1: Swap Canceling</h5>
+          <pre>SWAP<sub>n</sub> SWAP<sub>n</sub> &harr; NOP</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z" data-steps="SWAP1 SWAP1"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z" data-steps=""></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule S2: Swap Passing</h5>
+          <pre>SWAP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> SWAP<sub>k</sub> if |k-n| &gt; 1</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP0 SWAP2"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP2 SWAP0"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule S3: Swap Flipping Doubles</h5>
+          <pre>SWAP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> SWAP<sub>k</sub> SWAP<sub>n</sub> SWAP<sub>k</sub> if |k-n| = 1</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z" data-steps="SWAP0 SWAP1"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z" data-steps="SWAP1 SWAP0 SWAP1 SWAP0"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>2SWAP Problem again</h3>
+          <pre>
+2SWAP &harr; 3 ROLL 3 ROLL                        <i>n ROLL &harr; &gt;R<sup>n</sup> ( R&gt; SWAP )<sup>n</sup></i>
+      &harr; &gt;R &gt;R &gt;R R&gt; SWAP R&gt;       SWAP R&gt; SWAP
+        &gt;R &gt;R &gt;R R&gt; SWAP R&gt;       SWAP R&gt; SWAP
+      &harr; &gt;R &gt;R       SWAP R&gt;       SWAP R&gt; SWAP
+        &gt;R &gt;R       SWAP R&gt;       SWAP R&gt; SWAP
+      &harr; &gt;R &gt;R       SWAP R&gt; R&gt; &gt;R SWAP R&gt; SWAP
+        &gt;R &gt;R       SWAP R&gt; R&gt; &gt;R SWAP R&gt; SWAP
+      &harr; SWAP<sub>2</sub>                  SWAP<sub>1</sub>       <b>SWAP<sub>0</sub>
+        SWAP<sub>2</sub></b>                  SWAP<sub>1</sub>       SWAP<sub>0</sub>
+
+        ...???...
+
+      &harr; SWAP<sub>1</sub>      SWAP<sub>0</sub> SWAP<sub>2</sub>            SWAP<sub>1</sub>
+      &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt; R&gt; &gt;R SWAP R&gt;
+      &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt;       SWAP R&gt;
+      &harr; ROT             &gt;R ROT                   R&gt;
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>2SWAP &harr; 3 ROLL 3 ROLL &harr; ROT &gt;R ROT R&gt;</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP2 SWAP1 SWAP0 SWAP2 SWAP1 SWAP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by Rule S3: Swap Flipping Doubles</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP2 SWAP1 SWAP2 SWAP0 SWAP2 SWAP1 SWAP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by Rule S2: Swap Passing</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP2 SWAP1 SWAP2 SWAP2 SWAP0 SWAP1 SWAP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by Rule S1: Swap Cancelling</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP2 SWAP1 SWAP0 SWAP1 SWAP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by Rule S3: Swap Flipping Doubles</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP2 SWAP0 SWAP1"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by Rule S2: Swap Passing</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP1 SWAP0 SWAP2 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h3>3DUP Problem</h3>
+          <pre>
+3DUP &harr; 2 PICK  2 PICK  2 PICK         <i><sub>n</sub>DUP &harr; ( n-1 PICK )<sup>n</sup></i>
+     &harr; &gt;R &gt;R DUP R&gt; SWAP R&gt; SWAP
+       &gt;R &gt;R DUP R&gt; SWAP R&gt; SWAP
+       &gt;R &gt;R DUP R&gt; SWAP R&gt; SWAP
+     &harr; DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
+       DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
+       DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
+
+( But this is shorter! )
+3DUP &harr; &gt;R  2DUP       R@         -ROT            R&gt;
+     &harr; &gt;R  OVER OVER  R&gt; DUP &gt;R  SWAP &gt;R SWAP R&gt; R&gt;
+     &harr; &gt;R  OVER OVER  R&gt; DUP &gt;R  SWAP &gt;R SWAP R&gt; R&gt;
+     &harr; &gt;R  &gt;R DUP R&gt; SWAP
+           &gt;R DUP R&gt; SWAP
+                      R&gt; DUP &gt;R  SWAP &gt;R SWAP R&gt; R&gt;
+     &harr; DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>0</sub> SWAP<sub>1</sub> SWAP<sub>2</sub>
+          </pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule D1: Dup Climbing</h5>
+          <pre>DUP<sub>k</sub> DUP<sub>n</sub> &harr; DUP<sub>n</sub> DUP<sub>k+1</sub> if k&ge;n</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z  " data-steps="DUP2 DUP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z  " data-steps="DUP0 DUP3"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule D1: Dup Climbing (special case)</h5>
+          <pre>DUP<sub>n</sub> DUP<sub>n</sub> &harr; DUP<sub>n</sub> DUP<sub>n+1</sub></pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y  " data-steps="DUP0 DUP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y  " data-steps="DUP0 DUP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule M1: Overhead Passing</h5>
+          <pre>DUP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> DUP<sub>k</sub> if k&ge;n+2</pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z T " data-steps="DUP2 SWAP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z T " data-steps="SWAP0 DUP2"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule M2: Underneath Dipping</h5>
+          <pre>SWAP<sub>k</sub> DUP<sub>n</sub> &harr; DUP<sub>n</sub> SWAP<sub>k+1</sub> if k&gt;n </pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y Z " data-steps="SWAP1 DUP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y Z " data-steps="DUP0 SWAP2"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule M3: Useless Duping</h5>
+          <pre>DUP<sub>n</sub> SWAP<sub>n</sub> &harr; DUP<sub>n</sub></pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y  " data-steps="DUP0 SWAP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y  " data-steps="DUP0"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Rule M4: Left Capping</h5>
+          <pre>DUP<sub>n</sub> SWAP<sub>n+1</sub> &harr; SWAP<sub>n</sub> DUP<sub>n+1</sub> SWAP<sub>n</sub></pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y  " data-steps="DUP0 SWAP1"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y  " data-steps="SWAP0 DUP1 SWAP0"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5><del>Rule M5: Right Capping</del> (Derivable from M4)</h5>
+          <pre>SWAP<sub>n</sub> DUP<sub>n</sub> &harr; DUP<sub>n+1</sub> SWAP<sub>n</sub> SWAP<sub>n+1</sub></pre>
+          <div style="display: flex; align-items: center; justify-content: center; ">
+            <span class="stackflow" data-labels="X Y  " data-steps="SWAP0 DUP0"></span>
+            <span style="font-size: 80px">&harr;</span>
+            <span class="stackflow" data-labels="X Y  " data-steps="DUP1 SWAP0 SWAP1"></span>
+          </div>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>2 PICK  2 PICK  2 PICK</pre>
+          <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 SWAP0 DUP2 SWAP1 SWAP0 DUP2 SWAP1 SWAP0"></span>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by S3: Swap Flipping Doubles</pre>
+          <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 SWAP0 DUP2 SWAP0 SWAP1 SWAP0 SWAP1 DUP2 SWAP1 SWAP0"></span>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by M1: Overhead Passing + S1: Swap Canceling</pre>
+          <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 DUP2 SWAP1 SWAP0 SWAP1 DUP2 SWAP1 SWAP0"></span>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by M4: Left Capping</pre>
+          <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 DUP2 SWAP1 SWAP0 DUP1 SWAP2 SWAP0"></span>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by S2: Swap Passing</pre>
+          <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 DUP2 SWAP1 SWAP0 DUP1 SWAP0 SWAP2"></span>
+        </section>
+
+        <section data-transition="fade-out">
+          <pre>by M4: Left Capping &rarr; &gt;R 2DUP R@ -ROT R&gt;</pre>
+          <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 DUP2 SWAP1 DUP0 SWAP1 SWAP2"></span>
+        </section>
+
+        <section data-transition="fade-out">
+          <h5>Layer Notation Rules</h5>
+          <pre>
+SWAP<sub>n</sub> &harr; &gt;R<sup>n</sup> SWAP R&gt;<sup>n</sup>
+DUP<sub>n</sub> &harr; &gt;R<sup>n</sup> DUP R&gt;<sup>n</sup>
+DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup>
+<hr/>Rule S1: Swap Canceling -- SWAP<sub>n</sub> SWAP<sub>n</sub> &harr; NOP
+Rule S2: Swap Passing -- SWAP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> SWAP<sub>k</sub> if |k-n| &gt; 1
+Rule S3: Swap Flipping Doubles --
+         SWAP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> SWAP<sub>k</sub> SWAP<sub>n</sub> SWAP<sub>k</sub> if |k-n| = 1
+Rule D1: Dup Climbing -- DUP<sub>k</sub> DUP<sub>n</sub> &harr; DUP<sub>n</sub> DUP<sub>k+1</sub> if k&ge;n
+Rule M1: Overhead Passing -- DUP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> DUP<sub>k</sub> if k&ge;n+2
+Rule M2: Underneath Dipping -- SWAP<sub>k</sub> DUP<sub>n</sub> &harr; DUP<sub>n</sub> SWAP<sub>k+1</sub> if k&gt;n
+Rule M3: Useless Duping -- DUP<sub>n</sub> SWAP<sub>n</sub> &harr; DUP<sub>n</sub>
+Rule M4: Left Capping -- DUP<sub>n</sub> SWAP<sub>n+1</sub> &harr; SWAP<sub>n</sub> DUP<sub>n+1</sub> SWAP<sub>n</sub></pre>
+        </section>
+
+        <section data-transition="fade-out">
+          <h2>Thank you!</h2>
+          <ul>
+            <li>Challenge #1: Can any of these rules be derived from the others?</li>
+            <li>Challenge #2: Can you find equivalent expressions not resolvable from these rules?</li>
+            <li>Challenge #3: What about DROP<sub>n</sub>, what are its rules?</li>
+          </ul>
+        </section>
+     </div>
+    </div>
+
+    <script src="../reveal.js/dist/reveal.js"></script>
+    <script src="../reveal.js/plugin/highlight/highlight.js"></script>
+    <script src="../common/nonforth.js"></script>
+    <script src="stackflow.js"></script>
+
+  </body>
+</html>

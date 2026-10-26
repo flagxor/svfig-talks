@@ -1,0 +1,61 @@
+.track {
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.inside-track {
+  stroke: #000;
+  stroke-width: 3;
+  stroke-opacity: 0.3;
+  stroke-dasharray: 4 4;
+}
+
+.node-blue {
+  fill: #7cf; stroke: #000;
+  stroke-width: 2;
+  rx: 6;
+  ry: 6;
+}
+
+.node-gold {
+  fill: #fc7;
+  stroke: #000;
+  stroke-width: 2;
+  rx: 6;
+  ry: 6;
+}
+
+.node-red {
+  fill: #f55;
+  stroke: #000;
+  stroke-width: 2;
+  rx: 6;
+  ry: 6;
+}
+
+.node-text {
+  fill: #000;
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.label-text {
+  fill: #000;
+  font-size: 12px;
+  font-weight: 500;
+  dominant-baseline: central;
+}
+
+.value-text {
+  fill: #000;
+  font-size: 12px;
+  font-weight: 800;
+  dominant-baseline: central;
+}
+
+.subscript {
+  baseline-shift: sub;
+  font-size: 80%;
+}
