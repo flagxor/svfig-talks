@@ -45,7 +45,7 @@ pre {
         <section data-transition="fade-out">
           <h3>Motivation</h3>
           <ul>
-            <li>Inspired by Back and Forth - Hans Bezemer <small>(thanks Martin Andronikos)</small></li>
+            <li>Inspired by Back and Forth - Hans Bezemer <small>(thanks Martin Andronikos!)</small></li>
             <li>Locals don't <i>fit</i> Forth</li>
             <li>Shallow stacks are best</li>
             <li>But we should be able to reason about stacks better</li>
@@ -56,8 +56,10 @@ pre {
         <section data-transition="fade-out">
           <h3>How to Build an Algebra</h3>
           <ul>
-            <li>Build on equivalent non-immediate word sequences</li>
-            <li><b>Key Open Question:</b> Can a small set of substitutions inter-convert all equivalent expressions?</li>
+            <li>Find a set of "atomic" objects</li>
+            <li>Propose a set of rules describing how they can be manipulated while maintaining equivalence</li>
+            <li>Rules might require arithmetic for non-trivial algebras</li>
+            <li><b>Key Open Question:</b> Can a small set of substitution rules connect all equivalent Forth expressions?</li>
           </ul>
         </section>
 
@@ -422,7 +424,7 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
           <pre>
 SWAP<sub>n</sub> &harr; &gt;R<sup>n</sup> SWAP R&gt;<sup>n</sup>
 DUP<sub>n</sub> &harr; &gt;R<sup>n</sup> DUP R&gt;<sup>n</sup>
-DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup>
+DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup>   (missing rule for these and non-stack words!)
 <hr/>Rule S1: Swap Canceling -- SWAP<sub>n</sub> SWAP<sub>n</sub> &harr; NOP
 Rule S2: Swap Passing -- SWAP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> SWAP<sub>k</sub> if |k-n| &gt; 1
 Rule S3: Swap Flipping Doubles --
@@ -440,6 +442,7 @@ Rule M4: Left Capping -- DUP<sub>n</sub> SWAP<sub>n+1</sub> &harr; SWAP<sub>n</s
             <li>Challenge #1: Can any of these rules be derived from the others?</li>
             <li>Challenge #2: Can you find equivalent expressions not resolvable from these rules?</li>
             <li>Challenge #3: What about DROP<sub>n</sub>, what are its rules?</li>
+            <li>Challenge #4: What about non-stack words?</li>
           </ul>
         </section>
      </div>
