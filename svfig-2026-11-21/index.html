@@ -161,15 +161,14 @@ n ROLL &harr; &gt;R<sup>n</sup> ( R&gt; SWAP )<sup>n</sup>
         &gt;R &gt;R       SWAP R&gt; SWAP R&gt; SWAP
       &harr; &gt;R ROT                   R&gt; SWAP
         &gt;R ROT                   R&gt; SWAP
-
-2SWAP &harr; ROT             &gt;R ROT             R&gt;
-      &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt; SWAP R&gt;
                   <b>?</b>
+      &harr; ROT             &gt;R ROT             R&gt;
+2SWAP &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt; SWAP R&gt;
           </pre>
         </section>
 
         <section data-transition="fade-out">
-          <h3>What if we emptied the rstack?</h3>
+          <h3>What if we alway empty the rstack?</h3>
           <pre>
 &gt;R &gt;R SWAP R&gt;         SWAP R&gt;   SWAP
 &gt;R &gt;R SWAP R&gt;         SWAP R&gt;   SWAP
@@ -178,6 +177,10 @@ n ROLL &harr; &gt;R<sup>n</sup> ( R&gt; SWAP )<sup>n</sup>
 
 &gt;R &gt;R SWAP R&gt; R&gt;   &gt;R SWAP R&gt;   SWAP
 &gt;R &gt;R SWAP R&gt; R&gt;   &gt;R SWAP R&gt;   SWAP
+
+             &harr;
+
+SWAP<sub>2</sub>              SWAP<sub>1</sub>        SWAP<sub>0</sub>
           </pre>
         </section>
 
@@ -231,20 +234,21 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
         &gt;R &gt;R       SWAP R&gt;       SWAP R&gt; SWAP
       &harr; &gt;R &gt;R       SWAP R&gt; R&gt; &gt;R SWAP R&gt; SWAP
         &gt;R &gt;R       SWAP R&gt; R&gt; &gt;R SWAP R&gt; SWAP
-      &harr; SWAP<sub>2</sub>                  SWAP<sub>1</sub>       <b>SWAP<sub>0</sub>
-        SWAP<sub>2</sub></b>                  SWAP<sub>1</sub>       SWAP<sub>0</sub>
+      &harr; <b>SWAP<sub>2</sub>                  SWAP<sub>1</sub>       SWAP<sub>0</sub>
+        SWAP<sub>2</sub>                  SWAP<sub>1</sub>       SWAP<sub>0</sub></b>
 
         ...???...
 
-      &harr; SWAP<sub>1</sub>      SWAP<sub>0</sub> SWAP<sub>2</sub>            SWAP<sub>1</sub>
+      &harr; <b>SWAP<sub>1</sub>      SWAP<sub>0</sub> SWAP<sub>2</sub>            SWAP<sub>1</sub></b>
       &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt; R&gt; &gt;R SWAP R&gt;
-      &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt;       SWAP R&gt;
-      &harr; ROT             &gt;R ROT                   R&gt;
+2SWAP &harr; &gt;R SWAP R&gt; SWAP &gt;R &gt;R SWAP R&gt;       SWAP R&gt;
+2SWAP &harr; ROT             &gt;R ROT                   R&gt;
           </pre>
         </section>
 
         <section data-transition="fade-out">
-          <pre>2SWAP &harr; 3 ROLL 3 ROLL &harr; ROT &gt;R ROT R&gt;</pre>
+          <pre>2SWAP &harr; 3 ROLL 3 ROLL                      &harr; ROT &gt;R ROT R&gt;
+      &harr; SWAP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub> SWAP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub> &harr; SWAP<sub>1</sub> SWAP<sub>0</sub> SWAP<sub>2</sub> SWAP<sub>1</sub></pre>
           <div style="display: flex; align-items: center; justify-content: center; ">
             <span class="stackflow" data-labels="X Y Z T" data-steps="SWAP2 SWAP1 SWAP0 SWAP2 SWAP1 SWAP0"></span>
             <span style="font-size: 80px">&harr;</span>
@@ -304,9 +308,9 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
      &harr; &gt;R &gt;R DUP R&gt; SWAP R&gt; SWAP
        &gt;R &gt;R DUP R&gt; SWAP R&gt; SWAP
        &gt;R &gt;R DUP R&gt; SWAP R&gt; SWAP
-     &harr; DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
+     &harr; <b>DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
        DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
-       DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>
+       DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub></b>
 
 ( But this is shorter! )
 3DUP &harr; &gt;R  2DUP       R@         -ROT            R&gt;
@@ -315,7 +319,7 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
      &harr; &gt;R  &gt;R DUP R&gt; SWAP
            &gt;R DUP R&gt; SWAP
                       R&gt; DUP &gt;R  SWAP &gt;R SWAP R&gt; R&gt;
-     &harr; DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>0</sub> SWAP<sub>1</sub> SWAP<sub>2</sub>
+     &harr; <b>DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>0</sub> SWAP<sub>1</sub> SWAP<sub>2</sub></b>
           </pre>
         </section>
 
