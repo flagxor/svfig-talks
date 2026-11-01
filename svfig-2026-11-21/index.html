@@ -432,7 +432,7 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
           <pre>
 SWAP<sub>n</sub> &harr; &gt;R<sup>n</sup> SWAP R&gt;<sup>n</sup>
 DUP<sub>n</sub> &harr; &gt;R<sup>n</sup> DUP R&gt;<sup>n</sup>
-DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup>   (missing rule for these and non-stack words!)
+DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup>   ( missing rules for DROP<sub>n</sub> &amp; non-stack words! )
 <hr/>Rule S1: Swap Canceling -- SWAP<sub>n</sub> SWAP<sub>n</sub> &harr; NOP
 Rule S2: Swap Passing -- SWAP<sub>k</sub> SWAP<sub>n</sub> &harr; SWAP<sub>n</sub> SWAP<sub>k</sub> if |k-n| &gt; 1
 Rule S3: Swap Flipping Doubles --
