@@ -394,7 +394,10 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
         </section>
 
         <section data-transition="fade-out">
-          <pre>2 PICK  2 PICK  2 PICK</pre>
+          <pre>3DUP &harr; <b>2 PICK  2 PICK  2 PICK</b>
+     &harr; <b>DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>  DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub>  DUP<sub>2</sub> SWAP<sub>1</sub> SWAP<sub>0</sub></b>
+     &harr; DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>0</sub> SWAP<sub>1</sub> SWAP<sub>2</sub> &harr; &gt;R 2DUP R@ -ROT R&gt;
+</pre>
           <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 SWAP0 DUP2 SWAP1 SWAP0 DUP2 SWAP1 SWAP0"></span>
         </section>
 
@@ -419,7 +422,8 @@ DROP<sub>n</sub> &harr; &gt;R<sup>n</sup> DROP R&gt;<sup>n</sup></pre>
         </section>
 
         <section data-transition="fade-out">
-          <pre>by M4: Left Capping &rarr; &gt;R 2DUP R@ -ROT R&gt;</pre>
+          <pre>3DUP &harr; DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>2</sub> SWAP<sub>1</sub> DUP<sub>0</sub> SWAP<sub>1</sub> SWAP<sub>2</sub>
+     &harr; &gt;R 2DUP R@ -ROT R&gt;                      by M4: Left Capping</pre>
           <span class="stackflow" data-labels="X Y Z   " data-steps="DUP2 SWAP1 DUP2 SWAP1 DUP0 SWAP1 SWAP2"></span>
         </section>
 
